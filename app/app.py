@@ -1,7 +1,5 @@
 #  -*- encoding: utf-8 -*-
 
-
-import asyncio
 import logging
 
 from quart import Quart, request, jsonify
@@ -12,7 +10,6 @@ from app.common.constants_and_variables import AppVariables, AppConstants
 app_variables = AppVariables()
 app_constants = AppConstants()
 
-loop = asyncio.get_event_loop()
 app = Quart(__name__)
 
 
