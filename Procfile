@@ -1,1 +1,1 @@
-web: hypercorn app.app:app
+hypercorn app.app:app
