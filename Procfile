@@ -1,1 +1,1 @@
-hypercorn app.app:app
+web: gunicorn hypercorn app.app:app
