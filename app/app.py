@@ -2,28 +2,37 @@
 
 import logging
 
-from quart import Quart, request, jsonify
+from quart import Quart, request, jsonify, websocket
 
-from app.commands.process import ProcessStats
 from app.common.constants_and_variables import AppVariables, AppConstants
 
 app_variables = AppVariables()
 app_constants = AppConstants()
 
+
 app = Quart(__name__)
 
 
-async def update_stats(athlete_id):
-    process_stats = ProcessStats()
-    calc_stats = process_stats.process(athlete_id)
-    print(calc_stats)
+# async def update_stats(athlete_id):
+#     process_stats = ProcessStats()
+#     calc_stats = process_stats.process(athlete_id)
+#     print(calc_stats)
+#
+#
+# @app.route("/")
+# async def notify():
+#     await update_stats(11591902)
+#     return "OK"
+
+@app.route('/')
+async def hello():
+    return 'hello'
 
 
-@app.route("/")
-async def notify():
-    await update_stats(11591902)
-    return "OK"
-
+@app.websocket('/ws')
+async def ws():
+    while True:
+        await websocket.send('hello')
 
 @app.route("/stats/<telegram_username>", methods=['POST'])
 def stats(telegram_username):
@@ -48,4 +57,4 @@ def strava_webhook():
 if __name__ == '__main__' and __package__ is None:
     logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
     logger = logging.getLogger(__name__)
-    app.run(host=app_variables.app_host, port=int(app_variables.app_port))
+    app.run(host=app_variables.app_host, port=app_variables.app_port, debug=app_variables.app_debug)
