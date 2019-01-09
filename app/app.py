@@ -25,7 +25,7 @@ async def update_stats(athlete_id):
 
 @app.route("/")
 def notify():
-    loop.run_until_complete(update_stats(11591902))
+    loop.run_until_complete(asyncio.gather(update_stats(11591902)))
     return "OK"
 
 
