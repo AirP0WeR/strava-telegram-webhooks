@@ -15,7 +15,6 @@ app_constants = AppConstants()
 
 loop = asyncio.get_event_loop()
 app = Quart(__name__)
-app.config.from_object(__name__)
 
 
 async def update_stats(athlete_id):
