@@ -26,7 +26,7 @@ async def update_stats(athlete_id):
 @app.route("/")
 async def notify():
     await update_stats(11591902)
-    return jsonify(''), 200
+    return "OK"
 
 
 @app.route("/stats/<telegram_username>", methods=['POST'])
