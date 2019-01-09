@@ -48,4 +48,4 @@ def strava_webhook():
 if __name__ == '__main__' and __package__ is None:
     logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
     logger = logging.getLogger(__name__)
-    app.run()
+    app.run(host=app_variables.app_host, port=int(app_variables.app_port))
