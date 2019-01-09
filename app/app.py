@@ -4,7 +4,8 @@
 import asyncio
 import logging
 
-from flask import Flask, request, jsonify
+from flask import request, jsonify
+from quart import Quart
 
 from app.commands.process import ProcessStats
 from app.common.constants_and_variables import AppVariables, AppConstants
@@ -13,7 +14,7 @@ app_variables = AppVariables()
 app_constants = AppConstants()
 
 loop = asyncio.get_event_loop()
-app = Flask(__name__)
+app = Quart(__name__)
 app.config.from_object(__name__)
 
 
@@ -24,9 +25,9 @@ async def update_stats(athlete_id):
 
 
 @app.route("/")
-def notify():
-    loop.run_until_complete(asyncio.gather(update_stats(11591902)))
-    return "OK"
+async def notify():
+    await update_stats(11591902)
+    return jsonify(''), 200
 
 
 @app.route("/stats/<telegram_username>", methods=['POST'])
@@ -52,4 +53,4 @@ def strava_webhook():
 if __name__ == '__main__' and __package__ is None:
     logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
     logger = logging.getLogger(__name__)
-    app.run(host=app_variables.app_host, port=app_variables.app_port, debug=app_variables.app_debug, use_reloader=False)
+    app.run(host=app_variables.app_host, port=app_variables.app_port, debug=app_variables.app_debug)
