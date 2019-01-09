@@ -34,6 +34,7 @@ async def ws():
     while True:
         await websocket.send('hello')
 
+
 @app.route("/stats/<telegram_username>", methods=['POST'])
 def stats(telegram_username):
     if request.method == 'POST':
