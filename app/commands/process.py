@@ -56,10 +56,9 @@ class ProcessStats(object):
         cursor.close()
         database_connection.close()
         if len(result) > 0:
-            athlete_id = result[0][0]
-            access_token = result[0][1]
-            refresh_token = result[0][2]
-            expires_at = result[0][3]
+            access_token = result[0][0]
+            refresh_token = result[0][1]
+            expires_at = result[0][2]
             current_time = int(time.time())
             if current_time > expires_at:
                 logging.info(
