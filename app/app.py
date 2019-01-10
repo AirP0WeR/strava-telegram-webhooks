@@ -5,7 +5,6 @@ import logging
 from flask import Flask, request, jsonify
 
 from app.common.constants_and_variables import AppVariables, AppConstants
-from tasks import hello
 
 app_variables = AppVariables()
 app_constants = AppConstants()
@@ -22,10 +21,10 @@ app = Flask(__name__)
 
 
 @app.route("/")
-def notify():
+def home():
     # update_stats(11591902)
     # update_stats.delay(11591902)
-    hello.delay()
+    # hello.delay()
     return "OK"
 
 
