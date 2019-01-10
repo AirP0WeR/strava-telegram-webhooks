@@ -2,37 +2,38 @@
 
 import logging
 
-from quart import Quart, request, jsonify, websocket
+from celery import Celery
+from flask import Flask, request, jsonify
 
+from app.commands.process import ProcessStats
 from app.common.constants_and_variables import AppVariables, AppConstants
 
 app_variables = AppVariables()
 app_constants = AppConstants()
 
+app = Flask(__name__)
+app.config['SECRET_KEY'] = 'top-secret!'
 
-app = Quart(__name__)
+app.config['CELERY_BROKER_URL'] = app_variables.redis_url
+app.config['CELERY_RESULT_BACKEND'] = app_variables.redis_url
 
-
-# async def update_stats(athlete_id):
-#     process_stats = ProcessStats()
-#     calc_stats = process_stats.process(athlete_id)
-#     print(calc_stats)
-#
-#
-# @app.route("/")
-# async def notify():
-#     await update_stats(11591902)
-#     return "OK"
-
-@app.route('/')
-async def hello():
-    return 'hello'
+celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
+celery.conf.update(app.config)
 
 
-@app.websocket('/ws')
-async def ws():
-    while True:
-        await websocket.send('hello')
+@celery.task
+def update_stats(athlete_id):
+    with app.app_context():
+        process_stats = ProcessStats()
+        calc_stats = process_stats.process(athlete_id)
+        print(calc_stats)
+
+
+@app.route("/")
+def notify():
+    # update_stats(11591902)
+    update_stats.delay(11591902)
+    return "OK"
 
 
 @app.route("/stats/<telegram_username>", methods=['POST'])
@@ -58,4 +59,4 @@ def strava_webhook():
 if __name__ == '__main__' and __package__ is None:
     logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
     logger = logging.getLogger(__name__)
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host=app_variables.app_host, port=int(app_variables.app_port))

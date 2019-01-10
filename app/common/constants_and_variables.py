@@ -17,3 +17,4 @@ class AppVariables(object):
     database_url = os.environ.get('DATABASE_URL')
     app_debug = os.environ.get('APP_DEBUG')
     app_host = os.environ.get('APP_HOST')
+    redis_url = os.environ.get('REDIS_URL')
