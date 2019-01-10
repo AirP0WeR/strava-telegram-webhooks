@@ -5,7 +5,7 @@ import logging
 from flask import Flask, request, jsonify
 
 from app.common.constants_and_variables import AppVariables, AppConstants
-from app.tasks import hello
+from app.tasks import update_stats
 
 app_variables = AppVariables()
 app_constants = AppConstants()
@@ -13,17 +13,10 @@ app_constants = AppConstants()
 app = Flask(__name__)
 app.config.from_object(__name__)
 
-# @celery.task
-# def update_stats(athlete_id):
-#     with app.app_context():
-#         process_stats = ProcessStats()
-#         calc_stats = process_stats.process(athlete_id)
-#         print(calc_stats)
-
 
 @app.route("/")
 def home():
-    hello.delay()
+    update_stats.delay(11591902)
     return "OK"
 
 
