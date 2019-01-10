@@ -11,7 +11,6 @@ app.conf.BROKER_URL = app_variables.redis_url
 
 @app.task
 def update_stats(athlete_id):
-    with app.app_context():
-        process_stats = ProcessStats()
-        calc_stats = process_stats.process(athlete_id)
-        print(calc_stats)
+    process_stats = ProcessStats()
+    calc_stats = process_stats.process(athlete_id)
+    print(calc_stats)
