@@ -2,11 +2,10 @@
 
 import logging
 
-from celery import Celery
 from flask import Flask, request, jsonify
 
-from app.commands.process import ProcessStats
 from app.common.constants_and_variables import AppVariables, AppConstants
+from tasks import hello
 
 app_variables = AppVariables()
 app_constants = AppConstants()
@@ -14,25 +13,20 @@ app_constants = AppConstants()
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'top-secret!'
 
-app.config['CELERY_BROKER_URL'] = app_variables.redis_url
-app.config['CELERY_RESULT_BACKEND'] = app_variables.redis_url
 
-celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
-celery.conf.update(app.config)
-
-
-@celery.task
-def update_stats(athlete_id):
-    with app.app_context():
-        process_stats = ProcessStats()
-        calc_stats = process_stats.process(athlete_id)
-        print(calc_stats)
+# @celery.task
+# def update_stats(athlete_id):
+#     with app.app_context():
+#         process_stats = ProcessStats()
+#         calc_stats = process_stats.process(athlete_id)
+#         print(calc_stats)
 
 
 @app.route("/")
 def notify():
     # update_stats(11591902)
-    update_stats.delay(11591902)
+    # update_stats.delay(11591902)
+    hello.delay()
     return "OK"
 
 
@@ -56,7 +50,7 @@ def strava_webhook():
         return jsonify({'hub.challenge': hub_challenge}), 200
 
 
-if __name__ == '__main__' and __package__ is None:
+if __name__ == '__main__':
     logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
     logger = logging.getLogger(__name__)
     app.run(host=app_variables.app_host, port=int(app_variables.app_port))
