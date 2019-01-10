@@ -11,7 +11,6 @@ app_variables = AppVariables()
 app_constants = AppConstants()
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'top-secret!'
 
 
 # @celery.task
