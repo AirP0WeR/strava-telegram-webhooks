@@ -14,16 +14,11 @@ app = Flask(__name__)
 app.config.from_object(__name__)
 
 
-@app.route("/")
-def home():
-    update_stats.delay(11591902)
-    return "OK"
-
-
-@app.route("/stats/<telegram_username>", methods=['POST'])
-def stats(telegram_username):
+@app.route("/stats/<athlete_id>", methods=['POST'])
+def stats(athlete_id):
     if request.method == 'POST':
-        return telegram_username
+        update_stats.delay(athlete_id)
+        return jsonify(''), 200
 
 
 @app.route('/webhook', methods=['GET', 'POST'])
@@ -31,7 +26,7 @@ def strava_webhook():
     if request.method == 'POST':
         message = request.json
         logging.info("Received webhook event: {event}".format(event=message))
-
+        update_stats.delay(message.owner_id)
         return jsonify(''), 200
 
     elif request.method == 'GET':
