@@ -10,7 +10,7 @@ app_variables = AppVariables()
 app_constants = AppConstants()
 
 app = Flask(__name__)
-
+app.config.from_object(__name__)
 
 # @celery.task
 # def update_stats(athlete_id):
@@ -22,8 +22,6 @@ app = Flask(__name__)
 
 @app.route("/")
 def home():
-    # update_stats(11591902)
-    # update_stats.delay(11591902)
     # hello.delay()
     return "OK"
 
