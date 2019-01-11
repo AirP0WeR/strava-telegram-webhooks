@@ -22,11 +22,11 @@ def stats(athlete_id):
         return jsonify(''), 200
 
 
-@app.route("/token/<athlete_id>", methods=['POST'])
-def get_token(athlete_id):
+@app.route("/get_token/<athlete_id>", methods=['POST'])
+def get_bikes(athlete_id):
     if request.method == 'POST':
         process_stats = ProcessStats()
-        token = {'token': process_stats.get_token(athlete_id)}
+        token = {'bikes': process_stats.get_bikes(athlete_id)}
         return jsonify(token), 200
 
 
