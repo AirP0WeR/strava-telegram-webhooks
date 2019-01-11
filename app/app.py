@@ -4,6 +4,7 @@ import logging
 
 from flask import Flask, request, jsonify
 
+from app.commands.process import ProcessStats
 from app.common.constants_and_variables import AppVariables, AppConstants
 from app.tasks import update_stats
 
@@ -19,6 +20,14 @@ def stats(athlete_id):
     if request.method == 'POST':
         update_stats.delay(athlete_id)
         return jsonify(''), 200
+
+
+@app.route("/token/<athlete_id>", methods=['POST'])
+def get_token(athlete_id):
+    if request.method == 'POST':
+        process_stats = ProcessStats()
+        token = {'token': process_stats.process(athlete_id)}
+        return jsonify(token), 200
 
 
 @app.route('/webhook', methods=['GET', 'POST'])
