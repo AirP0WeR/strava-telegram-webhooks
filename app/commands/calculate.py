@@ -196,7 +196,10 @@ class CalculateStats(object):
     def get_bikes(self):
         strava_client = StravaClient().get_client_with_token(self.athlete_token)
         athlete = strava_client.get_athlete()
-        return athlete.bikes
+        bikes = dict()
+        for bike in athlete.bikes:
+            bikes.update({bike.name: bike.id})
+        return bikes
 
     def calculate(self):
         strava_client = StravaClient().get_client_with_token(self.athlete_token)
