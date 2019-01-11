@@ -26,7 +26,7 @@ def stats(athlete_id):
 def get_token(athlete_id):
     if request.method == 'POST':
         process_stats = ProcessStats()
-        token = {'token': process_stats.process(athlete_id)}
+        token = {'token': process_stats.get_token(athlete_id)}
         return jsonify(token), 200
 
 
