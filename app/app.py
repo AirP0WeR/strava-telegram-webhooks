@@ -22,7 +22,7 @@ def stats(athlete_id):
         return jsonify(''), 200
 
 
-@app.route("/get_token/<athlete_id>", methods=['POST'])
+@app.route("/bikes/<athlete_id>", methods=['POST'])
 def get_bikes(athlete_id):
     if request.method == 'POST':
         process_stats = ProcessStats()
