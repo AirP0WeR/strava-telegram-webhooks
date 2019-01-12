@@ -90,9 +90,3 @@ class ProcessStats(object):
             calculated_stats = calculate_stats.calculate()
             calculated_stats = json.dumps(calculated_stats)
             self.insert_strava_data(athlete_id, calculated_stats)
-
-    def get_bikes(self, athlete_id):
-        athlete_token = self.get_athlete_token(athlete_id)
-        calculate_stats = CalculateStats(athlete_token)
-        bikes = calculate_stats.get_bikes()
-        return bikes
