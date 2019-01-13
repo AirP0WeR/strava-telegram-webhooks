@@ -124,8 +124,9 @@ class Process(object):
                 logging.info("Updating stats for {athlete_id}".format(athlete_id=athlete_id[0]))
                 calculate_stats = CalculateStats(athlete_token)
                 calculated_stats = calculate_stats.calculate()
+                name = calculated_stats['athlete_name']
                 calculated_stats = json.dumps(calculated_stats)
-                self.insert_strava_data(athlete_id[0], calculated_stats)
+                self.insert_strava_data(athlete_id[0], name, calculated_stats)
 
     def process_auto_update_indoor_ride(self, athlete_id, activity_id):
         athlete_token = self.get_athlete_token(athlete_id)
