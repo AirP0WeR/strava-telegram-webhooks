@@ -20,6 +20,14 @@ def update_stats(athlete_id):
 
 
 @app.task
+def update_all_stats():
+    logging.info("Received callback to update stats for all the athletes")
+    process_stats = Process()
+    process_stats.process_update_all_stats()
+    logging.info("Updated stats for all the athletes")
+
+
+@app.task
 def update_indoor_ride(athlete_id, activity_id):
     logging.info("Received callback to update indoor ride")
     process_auto_update_indoor_ride = Process()

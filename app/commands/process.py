@@ -108,6 +108,23 @@ class Process(object):
             calculated_stats = json.dumps(calculated_stats)
             self.insert_strava_data(athlete_id, calculated_stats)
 
+    def process_update_all_stats(self):
+        database_connection = psycopg2.connect(self.bot_variables.database_url, sslmode='require')
+        cursor = database_connection.cursor()
+        cursor.execute(self.bot_constants.QUERY_FETCH_ALL_ATHLETE_IDS)
+        athlete_ids = cursor.fetchall()
+        cursor.close()
+        database_connection.close()
+
+        for athlete_id in athlete_ids:
+            athlete_token = self.get_athlete_token(athlete_id[0])
+            if athlete_token:
+                logging.info("Updating stats for {athlete_id}".format(athlete_id=athlete_id[0]))
+                calculate_stats = CalculateStats(athlete_token)
+                calculated_stats = calculate_stats.calculate()
+                calculated_stats = json.dumps(calculated_stats)
+                self.insert_strava_data(athlete_id[0], calculated_stats)
+
     def process_auto_update_indoor_ride(self, athlete_id, activity_id):
         athlete_token = self.get_athlete_token(athlete_id)
         strava_client_with_token = StravaClient().get_client_with_token(athlete_token)

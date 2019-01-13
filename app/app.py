@@ -5,7 +5,7 @@ import logging
 from flask import Flask, request, jsonify
 
 from app.common.constants_and_variables import AppVariables, AppConstants
-from app.tasks import update_stats, update_indoor_ride
+from app.tasks import update_stats, update_indoor_ride, update_all_stats
 
 app_variables = AppVariables()
 app_constants = AppConstants()
@@ -18,6 +18,13 @@ app.config.from_object(__name__)
 def stats(athlete_id):
     if request.method == 'POST':
         update_stats.delay(athlete_id)
+        return jsonify(''), 200
+
+
+@app.route("/stats/all", methods=['POST'])
+def stats_for_all():
+    if request.method == 'POST':
+        update_all_stats.delay()
         return jsonify(''), 200
 
 
