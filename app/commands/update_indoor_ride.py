@@ -41,9 +41,19 @@ class UpdateIndoorRide(object):
         athlete_token = self.strava_client.get_athlete_token(athlete_id)
         strava_client_with_token = StravaClient().get_client_with_token(athlete_token)
         activity = strava_client_with_token.get_activity(activity_id)
-        if self.operations.is_indoor(activity):
+        if self.operations.is_activity_a_ride(activity) and self.operations.is_indoor(activity):
             update_indoor_ride_data = self.is_update_indoor_ride(athlete_id)
             if update_indoor_ride_data:
+                if update_indoor_ride_data['name'] == 'Automatic':
+                    activity_hour = activity.start_date_local.hour
+                    if 3 <= activity_hour <= 11:
+                        update_indoor_ride_data['name'] = "Morning Ride"
+                    elif 12 <= activity_hour <= 15:
+                        update_indoor_ride_data['name'] = "Afternoon Ride"
+                    elif 16 <= activity_hour <= 18:
+                        update_indoor_ride_data['name'] = "Evening Ride"
+                    elif 19 <= activity_hour <= 2:
+                        update_indoor_ride_data['name'] = "Night Ride"
                 strava_client_with_token.update_activity(activity_id=activity_id, name=update_indoor_ride_data['name'],
                                                          gear_id=update_indoor_ride_data['gear_id'])
                 logging.info("Updated indoor ride")
