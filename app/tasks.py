@@ -25,4 +25,3 @@ def update_indoor_ride(athlete_id, activity_id):
     logging.info("Received callback to update indoor ride")
     update_indoor_ride_class = UpdateIndoorRide()
     update_indoor_ride_class.process(athlete_id, activity_id)
-    logging.info("Updated indoor ride")

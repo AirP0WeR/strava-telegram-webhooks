@@ -1,5 +1,6 @@
 #  -*- encoding: utf-8 -*-
 
+import logging
 from os import sys, path
 
 import psycopg2
@@ -45,3 +46,8 @@ class UpdateIndoorRide(object):
             if update_indoor_ride_data:
                 strava_client_with_token.update_activity(activity_id=activity_id, name=update_indoor_ride_data['name'],
                                                          gear_id=update_indoor_ride_data['gear_id'])
+                logging.info("Updated indoor ride")
+            else:
+                logging.info("Indoor flag not set to true")
+        else:
+            logging.info("Not a indoor ride")
