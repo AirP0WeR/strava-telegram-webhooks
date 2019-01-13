@@ -78,7 +78,7 @@ class Process(object):
     def insert_strava_data(self, athlete_id, strava_data):
         database_connection = psycopg2.connect(self.bot_variables.database_url, sslmode='require')
         cursor = database_connection.cursor()
-        cursor.execute(self.bot_constants.QUERY_UPDATE_STRAVA_DATA.format(name=json.dumps(strava_data['athlete_name']),
+        cursor.execute(self.bot_constants.QUERY_UPDATE_STRAVA_DATA.format(name=json.loads(strava_data['athlete_name']),
                                                                           strava_data=strava_data,
                                                                           athlete_id=athlete_id))
         cursor.close()
