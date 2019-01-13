@@ -75,10 +75,10 @@ class Process(object):
         else:
             return False
 
-    def insert_strava_data(self, athlete_id, strava_data):
+    def insert_strava_data(self, athlete_id, name, strava_data):
         database_connection = psycopg2.connect(self.bot_variables.database_url, sslmode='require')
         cursor = database_connection.cursor()
-        cursor.execute(self.bot_constants.QUERY_UPDATE_STRAVA_DATA.format(name=json.loads(strava_data['athlete_name']),
+        cursor.execute(self.bot_constants.QUERY_UPDATE_STRAVA_DATA.format(name=name,
                                                                           strava_data=strava_data,
                                                                           athlete_id=athlete_id))
         cursor.close()
@@ -107,7 +107,7 @@ class Process(object):
             calculate_stats = CalculateStats(athlete_token)
             calculated_stats = calculate_stats.calculate()
             calculated_stats = json.dumps(calculated_stats)
-            self.insert_strava_data(athlete_id, calculated_stats)
+            self.insert_strava_data(athlete_id, calculated_stats['athlete_name'], calculated_stats)
 
     def process_update_all_stats(self):
         database_connection = psycopg2.connect(self.bot_variables.database_url, sslmode='require')
