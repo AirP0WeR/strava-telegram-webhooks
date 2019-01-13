@@ -12,9 +12,10 @@ sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 from app.commands.calculate import CalculateStats
 from app.common.constants_and_variables import AppConstants, AppVariables
 from app.common.operations import Operations
+from app.clients.strava import StravaClient
 
 
-class ProcessStats(object):
+class Process(object):
 
     def __init__(self):
         self.bot_constants = AppConstants()
@@ -83,10 +84,52 @@ class ProcessStats(object):
         database_connection.commit()
         database_connection.close()
 
-    def process(self, athlete_id):
+    def is_update_indoor_ride(self, athlete_id):
+        database_connection = psycopg2.connect(self.bot_variables.database_url, sslmode='require')
+        cursor = database_connection.cursor()
+        cursor.execute(self.bot_constants.QUERY_FETCH_UPDATE_INDOOR_RIDE.format(athlete_id=athlete_id))
+        results = cursor.fetchone()
+        cursor.close()
+        database_connection.close()
+
+        update_indoor_ride = results[0]
+        update_indoor_ride_data = results[1]
+
+        if update_indoor_ride:
+            return update_indoor_ride_data
+        else:
+            return False
+
+    def process_update_stats(self, athlete_id):
         athlete_token = self.get_athlete_token(athlete_id)
         if athlete_token:
             calculate_stats = CalculateStats(athlete_token)
             calculated_stats = calculate_stats.calculate()
             calculated_stats = json.dumps(calculated_stats)
             self.insert_strava_data(athlete_id, calculated_stats)
+
+    def process_auto_update_indoor_ride(self, athlete_id, activity_id):
+        athlete_token = self.get_athlete_token(athlete_id)
+        strava_client_with_token = StravaClient().get_client_with_token(athlete_token)
+        activity = strava_client_with_token.get_activity(activity_id)
+        if self.operations.is_activity_a_ride(activity) and self.operations.is_indoor(activity):
+            update_indoor_ride_data = self.is_update_indoor_ride(athlete_id)
+            if update_indoor_ride_data:
+                if update_indoor_ride_data['name'] == 'Automatic':
+                    activity_hour = activity.start_date_local.hour
+                    if 3 <= activity_hour <= 11:
+                        update_indoor_ride_data['name'] = "Morning Ride"
+                    elif 12 <= activity_hour <= 15:
+                        update_indoor_ride_data['name'] = "Afternoon Ride"
+                    elif 16 <= activity_hour <= 18:
+                        update_indoor_ride_data['name'] = "Evening Ride"
+                    elif 19 <= activity_hour <= 2:
+                        update_indoor_ride_data['name'] = "Night Ride"
+
+                strava_client_with_token.update_activity(activity_id=activity_id, name=update_indoor_ride_data['name'],
+                                                         gear_id=update_indoor_ride_data['gear_id'])
+                logging.info("Updated indoor ride")
+            else:
+                logging.info("Indoor flag not set to true")
+        else:
+            logging.info("Not a indoor ride")
