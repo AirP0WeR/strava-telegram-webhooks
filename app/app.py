@@ -5,7 +5,7 @@ import logging
 from flask import Flask, request, jsonify
 
 from app.common.constants_and_variables import AppVariables, AppConstants
-from app.tasks import update_stats
+from app.tasks import update_stats, update_indoor_ride
 
 app_variables = AppVariables()
 app_constants = AppConstants()
@@ -27,6 +27,8 @@ def strava_webhook():
         message = request.json
         logging.info("Received webhook event: {event}".format(event=message))
         update_stats.delay(message['owner_id'])
+        if message['aspect_type'] == "create" and message['object_type'] == "activity":
+            update_indoor_ride.delay(message['owner_id'], message['object_id'])
         return jsonify(''), 200
 
     elif request.method == 'GET':
