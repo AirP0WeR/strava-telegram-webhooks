@@ -106,8 +106,9 @@ class Process(object):
         if athlete_token:
             calculate_stats = CalculateStats(athlete_token)
             calculated_stats = calculate_stats.calculate()
+            name = calculated_stats['athlete_name']
             calculated_stats = json.dumps(calculated_stats)
-            self.insert_strava_data(athlete_id, calculated_stats['athlete_name'], calculated_stats)
+            self.insert_strava_data(athlete_id, name, calculated_stats)
 
     def process_update_all_stats(self):
         database_connection = psycopg2.connect(self.bot_variables.database_url, sslmode='require')
