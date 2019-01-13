@@ -123,7 +123,7 @@ class Process(object):
                         update_indoor_ride_data['name'] = "Afternoon Ride"
                     elif 16 <= activity_hour <= 18:
                         update_indoor_ride_data['name'] = "Evening Ride"
-                    elif 19 <= activity_hour <= 2:
+                    elif (19 <= activity_hour <= 23) or (0 <= activity_hour <= 2):
                         update_indoor_ride_data['name'] = "Night Ride"
 
                 strava_client_with_token.update_activity(activity_id=activity_id, name=update_indoor_ride_data['name'],
