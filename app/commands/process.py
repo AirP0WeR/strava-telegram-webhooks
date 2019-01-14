@@ -155,6 +155,11 @@ class Process(object):
                 strava_client_with_token.update_activity(activity_id=activity_id, name=update_indoor_ride_data['name'],
                                                          gear_id=update_indoor_ride_data['gear_id'])
                 logging.info("Updated indoor ride")
+                message = self.bot_constants.MESSAGE_UPDATED_INDOOR_RIDE.format(
+                    activity_name=update_indoor_ride_data['name'],
+                    activity_id=activity_id,
+                    athlete_name=name)
+                self.shadow_mode.send_message(message)
             else:
                 logging.info("Indoor flag not set to true")
         else:
