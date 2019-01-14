@@ -13,6 +13,8 @@ class AppConstants(object):
     API_TOKEN_EXCHANGE = 'https://www.strava.com/oauth/token'
     API_TELEGRAM_SEND_MESSAGE = "https://api.telegram.org/bot{bot_token}/sendMessage"
 
+    MESSAGE_NEW_ACTIVITY = "New Activity: https://www.strava.com/activities/{activity_id}"
+
 
 class AppVariables(object):
     client_id = os.environ.get('CLIENT_ID')
