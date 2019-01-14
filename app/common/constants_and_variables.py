@@ -13,7 +13,7 @@ class AppConstants(object):
     API_TOKEN_EXCHANGE = 'https://www.strava.com/oauth/token'
     API_TELEGRAM_SEND_MESSAGE = "https://api.telegram.org/bot{bot_token}/sendMessage"
 
-    MESSAGE_NEW_ACTIVITY = "[{activity_name}](https://www.strava.com/activities/{activity_id})"
+    MESSAGE_NEW_ACTIVITY = "New Activity: [{activity_name}](https://www.strava.com/activities/{activity_id})"
 
 
 class AppVariables(object):
