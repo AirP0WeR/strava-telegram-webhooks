@@ -9,6 +9,9 @@ app_variables = AppVariables()
 
 app = Celery()
 app.conf.BROKER_URL = app_variables.redis_url
+app.conf.BROKER_TRANSPORT_OPTIONS = {
+    "max_connections": 1,
+}
 
 
 @app.task

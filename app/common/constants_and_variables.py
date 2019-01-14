@@ -9,7 +9,9 @@ class AppConstants(object):
     QUERY_UPDATE_STRAVA_DATA = "UPDATE strava_telegram_bot SET name='{name}', strava_data='{strava_data}', updated=now() WHERE athlete_id={athlete_id}"
     QUERY_FETCH_UPDATE_INDOOR_RIDE = "select update_indoor_ride, update_indoor_ride_data from strava_telegram_bot where athlete_id={athlete_id}"
     QUERY_FETCH_ALL_ATHLETE_IDS = "select athlete_id from strava_telegram_bot"
+
     API_TOKEN_EXCHANGE = 'https://www.strava.com/oauth/token'
+    API_TELEGRAM_SEND_MESSAGE = "https://api.telegram.org/bot{bot_token}/sendMessage"
 
 
 class AppVariables(object):
@@ -20,3 +22,6 @@ class AppVariables(object):
     app_debug = os.environ.get('APP_DEBUG')
     app_host = os.environ.get('APP_HOST')
     redis_url = os.environ.get('REDIS_URL')
+    shadow_mode = os.environ.get('SHADOW_MODE')
+    shadow_mode_chat_id = os.environ.get('SHADOW_MODE_CHAT_ID')
+    telegram_bot_token = os.environ.get('TELEGRAM_BOT_TOKEN')
