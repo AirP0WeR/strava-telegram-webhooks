@@ -15,7 +15,7 @@ class AppConstants(object):
 
     MESSAGE_NEW_ACTIVITY = "New Activity: [{activity_name}](https://www.strava.com/activities/{activity_id}) by {athlete_name}."
     MESSAGE_UPDATED_INDOOR_RIDE = "Indoor Ride has been updated."
-    MESSAGE_UPDATED_STATS = "Updated stats for {athlete_name}"
+    MESSAGE_UPDATED_STATS = "Updated stats for {athlete_name}."
 
 
 class AppVariables(object):
