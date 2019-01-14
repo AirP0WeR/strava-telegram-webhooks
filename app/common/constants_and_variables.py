@@ -14,7 +14,7 @@ class AppConstants(object):
     API_TELEGRAM_SEND_MESSAGE = "https://api.telegram.org/bot{bot_token}/sendMessage"
 
     MESSAGE_NEW_ACTIVITY = "New Activity: [{activity_name}](https://www.strava.com/activities/{activity_id}) by {athlete_name}."
-    MESSAGE_UPDATED_INDOOR_RIDE = "Updated Indoor Ride: [{activity_name}](https://www.strava.com/activities/{activity_id}) for {athlete_name}."
+    MESSAGE_UPDATED_INDOOR_RIDE = "Indoor Ride has been updated."
 
 
 class AppVariables(object):
