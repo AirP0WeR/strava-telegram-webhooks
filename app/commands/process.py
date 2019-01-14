@@ -13,6 +13,7 @@ from app.commands.calculate import CalculateStats
 from app.common.constants_and_variables import AppConstants, AppVariables
 from app.common.operations import Operations
 from app.clients.strava import StravaClient
+from app.common.shadow_mode import ShadowMode
 
 
 class Process(object):
@@ -21,6 +22,7 @@ class Process(object):
         self.bot_constants = AppConstants()
         self.bot_variables = AppVariables()
         self.operations = Operations()
+        self.shadow_mode = ShadowMode()
 
     def refresh_and_update_token(self, athlete_id, refresh_token):
         response = requests.post(self.bot_constants.API_TOKEN_EXCHANGE, data={
@@ -132,6 +134,8 @@ class Process(object):
         athlete_token = self.get_athlete_token(athlete_id)
         strava_client_with_token = StravaClient().get_client_with_token(athlete_token)
         activity = strava_client_with_token.get_activity(activity_id)
+        message = self.bot_constants.MESSAGE_NEW_ACTIVITY.format(activity_name=activity.name, activity_id=activity_id)
+        self.shadow_mode.send_message(message)
         if self.operations.is_activity_a_ride(activity) and self.operations.is_indoor(activity):
             update_indoor_ride_data = self.is_update_indoor_ride(athlete_id)
             if update_indoor_ride_data:
