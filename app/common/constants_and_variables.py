@@ -4,7 +4,7 @@ import os
 
 
 class AppConstants(object):
-    QUERY_FETCH_TOKEN = "select access_token, refresh_token, expires_at from strava_telegram_bot where athlete_id={athlete_id}"
+    QUERY_FETCH_TOKEN_AND_NAME = "select access_token, refresh_token, expires_at, name from strava_telegram_bot where athlete_id={athlete_id}"
     QUERY_UPDATE_TOKEN = "UPDATE strava_telegram_bot SET access_token='{access_token}', refresh_token='{refresh_token}', expires_at={expires_at}, updated=now() where athlete_id={athlete_id}"
     QUERY_UPDATE_STRAVA_DATA = "UPDATE strava_telegram_bot SET name='{name}', strava_data='{strava_data}', updated=now() WHERE athlete_id={athlete_id}"
     QUERY_FETCH_UPDATE_INDOOR_RIDE = "select update_indoor_ride, update_indoor_ride_data from strava_telegram_bot where athlete_id={athlete_id}"
@@ -13,7 +13,7 @@ class AppConstants(object):
     API_TOKEN_EXCHANGE = 'https://www.strava.com/oauth/token'
     API_TELEGRAM_SEND_MESSAGE = "https://api.telegram.org/bot{bot_token}/sendMessage"
 
-    MESSAGE_NEW_ACTIVITY = "New Activity: [{activity_name}](https://www.strava.com/activities/{activity_id})"
+    MESSAGE_NEW_ACTIVITY = "New Activity: [{activity_name}](https://www.strava.com/activities/{activity_id}) by {athlete_name}."
 
 
 class AppVariables(object):

@@ -51,10 +51,10 @@ class Process(object):
 
         return response['access_token']
 
-    def get_athlete_token(self, athlete_id):
+    def get_athlete_token_and_name(self, athlete_id):
         database_connection = psycopg2.connect(self.bot_variables.database_url, sslmode='require')
         cursor = database_connection.cursor()
-        cursor.execute(self.bot_constants.QUERY_FETCH_TOKEN.format(athlete_id=athlete_id))
+        cursor.execute(self.bot_constants.QUERY_FETCH_TOKEN_AND_NAME.format(athlete_id=athlete_id))
         result = cursor.fetchall()
         cursor.close()
         database_connection.close()
@@ -62,6 +62,7 @@ class Process(object):
             access_token = result[0][0]
             refresh_token = result[0][1]
             expires_at = result[0][2]
+            name = result[0][3]
             current_time = int(time.time())
             if current_time > expires_at:
                 logging.info(
@@ -73,9 +74,9 @@ class Process(object):
                 logging.info(
                     "Token is still valid | Current Time: {current_time} | Token Expiry Time: {expires_at}".format(
                         current_time=current_time, expires_at=expires_at))
-                return access_token
+                return access_token, name
         else:
-            return False
+            return False, False
 
     def insert_strava_data(self, athlete_id, name, strava_data):
         database_connection = psycopg2.connect(self.bot_variables.database_url, sslmode='require')
@@ -104,7 +105,7 @@ class Process(object):
             return False
 
     def process_update_stats(self, athlete_id):
-        athlete_token = self.get_athlete_token(athlete_id)
+        athlete_token, name = self.get_athlete_token_and_name(athlete_id)
         if athlete_token:
             calculate_stats = CalculateStats(athlete_token)
             calculated_stats = calculate_stats.calculate()
@@ -121,7 +122,7 @@ class Process(object):
         database_connection.close()
 
         for athlete_id in athlete_ids:
-            athlete_token = self.get_athlete_token(athlete_id[0])
+            athlete_token, name = self.get_athlete_token_and_name(athlete_id[0])
             if athlete_token:
                 logging.info("Updating stats for {athlete_id}".format(athlete_id=athlete_id[0]))
                 calculate_stats = CalculateStats(athlete_token)
@@ -131,10 +132,11 @@ class Process(object):
                 self.insert_strava_data(athlete_id[0], name, calculated_stats)
 
     def process_auto_update_indoor_ride(self, athlete_id, activity_id):
-        athlete_token = self.get_athlete_token(athlete_id)
+        athlete_token, name = self.get_athlete_token_and_name(athlete_id)
         strava_client_with_token = StravaClient().get_client_with_token(athlete_token)
         activity = strava_client_with_token.get_activity(activity_id)
-        message = self.bot_constants.MESSAGE_NEW_ACTIVITY.format(activity_name=activity.name, activity_id=activity_id)
+        message = self.bot_constants.MESSAGE_NEW_ACTIVITY.format(activity_name=activity.name, activity_id=activity_id,
+                                                                 athlete_name=name)
         self.shadow_mode.send_message(message)
         if self.operations.is_activity_a_ride(activity) and self.operations.is_indoor(activity):
             update_indoor_ride_data = self.is_update_indoor_ride(athlete_id)
