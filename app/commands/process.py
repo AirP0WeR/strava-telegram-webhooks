@@ -112,6 +112,7 @@ class Process(object):
             name = calculated_stats['athlete_name']
             calculated_stats = json.dumps(calculated_stats)
             self.insert_strava_data(athlete_id, name, calculated_stats)
+            self.shadow_mode.send_message(self.bot_constants.MESSAGE_UPDATED_STATS.format(athlete_name=name))
 
     def process_update_all_stats(self):
         database_connection = psycopg2.connect(self.bot_variables.database_url, sslmode='require')
@@ -130,14 +131,15 @@ class Process(object):
                 name = calculated_stats['athlete_name']
                 calculated_stats = json.dumps(calculated_stats)
                 self.insert_strava_data(athlete_id[0], name, calculated_stats)
+                self.shadow_mode.send_message(self.bot_constants.MESSAGE_UPDATED_STATS.format(athlete_name=name))
 
     def process_auto_update_indoor_ride(self, athlete_id, activity_id):
         athlete_token, name = self.get_athlete_token_and_name(athlete_id)
         strava_client_with_token = StravaClient().get_client_with_token(athlete_token)
         activity = strava_client_with_token.get_activity(activity_id)
-        message = self.bot_constants.MESSAGE_NEW_ACTIVITY.format(activity_name=activity.name, activity_id=activity_id,
-                                                                 athlete_name=name)
-        self.shadow_mode.send_message(message)
+        self.shadow_mode.send_message(self.bot_constants.MESSAGE_NEW_ACTIVITY.format(activity_name=activity.name,
+                                                                                     activity_id=activity_id,
+                                                                                     athlete_name=name))
         if self.operations.is_activity_a_ride(activity) and self.operations.is_indoor(activity):
             update_indoor_ride_data = self.is_update_indoor_ride(athlete_id)
             if update_indoor_ride_data:
@@ -155,8 +157,7 @@ class Process(object):
                 strava_client_with_token.update_activity(activity_id=activity_id, name=update_indoor_ride_data['name'],
                                                          gear_id=update_indoor_ride_data['gear_id'])
                 logging.info("Updated indoor ride")
-                message = self.bot_constants.MESSAGE_UPDATED_INDOOR_RIDE
-                self.shadow_mode.send_message(message)
+                self.shadow_mode.send_message(self.bot_constants.MESSAGE_UPDATED_INDOOR_RIDE)
             else:
                 logging.info("Indoor flag not set to true")
         else:
