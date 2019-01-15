@@ -60,5 +60,15 @@ def strava_webhook():
         shadow_mode.send_message(message)
 
 
+@app.route("/healthcheck")
+def stats_for_all():
+    try:
+        return jsonify(''), 200
+    except Exception:
+        message = "Something went wrong. Exception: {exception}".format(exception=traceback.format_exc())
+        logging.error(message)
+        shadow_mode.send_message(message)
+
+
 if __name__ == '__main__':
     app.run(host=app_variables.app_host, port=int(app_variables.app_port), debug=app_variables.app_debug)
