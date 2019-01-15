@@ -10,6 +10,6 @@ $ heroku redis:timeout --seconds 60 -a <this-app-name>
 $ curl -X POST https://api.strava.com/api/v3/push_subscriptions \
       -F client_id={client_id} \
       -F client_secret={client_secret} \
-      -F 'callback_url=https://{this-app-name}.herokuapp.com/webhook' \
-      -F 'verify_token=STRAVA'
+      -F callback_url=https://{this-app-name}.herokuapp.com/webhook \
+      -F verify_token=STRAVA
 ```
