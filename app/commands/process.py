@@ -3,16 +3,14 @@
 import json
 import logging
 import time
-from os import sys, path
 
 import psycopg2
 import requests
 
-sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+from app.clients.strava import StravaClient
 from app.commands.calculate import CalculateStats
 from app.common.constants_and_variables import AppConstants, AppVariables
 from app.common.operations import Operations
-from app.clients.strava import StravaClient
 from app.common.shadow_mode import ShadowMode
 
 
@@ -78,10 +76,11 @@ class Process(object):
         else:
             return False, False
 
-    def insert_strava_data(self, athlete_id, name, strava_data):
+    def insert_strava_data(self, athlete_id, name, email, strava_data):
         database_connection = psycopg2.connect(self.bot_variables.database_url, sslmode='require')
         cursor = database_connection.cursor()
         cursor.execute(self.bot_constants.QUERY_UPDATE_STRAVA_DATA.format(name=name,
+                                                                          email=email,
                                                                           strava_data=strava_data,
                                                                           athlete_id=athlete_id))
         cursor.close()
@@ -110,8 +109,9 @@ class Process(object):
             calculate_stats = CalculateStats(athlete_token)
             calculated_stats = calculate_stats.calculate()
             name = calculated_stats['athlete_name']
+            email = calculated_stats['athlete_email']
             calculated_stats = json.dumps(calculated_stats)
-            self.insert_strava_data(athlete_id, name, calculated_stats)
+            self.insert_strava_data(athlete_id, name, email, calculated_stats)
             self.shadow_mode.send_message(self.bot_constants.MESSAGE_UPDATED_STATS.format(athlete_name=name))
 
     def process_update_all_stats(self):
@@ -129,8 +129,9 @@ class Process(object):
                 calculate_stats = CalculateStats(athlete_token)
                 calculated_stats = calculate_stats.calculate()
                 name = calculated_stats['athlete_name']
+                email = calculated_stats['athlete_email']
                 calculated_stats = json.dumps(calculated_stats)
-                self.insert_strava_data(athlete_id[0], name, calculated_stats)
+                self.insert_strava_data(athlete_id[0], name, email, calculated_stats)
                 self.shadow_mode.send_message(self.bot_constants.MESSAGE_UPDATED_STATS.format(athlete_name=name))
 
     def process_auto_update_indoor_ride(self, athlete_id, activity_id):
