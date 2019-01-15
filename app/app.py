@@ -5,9 +5,9 @@ import traceback
 
 from flask import Flask, request, jsonify
 
-from app.common.constants_and_variables import AppVariables, AppConstants
-from app.common.shadow_mode import ShadowMode
-from app.tasks import update_stats, update_indoor_ride, update_all_stats
+from common.constants_and_variables import AppVariables, AppConstants
+from common.shadow_mode import ShadowMode
+from tasks import update_stats, update_indoor_ride, update_all_stats
 
 app_variables = AppVariables()
 app_constants = AppConstants()

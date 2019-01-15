@@ -1,10 +1,7 @@
 #  -*- encoding: utf-8 -*-
 
-from os import sys, path
-
 from stravalib.client import Client
 
-sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 from app.common.constants_and_variables import AppConstants, AppVariables
 
 

@@ -3,16 +3,14 @@
 import json
 import logging
 import time
-from os import sys, path
 
 import psycopg2
 import requests
 
-sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
+from app.clients.strava import StravaClient
 from app.commands.calculate import CalculateStats
 from app.common.constants_and_variables import AppConstants, AppVariables
 from app.common.operations import Operations
-from app.clients.strava import StravaClient
 from app.common.shadow_mode import ShadowMode
 
 

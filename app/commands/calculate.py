@@ -1,11 +1,9 @@
 #  -*- encoding: utf-8 -*-
 
 from datetime import date
-from os import sys, path
 
 from stravalib import unithelper
 
-sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
 from app.clients.strava import StravaClient
 from app.common.constants_and_variables import AppConstants
 from app.common.operations import Operations
