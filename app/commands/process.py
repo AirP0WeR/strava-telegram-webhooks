@@ -136,30 +136,34 @@ class Process(object):
 
     def process_auto_update_indoor_ride(self, athlete_id, activity_id):
         athlete_token, name = self.get_athlete_token_and_name(athlete_id)
-        strava_client_with_token = StravaClient().get_client_with_token(athlete_token)
-        activity = strava_client_with_token.get_activity(activity_id)
-        self.shadow_mode.send_message(self.bot_constants.MESSAGE_NEW_ACTIVITY.format(activity_name=activity.name,
-                                                                                     activity_id=activity_id,
-                                                                                     athlete_name=name))
-        if self.operations.is_activity_a_ride(activity) and self.operations.is_indoor(activity):
-            update_indoor_ride_data = self.is_update_indoor_ride(athlete_id)
-            if update_indoor_ride_data:
-                if update_indoor_ride_data['name'] == 'Automatic':
-                    activity_hour = activity.start_date_local.hour
-                    if 3 <= activity_hour <= 11:
-                        update_indoor_ride_data['name'] = "Morning Ride"
-                    elif 12 <= activity_hour <= 15:
-                        update_indoor_ride_data['name'] = "Afternoon Ride"
-                    elif 16 <= activity_hour <= 18:
-                        update_indoor_ride_data['name'] = "Evening Ride"
-                    elif (19 <= activity_hour <= 23) or (0 <= activity_hour <= 2):
-                        update_indoor_ride_data['name'] = "Night Ride"
+        if athlete_token:
+            strava_client_with_token = StravaClient().get_client_with_token(athlete_token)
+            activity = strava_client_with_token.get_activity(activity_id)
+            self.shadow_mode.send_message(self.bot_constants.MESSAGE_NEW_ACTIVITY.format(activity_name=activity.name,
+                                                                                         activity_id=activity_id,
+                                                                                         athlete_name=name))
+            if self.operations.is_activity_a_ride(activity) and self.operations.is_indoor(activity):
+                update_indoor_ride_data = self.is_update_indoor_ride(athlete_id)
+                if update_indoor_ride_data:
+                    if update_indoor_ride_data['name'] == 'Automatic':
+                        activity_hour = activity.start_date_local.hour
+                        if 3 <= activity_hour <= 11:
+                            update_indoor_ride_data['name'] = "Morning Ride"
+                        elif 12 <= activity_hour <= 15:
+                            update_indoor_ride_data['name'] = "Afternoon Ride"
+                        elif 16 <= activity_hour <= 18:
+                            update_indoor_ride_data['name'] = "Evening Ride"
+                        elif (19 <= activity_hour <= 23) or (0 <= activity_hour <= 2):
+                            update_indoor_ride_data['name'] = "Night Ride"
 
-                strava_client_with_token.update_activity(activity_id=activity_id, name=update_indoor_ride_data['name'],
-                                                         gear_id=update_indoor_ride_data['gear_id'])
-                logging.info("Updated indoor ride")
-                self.shadow_mode.send_message(self.bot_constants.MESSAGE_UPDATED_INDOOR_RIDE)
+                    strava_client_with_token.update_activity(activity_id=activity_id,
+                                                             name=update_indoor_ride_data['name'],
+                                                             gear_id=update_indoor_ride_data['gear_id'])
+                    logging.info("Updated indoor ride")
+                    self.shadow_mode.send_message(self.bot_constants.MESSAGE_UPDATED_INDOOR_RIDE)
+                else:
+                    logging.info("Indoor flag not set to true")
             else:
-                logging.info("Indoor flag not set to true")
+                logging.info("Not a indoor ride")
         else:
-            logging.info("Not a indoor ride")
+            logging.info("Old athlete. Not registered anymore.")
