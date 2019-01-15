@@ -49,7 +49,7 @@ def strava_webhook():
             update_stats.delay(message['owner_id'])
             if message['aspect_type'] == "create" and message['object_type'] == "activity":
                 update_indoor_ride.delay(message['owner_id'], message['object_id'])
-            return 200
+            return jsonify(''), 200
 
         elif request.method == 'GET':
             hub_challenge = request.args.get('hub.challenge')
