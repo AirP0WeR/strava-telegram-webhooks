@@ -22,7 +22,7 @@ def stats(athlete_id):
     try:
         if request.method == 'POST':
             update_stats.delay(athlete_id)
-            return jsonify(''), 200
+            return jsonify('Accepted'), 200
     except Exception:
         message = "Something went wrong. Exception: {exception}".format(exception=traceback.format_exc())
         logging.error(message)
@@ -34,7 +34,7 @@ def stats_for_all():
     try:
         if request.method == 'POST':
             update_all_stats.delay()
-            return jsonify(''), 200
+            return jsonify('Accepted'), 200
     except Exception:
         message = "Something went wrong. Exception: {exception}".format(exception=traceback.format_exc())
         logging.error(message)
@@ -49,7 +49,7 @@ def strava_webhook():
             update_stats.delay(message['owner_id'])
             if message['aspect_type'] == "create" and message['object_type'] == "activity":
                 update_indoor_ride.delay(message['owner_id'], message['object_id'])
-            return jsonify(''), 200
+            return 200
 
         elif request.method == 'GET':
             hub_challenge = request.args.get('hub.challenge')
@@ -63,7 +63,7 @@ def strava_webhook():
 @app.route("/healthcheck")
 def healthcheck():
     try:
-        return jsonify(''), 200
+        return jsonify('OK'), 200
     except Exception:
         message = "Something went wrong. Exception: {exception}".format(exception=traceback.format_exc())
         logging.error(message)
