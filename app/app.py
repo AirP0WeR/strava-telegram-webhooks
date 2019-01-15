@@ -61,7 +61,7 @@ def strava_webhook():
 
 
 @app.route("/healthcheck")
-def stats_for_all():
+def healthcheck():
     try:
         return jsonify(''), 200
     except Exception:
