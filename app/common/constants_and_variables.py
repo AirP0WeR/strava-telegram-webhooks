@@ -31,3 +31,6 @@ class AppVariables(object):
     telegram_bot_token = os.environ.get('TELEGRAM_BOT_TOKEN')
     iron_cache_project_id = os.environ.get('IRON_CACHE_PROJECT_ID')
     iron_cache_token = os.environ.get('IRON_CACHE_TOKEN')
+    scout_monitor = os.environ.get('SCOUT_MONITOR')
+    scout_key = os.environ.get('SCOUT_KEY')
+    scout_name = os.environ.get('SCOUT_NAME')

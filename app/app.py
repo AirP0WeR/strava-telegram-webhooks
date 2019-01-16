@@ -4,6 +4,7 @@ import logging
 import traceback
 
 from flask import Flask, request, jsonify
+from scout_apm.flask import ScoutApm
 
 from app.common.constants_and_variables import AppVariables, AppConstants
 from app.common.shadow_mode import ShadowMode
@@ -15,6 +16,12 @@ shadow_mode = ShadowMode()
 
 app = Flask(__name__)
 app.config.from_object(__name__)
+
+ScoutApm(app)
+
+app.config['SCOUT_MONITOR'] = app_variables.scout_monitor
+app.config['SCOUT_KEY'] = app_variables.scout_key
+app.config['SCOUT_NAME'] = app_variables.scout_name
 
 
 @app.route("/stats/<athlete_id>", methods=['POST'])
