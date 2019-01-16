@@ -25,10 +25,10 @@ scout_apm.celery.install()
 @app.task
 def update_stats(athlete_id):
     try:
-        logging.info("Received callback to update stats")
+        logging.info("Received callback to update stats for https://www.strava.com/athletes/{athlete_id}".format(
+            athlete_id=athlete_id))
         process_stats = Process()
         process_stats.process_update_stats(athlete_id)
-        logging.info("Updated stats for: {athlete_id}".format(athlete_id=athlete_id))
     except Exception:
         message = "Something went wrong. Exception: {exception}".format(exception=traceback.format_exc())
         logging.error(message)
