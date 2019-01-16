@@ -3,6 +3,7 @@
 import logging
 import traceback
 
+import scout_apm.celery
 from celery import Celery
 
 from app.commands.process import Process
@@ -14,9 +15,11 @@ shadow_mode = ShadowMode()
 
 app = Celery()
 app.conf.BROKER_URL = app_variables.redis_url
-app.conf.BROKER_TRANSPORT_OPTIONS = {
-    "max_connections": 2,
-}
+app.conf.SCOUT_MONITOR = app_variables.scout_monitor
+app.conf.SCOUT_NAME = app_variables.scout_name
+app.conf.SCOUT_KEY = app_variables.scout_key
+
+scout_apm.celery.install()
 
 
 @app.task
