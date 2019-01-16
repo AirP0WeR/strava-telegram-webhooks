@@ -171,6 +171,3 @@ class Process(object):
                     logging.info("Indoor flag not set to true")
             else:
                 logging.info("Not a indoor ride")
-        else:
-            logging.info("Old athlete (https://www.strava.com/athletes/{athlete_id}). Not registered anymore.".format(
-                athlete_id=athlete_id))
