@@ -115,6 +115,8 @@ class Process(object):
             self.insert_strava_data(athlete_id, name, calculated_stats)
             self.iron_cache.put(cache="stats", key=telegram_username, value=calculated_stats)
             self.shadow_mode.send_message(self.bot_constants.MESSAGE_UPDATED_STATS.format(athlete_name=name))
+        else:
+            logging.info("Old athlete ({athlete_id}). Not registered anymore.".format(athlete_id=athlete_id))
 
     def process_update_all_stats(self):
         database_connection = psycopg2.connect(self.bot_variables.database_url, sslmode='require')
@@ -168,4 +170,4 @@ class Process(object):
             else:
                 logging.info("Not a indoor ride")
         else:
-            logging.info("Old athlete. Not registered anymore.")
+            logging.info("Old athlete ({athlete_id}). Not registered anymore.".format(athlete_id=athlete_id))
