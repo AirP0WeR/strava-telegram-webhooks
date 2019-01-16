@@ -7,6 +7,7 @@ import time
 import psycopg2
 import requests
 
+from app.clients.iron_cache import IronCache
 from app.clients.strava import StravaClient
 from app.commands.calculate import CalculateStats
 from app.common.constants_and_variables import AppConstants, AppVariables
@@ -21,6 +22,7 @@ class Process(object):
         self.bot_variables = AppVariables()
         self.operations = Operations()
         self.shadow_mode = ShadowMode()
+        self.iron_cache = IronCache()
 
     def refresh_and_update_token(self, athlete_id, refresh_token):
         response = requests.post(self.bot_constants.API_TOKEN_EXCHANGE, data={
@@ -49,10 +51,10 @@ class Process(object):
 
         return response['access_token']
 
-    def get_athlete_token_and_name(self, athlete_id):
+    def get_athlete_details(self, athlete_id):
         database_connection = psycopg2.connect(self.bot_variables.database_url, sslmode='require')
         cursor = database_connection.cursor()
-        cursor.execute(self.bot_constants.QUERY_FETCH_TOKEN_AND_NAME.format(athlete_id=athlete_id))
+        cursor.execute(self.bot_constants.QUERY_FETCH_TOKEN_NAME_TELEGRAM_NAME.format(athlete_id=athlete_id))
         result = cursor.fetchall()
         cursor.close()
         database_connection.close()
@@ -61,26 +63,26 @@ class Process(object):
             refresh_token = result[0][1]
             expires_at = result[0][2]
             name = result[0][3]
+            telegram_username = result[0][4]
             current_time = int(time.time())
             if current_time > expires_at:
                 logging.info(
                     "Token has expired | Current Time: {current_time} | Token Expiry Time: {expires_at}".format(
                         current_time=current_time, expires_at=expires_at))
                 access_token = self.refresh_and_update_token(athlete_id, refresh_token)
-                return access_token
+                return access_token, name, telegram_username
             else:
                 logging.info(
                     "Token is still valid | Current Time: {current_time} | Token Expiry Time: {expires_at}".format(
                         current_time=current_time, expires_at=expires_at))
-                return access_token, name
+                return access_token, name, telegram_username
         else:
-            return False, False
+            return False, False, False
 
-    def insert_strava_data(self, athlete_id, name, email, strava_data):
+    def insert_strava_data(self, athlete_id, name, strava_data):
         database_connection = psycopg2.connect(self.bot_variables.database_url, sslmode='require')
         cursor = database_connection.cursor()
         cursor.execute(self.bot_constants.QUERY_UPDATE_STRAVA_DATA.format(name=name,
-                                                                          email=email,
                                                                           strava_data=strava_data,
                                                                           athlete_id=athlete_id))
         cursor.close()
@@ -104,14 +106,14 @@ class Process(object):
             return False
 
     def process_update_stats(self, athlete_id):
-        athlete_token, name = self.get_athlete_token_and_name(athlete_id)
+        athlete_token, name, telegram_username = self.get_athlete_details(athlete_id)
         if athlete_token:
             calculate_stats = CalculateStats(athlete_token)
             calculated_stats = calculate_stats.calculate()
             name = calculated_stats['athlete_name']
-            email = calculated_stats['athlete_email']
             calculated_stats = json.dumps(calculated_stats)
-            self.insert_strava_data(athlete_id, name, email, calculated_stats)
+            self.insert_strava_data(athlete_id, name, calculated_stats)
+            self.iron_cache.put(cache="stats", key=telegram_username, value=calculated_stats)
             self.shadow_mode.send_message(self.bot_constants.MESSAGE_UPDATED_STATS.format(athlete_name=name))
 
     def process_update_all_stats(self):
@@ -123,19 +125,19 @@ class Process(object):
         database_connection.close()
 
         for athlete_id in athlete_ids:
-            athlete_token, name = self.get_athlete_token_and_name(athlete_id[0])
+            athlete_token, name, telegram_username = self.get_athlete_details(athlete_id[0])
             if athlete_token:
                 logging.info("Updating stats for {athlete_id}".format(athlete_id=athlete_id[0]))
                 calculate_stats = CalculateStats(athlete_token)
                 calculated_stats = calculate_stats.calculate()
                 name = calculated_stats['athlete_name']
-                email = calculated_stats['athlete_email']
                 calculated_stats = json.dumps(calculated_stats)
-                self.insert_strava_data(athlete_id[0], name, email, calculated_stats)
+                self.insert_strava_data(athlete_id[0], name, calculated_stats)
+                self.iron_cache.put(cache="stats", key=telegram_username, value=calculated_stats)
                 self.shadow_mode.send_message(self.bot_constants.MESSAGE_UPDATED_STATS.format(athlete_name=name))
 
     def process_auto_update_indoor_ride(self, athlete_id, activity_id):
-        athlete_token, name = self.get_athlete_token_and_name(athlete_id)
+        athlete_token, name, telegram_username = self.get_athlete_details(athlete_id)
         if athlete_token:
             strava_client_with_token = StravaClient().get_client_with_token(athlete_token)
             activity = strava_client_with_token.get_activity(activity_id)

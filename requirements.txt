@@ -5,3 +5,4 @@ psycopg2-binary==2.7.6.1
 gunicorn==19.9.0
 stravalib==0.10.2
 redis==3.0.1
+iron-cache==0.3.2

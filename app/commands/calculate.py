@@ -1,11 +1,10 @@
 #  -*- encoding: utf-8 -*-
 
-from datetime import date
+from datetime import date, datetime
 
 from stravalib import unithelper
 
 from app.clients.strava import StravaClient
-from app.common.constants_and_variables import AppConstants
 from app.common.operations import Operations
 
 
@@ -13,14 +12,13 @@ class CalculateStats(object):
 
     def __init__(self, athlete_token):
         self.athlete_token = athlete_token
-        self.bot_constants = AppConstants()
         self.operations = Operations()
 
     @staticmethod
     def get_rider_stats():
         return {
+            "updated": "",
             "athlete_name": "",
-            "athlete_email": "",
             "athlete_strava_joined_date": "",
             "athlete_followers": 0,
             "athlete_following": 0,
@@ -188,7 +186,7 @@ class CalculateStats(object):
             "run_pm_achievements": 0,
             "run_pm_commutes": 0,
             "run_pm_pr": 0,
-            "run_pm_calories": 0,
+            "run_pm_calories": 0
         }
 
     def calculate(self):
@@ -202,9 +200,9 @@ class CalculateStats(object):
         previous_year = today_date.year - 1
         rider_stats = self.get_rider_stats()
 
+        rider_stats["updated"] = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
         rider_stats["athlete_name"] = "{first_name} {last_name}".format(first_name=athlete_info.firstname,
                                                                         last_name=athlete_info.lastname)
-        rider_stats["athlete_email"] = athlete_info.email
         rider_stats["athlete_strava_joined_date"] = athlete_info.created_at.date().strftime('%Y-%m-%d')
         rider_stats["athlete_followers"] = athlete_info.follower_count
         rider_stats["athlete_following"] = athlete_info.friend_count
