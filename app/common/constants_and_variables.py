@@ -4,7 +4,7 @@ import os
 
 
 class AppConstants(object):
-    QUERY_FETCH_TOKEN_AND_NAME = "select access_token, refresh_token, expires_at, name from strava_telegram_bot where athlete_id={athlete_id}"
+    QUERY_FETCH_TOKEN_NAME_TELEGRAM_NAME = "select access_token, refresh_token, expires_at, name, telegram_username from strava_telegram_bot where athlete_id={athlete_id}"
     QUERY_UPDATE_TOKEN = "UPDATE strava_telegram_bot SET access_token='{access_token}', refresh_token='{refresh_token}', expires_at={expires_at}, updated=now() where athlete_id={athlete_id}"
     QUERY_UPDATE_STRAVA_DATA = "UPDATE strava_telegram_bot SET name='{name}', strava_data='{strava_data}', updated=now() WHERE athlete_id={athlete_id}"
     QUERY_FETCH_UPDATE_INDOOR_RIDE = "select update_indoor_ride, update_indoor_ride_data from strava_telegram_bot where athlete_id={athlete_id}"
@@ -29,3 +29,5 @@ class AppVariables(object):
     shadow_mode = os.environ.get('SHADOW_MODE')
     shadow_mode_chat_id = os.environ.get('SHADOW_MODE_CHAT_ID')
     telegram_bot_token = os.environ.get('TELEGRAM_BOT_TOKEN')
+    iron_cache_project_id = os.environ.get('IRON_CACHE_PROJECT_ID')
+    iron_cache_token = os.environ.get('IRON_CACHE_TOKEN')
