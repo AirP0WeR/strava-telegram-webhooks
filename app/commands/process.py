@@ -117,8 +117,10 @@ class Process(object):
             self.shadow_mode.send_message(self.bot_constants.MESSAGE_UPDATED_STATS.format(athlete_name=name))
             logging.info("Updated stats for https://www.strava.com/athletes/{athlete_id}".format(athlete_id=athlete_id))
         else:
-            logging.info("Old athlete (https://www.strava.com/athletes/{athlete_id}). Not registered anymore.".format(
-                athlete_id=athlete_id))
+            message = "Old athlete (https://www.strava.com/athletes/{athlete_id}). Not registered anymore.".format(
+                athlete_id=athlete_id)
+            logging.info(message)
+            self.shadow_mode.send_message(message)
 
     def process_update_all_stats(self):
         database_connection = psycopg2.connect(self.bot_variables.database_url, sslmode='require')
