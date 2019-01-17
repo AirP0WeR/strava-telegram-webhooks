@@ -57,7 +57,6 @@ def strava_webhook():
     try:
         if request.method == 'POST':
             event = request.json
-            logging.info("Webhook Event Received: {event}".format(event=event))
             handle_webhook.delay(event)
             return jsonify(''), 200
 

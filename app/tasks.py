@@ -25,6 +25,7 @@ scout_apm.celery.install()
 @app.task
 def handle_webhook(event):
     try:
+        logging.info("Webhook Event Received: {event}".format(event=event))
         process = Process()
         process.process_webhook(event)
     except Exception:
