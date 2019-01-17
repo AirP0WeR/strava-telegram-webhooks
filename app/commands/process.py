@@ -181,8 +181,12 @@ class Process(object):
             activity_id = event['object_id']
             athlete_token, name, telegram_username = self.get_athlete_details(athlete_id)
             if athlete_token:
+                callback_type = "New Activity"
+                if aspect_type == "delete":
+                    callback_type = "Deleted Activity"
                 self.shadow_mode.send_message(
-                    self.bot_constants.MESSAGE_NEW_ACTIVITY.format(activity_id=activity_id, athlete_name=name))
+                    self.bot_constants.MESSAGE_ACTIVITY_ALERT.format(callback_type=callback_type,
+                                                                     activity_id=activity_id, athlete_name=name))
                 if aspect_type == "create" and object_type == "activity":
                     self.process_auto_update_indoor_ride(event, athlete_token)
                 calculate_stats = CalculateStats(athlete_token)

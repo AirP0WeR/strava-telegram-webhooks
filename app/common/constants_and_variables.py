@@ -13,7 +13,7 @@ class AppConstants(object):
     API_TOKEN_EXCHANGE = 'https://www.strava.com/oauth/token'
     API_TELEGRAM_SEND_MESSAGE = "https://api.telegram.org/bot{bot_token}/sendMessage"
 
-    MESSAGE_NEW_ACTIVITY = "New Activity: [Link](https://www.strava.com/activities/{activity_id}) by {athlete_name}."
+    MESSAGE_ACTIVITY_ALERT = "{callback_type}: [Link](https://www.strava.com/activities/{activity_id}) by {athlete_name}."
     MESSAGE_OLD_ATHLETE = "Old Athlete: [Athlete](https://www.strava.com/athletes/{athlete_id}) | [Activity](https://www.strava.com/activities/{activity_id})"
     MESSAGE_UPDATED_INDOOR_RIDE = "Indoor Ride has been updated."
     MESSAGE_UPDATED_STATS = "Updated stats for {athlete_name}."
