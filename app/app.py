@@ -23,6 +23,10 @@ app.config['SCOUT_MONITOR'] = app_variables.scout_monitor
 app.config['SCOUT_KEY'] = app_variables.scout_key
 app.config['SCOUT_NAME'] = app_variables.scout_name
 
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    level=logging.os.environ.get('LOGGING_LEVEL'))
+logger = logging.getLogger(__name__)
+
 
 @app.route("/stats/<athlete_id>", methods=['POST'])
 def stats(athlete_id):
@@ -79,7 +83,4 @@ def healthcheck():
 
 
 if __name__ == '__main__':
-    logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                        level=logging.os.environ.get('LOGGING_LEVEL'))
-    logger = logging.getLogger(__name__)
     app.run(host=app_variables.app_host, port=int(app_variables.app_port), debug=app_variables.app_debug)
