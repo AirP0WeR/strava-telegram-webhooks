@@ -183,7 +183,7 @@ class Process(object):
             if athlete_token:
                 callback_type = "New Activity"
                 if aspect_type == "delete":
-                    callback_type = "Deleted Activity"
+                    callback_type = "Activity Deleted"
                 self.shadow_mode.send_message(
                     self.bot_constants.MESSAGE_ACTIVITY_ALERT.format(callback_type=callback_type,
                                                                      activity_id=activity_id, athlete_name=name))
