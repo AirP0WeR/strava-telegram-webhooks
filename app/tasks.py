@@ -23,6 +23,16 @@ scout_apm.celery.install()
 
 
 @app.task
+def handle_webhook(event):
+    try:
+        process = Process()
+        process.process_webhook(event)
+    except Exception:
+        message = "Something went wrong. Exception: {exception}".format(exception=traceback.format_exc())
+        logging.error(message)
+        shadow_mode.send_message(message)
+
+@app.task
 def update_stats(athlete_id):
     try:
         logging.info("Received callback to update stats for https://www.strava.com/athletes/{athlete_id}".format(

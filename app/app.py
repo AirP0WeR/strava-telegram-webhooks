@@ -8,7 +8,7 @@ from scout_apm.flask import ScoutApm
 
 from app.common.constants_and_variables import AppVariables, AppConstants
 from app.common.shadow_mode import ShadowMode
-from app.tasks import update_stats, update_indoor_ride, update_all_stats
+from app.tasks import update_stats, handle_webhook, update_all_stats
 
 app_variables = AppVariables()
 app_constants = AppConstants()
@@ -56,11 +56,9 @@ def stats_for_all():
 def strava_webhook():
     try:
         if request.method == 'POST':
-            message = request.json
-            logging.info("Webhook received: {message}".format(message=message))
-            update_stats.delay(message['owner_id'])
-            if message['aspect_type'] == "create" and message['object_type'] == "activity":
-                update_indoor_ride.delay(message['owner_id'], message['object_id'])
+            event = request.json
+            logging.info("Webhook Event Received: {event}".format(event=event))
+            handle_webhook.delay(event)
             return jsonify(''), 200
 
         elif request.method == 'GET':
