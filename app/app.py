@@ -53,6 +53,7 @@ def strava_webhook():
     try:
         if request.method == 'POST':
             message = request.json
+            logging.info("Webhook received: {message}".format(message=message))
             update_stats.delay(message['owner_id'])
             if message['aspect_type'] == "create" and message['object_type'] == "activity":
                 update_indoor_ride.delay(message['owner_id'], message['object_id'])
