@@ -20,3 +20,6 @@ $ curl -X POST https://api.strava.com/api/v3/push_subscriptions \
 ```
 https://api.telegram.org/bot{telegram_bot_token}/sendMessage?chat_id={telegram_chat_id}&text={{app}}%20({{release}})%20deployed!
 ```
+
+# Deploy
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/panchambharadwaj/strava-telegram-webhooks)
