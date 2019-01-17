@@ -57,15 +57,3 @@ def update_all_stats():
         message = "Something went wrong. Exception: {exception}".format(exception=traceback.format_exc())
         logging.error(message)
         shadow_mode.send_message(message)
-
-
-@app.task
-def update_indoor_ride(athlete_id, activity_id):
-    try:
-        logging.info("Received callback to update indoor ride")
-        process_auto_update_indoor_ride = Process()
-        process_auto_update_indoor_ride.process_auto_update_indoor_ride(athlete_id, activity_id)
-    except Exception:
-        message = "Something went wrong. Exception: {exception}".format(exception=traceback.format_exc())
-        logging.error(message)
-        shadow_mode.send_message(message)

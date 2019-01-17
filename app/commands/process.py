@@ -142,17 +142,16 @@ class Process(object):
                 self.iron_cache.put(cache="stats", key=telegram_username, value=calculated_stats)
                 self.shadow_mode.send_message(self.bot_constants.MESSAGE_UPDATED_STATS.format(athlete_name=name))
 
-    def process_auto_update_indoor_ride(self, event, athlete_token, name):
+    def process_auto_update_indoor_ride(self, event, athlete_token):
         athlete_id = event['owner_id']
-        activity_id = event['object_id']
-        strava_client_with_token = StravaClient().get_client_with_token(athlete_token)
-        activity = strava_client_with_token.get_activity(activity_id)
-        self.shadow_mode.send_message(self.bot_constants.MESSAGE_NEW_ACTIVITY.format(activity_name=activity.name,
-                                                                                     activity_id=activity_id,
-                                                                                     athlete_name=name))
-        if self.operations.is_activity_a_ride(activity) and self.operations.is_indoor(activity):
-            update_indoor_ride_data = self.is_update_indoor_ride(athlete_id)
-            if update_indoor_ride_data:
+        update_indoor_ride_data = self.is_update_indoor_ride(athlete_id)
+        if update_indoor_ride_data:
+            activity_id = event['object_id']
+            strava_client_with_token = StravaClient().get_client_with_token(athlete_token)
+            activity = strava_client_with_token.get_activity(activity_id)
+
+            if self.operations.is_activity_a_ride(activity) and self.operations.is_indoor(activity):
+
                 if update_indoor_ride_data['name'] == 'Automatic':
                     activity_hour = activity.start_date_local.hour
                     if 3 <= activity_hour <= 11:
@@ -170,26 +169,32 @@ class Process(object):
                 logging.info("Updated indoor ride")
                 self.shadow_mode.send_message(self.bot_constants.MESSAGE_UPDATED_INDOOR_RIDE)
             else:
-                logging.info("Indoor flag not set to true")
+                logging.info("Not a indoor ride")
         else:
-            logging.info("Not a indoor ride")
+            logging.info("Auto update indoor ride is not enabled")
 
     def process_webhook(self, event):
-        athlete_id = event['owner_id']
-        athlete_token, name, telegram_username = self.get_athlete_details(athlete_id)
-        if athlete_token:
-            if event['aspect_type'] == "create" and event['object_type'] == "activity":
-                self.process_auto_update_indoor_ride(event, athlete_token, name)
-            calculate_stats = CalculateStats(athlete_token)
-            calculated_stats = calculate_stats.calculate()
-            name = calculated_stats['athlete_name']
-            calculated_stats = json.dumps(calculated_stats)
-            self.insert_strava_data(athlete_id, name, calculated_stats)
-            self.iron_cache.put(cache="stats", key=telegram_username, value=calculated_stats)
-            self.shadow_mode.send_message(self.bot_constants.MESSAGE_UPDATED_STATS.format(athlete_name=name))
-            logging.info("Updated stats for https://www.strava.com/athletes/{athlete_id}".format(athlete_id=athlete_id))
-        else:
-            message = "Old athlete (https://www.strava.com/athletes/{athlete_id}). Not registered anymore.".format(
-                athlete_id=athlete_id)
-            logging.info(message)
-            self.shadow_mode.send_message(message)
+        if event['aspect_type'] != "update":
+            aspect_type = event['aspect_type']
+            athlete_id = event['owner_id']
+            object_type = event['object_type']
+            activity_id = event['object_id']
+            athlete_token, name, telegram_username = self.get_athlete_details(athlete_id)
+            if athlete_token:
+                self.shadow_mode.send_message(
+                    self.bot_constants.MESSAGE_NEW_ACTIVITY.format(activity_id=activity_id, athlete_name=name))
+                if aspect_type == "create" and object_type == "activity":
+                    self.process_auto_update_indoor_ride(event, athlete_token)
+                calculate_stats = CalculateStats(athlete_token)
+                calculated_stats = calculate_stats.calculate()
+                name = calculated_stats['athlete_name']
+                calculated_stats = json.dumps(calculated_stats)
+                self.insert_strava_data(athlete_id, name, calculated_stats)
+                self.iron_cache.put(cache="stats", key=telegram_username, value=calculated_stats)
+                self.shadow_mode.send_message(self.bot_constants.MESSAGE_UPDATED_STATS.format(athlete_name=name))
+                logging.info(
+                    "Updated stats for https://www.strava.com/athletes/{athlete_id}".format(athlete_id=athlete_id))
+            else:
+                message = self.bot_constants.MESSAGE_OLD_ATHLETE.format(athlete_id=athlete_id, activity_id=activity_id)
+                logging.info(message)
+                self.shadow_mode.send_message(message)

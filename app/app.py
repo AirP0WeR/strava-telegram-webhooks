@@ -59,7 +59,6 @@ def strava_webhook():
             event = request.json
             handle_webhook.delay(event)
             return jsonify(''), 200
-
         elif request.method == 'GET':
             hub_challenge = request.args.get('hub.challenge')
             return jsonify({'hub.challenge': hub_challenge}), 200
