@@ -186,7 +186,72 @@ class CalculateStats(object):
             "run_pm_achievements": 0,
             "run_pm_commutes": 0,
             "run_pm_pr": 0,
-            "run_pm_calories": 0
+            "run_pm_calories": 0,
+            "swim_at_total": 0,
+            "swim_at_distance": 0,
+            "swim_at_moving_time": 0,
+            "swim_at_50": 0,
+            "swim_at_100": 0,
+            "swim_at_200": 0,
+            "swim_at_400": 0,
+            "swim_at_800": 0,
+            "swim_at_1500": 0,
+            "swim_at_biggest_swim": 0,
+            "swim_at_achievements": 0,
+            "swim_at_pr": 0,
+            "swim_at_calories": 0,
+            "swim_ytd_total": 0,
+            "swim_ytd_distance": 0,
+            "swim_ytd_moving_time": 0,
+            "swim_ytd_50": 0,
+            "swim_ytd_100": 0,
+            "swim_ytd_200": 0,
+            "swim_ytd_400": 0,
+            "swim_ytd_800": 0,
+            "swim_ytd_1500": 0,
+            "swim_ytd_biggest_swim": 0,
+            "swim_ytd_achievements": 0,
+            "swim_ytd_pr": 0,
+            "swim_ytd_calories": 0,
+            "swim_py_total": 0,
+            "swim_py_distance": 0,
+            "swim_py_moving_time": 0,
+            "swim_py_50": 0,
+            "swim_py_100": 0,
+            "swim_py_200": 0,
+            "swim_py_400": 0,
+            "swim_py_800": 0,
+            "swim_py_1500": 0,
+            "swim_py_biggest_swim": 0,
+            "swim_py_achievements": 0,
+            "swim_py_pr": 0,
+            "swim_py_calories": 0,
+            "swim_cm_total": 0,
+            "swim_cm_distance": 0,
+            "swim_cm_moving_time": 0,
+            "swim_cm_50": 0,
+            "swim_cm_100": 0,
+            "swim_cm_200": 0,
+            "swim_cm_400": 0,
+            "swim_cm_800": 0,
+            "swim_cm_1500": 0,
+            "swim_cm_biggest_swim": 0,
+            "swim_cm_achievements": 0,
+            "swim_cm_pr": 0,
+            "swim_cm_calories": 0,
+            "swim_pm_total": 0,
+            "swim_pm_distance": 0,
+            "swim_pm_moving_time": 0,
+            "swim_pm_50": 0,
+            "swim_pm_100": 0,
+            "swim_pm_200": 0,
+            "swim_pm_400": 0,
+            "swim_pm_800": 0,
+            "swim_pm_1500": 0,
+            "swim_pm_biggest_swim": 0,
+            "swim_pm_achievements": 0,
+            "swim_pm_pr": 0,
+            "swim_pm_calories": 0,
         }
 
     def calculate(self):
@@ -266,6 +331,28 @@ class CalculateStats(object):
                         rider_stats["run_at_fm"] += 1
                     elif distance > 44000.0:
                         rider_stats["run_at_ultra"] += 1
+                elif self.operations.is_activity_a_swim(activity):
+                    rider_stats["swim_at_total"] += 1
+                    rider_stats["swim_at_distance"] += distance
+                    rider_stats["swim_at_moving_time"] += moving_time
+                    rider_stats["swim_at_achievements"] += activity.achievement_count
+                    rider_stats["swim_at_pr"] += activity.pr_count
+                    if activity.kilojoules:
+                        rider_stats["swim_at_calories"] += activity.kilojoules
+                    if distance > rider_stats["swim_at_biggest_swim"]:
+                        rider_stats["swim_at_biggest_swim"] = distance
+                    if 50.0 <= distance < 100.0:
+                        rider_stats["swim_at_50"] += 1
+                    elif 100.0 <= distance < 200.0:
+                        rider_stats["swim_at_100"] += 1
+                    elif 200.0 <= distance < 400.0:
+                        rider_stats["swim_at_200"] += 1
+                    elif 400.0 <= distance < 800.0:
+                        rider_stats["swim_at_400"] += 1
+                    elif 800.0 <= distance < 1500.0:
+                        rider_stats["swim_at_800"] += 1
+                    elif distance > 1500.0:
+                        rider_stats["swim_at_1500"] += 1
 
                 if activity_year == current_year:
                     if self.operations.is_activity_a_ride(activity):
@@ -320,6 +407,28 @@ class CalculateStats(object):
                             rider_stats["run_ytd_fm"] += 1
                         elif distance > 44000.0:
                             rider_stats["run_ytd_ultra"] += 1
+                    elif self.operations.is_activity_a_swim(activity):
+                        rider_stats["swim_ytd_total"] += 1
+                        rider_stats["swim_ytd_distance"] += distance
+                        rider_stats["swim_ytd_moving_time"] += moving_time
+                        rider_stats["swim_ytd_achievements"] += activity.achievement_count
+                        rider_stats["swim_ytd_pr"] += activity.pr_count
+                        if activity.kilojoules:
+                            rider_stats["swim_ytd_calories"] += activity.kilojoules
+                        if distance > rider_stats["swim_ytd_biggest_swim"]:
+                            rider_stats["swim_ytd_biggest_swim"] = distance
+                        if 50.0 <= distance < 100.0:
+                            rider_stats["swim_ytd_50"] += 1
+                        elif 100.0 <= distance < 200.0:
+                            rider_stats["swim_ytd_100"] += 1
+                        elif 200.0 <= distance < 400.0:
+                            rider_stats["swim_ytd_200"] += 1
+                        elif 400.0 <= distance < 800.0:
+                            rider_stats["swim_ytd_400"] += 1
+                        elif 800.0 <= distance < 1500.0:
+                            rider_stats["swim_ytd_800"] += 1
+                        elif distance > 1500.0:
+                            rider_stats["swim_ytd_1500"] += 1
 
                 if activity_year == previous_year:
                     if self.operations.is_activity_a_ride(activity):
@@ -374,6 +483,28 @@ class CalculateStats(object):
                             rider_stats["run_py_fm"] += 1
                         elif distance > 44000.0:
                             rider_stats["run_py_ultra"] += 1
+                    elif self.operations.is_activity_a_swim(activity):
+                        rider_stats["swim_py_total"] += 1
+                        rider_stats["swim_py_distance"] += distance
+                        rider_stats["swim_py_moving_time"] += moving_time
+                        rider_stats["swim_py_achievements"] += activity.achievement_count
+                        rider_stats["swim_py_pr"] += activity.pr_count
+                        if activity.kilojoules:
+                            rider_stats["swim_py_calories"] += activity.kilojoules
+                        if distance > rider_stats["swim_py_biggest_swim"]:
+                            rider_stats["swim_py_biggest_swim"] = distance
+                        if 50.0 <= distance < 100.0:
+                            rider_stats["swim_py_50"] += 1
+                        elif 100.0 <= distance < 200.0:
+                            rider_stats["swim_py_100"] += 1
+                        elif 200.0 <= distance < 400.0:
+                            rider_stats["swim_py_200"] += 1
+                        elif 400.0 <= distance < 800.0:
+                            rider_stats["swim_py_400"] += 1
+                        elif 800.0 <= distance < 1500.0:
+                            rider_stats["swim_py_800"] += 1
+                        elif distance > 1500.0:
+                            rider_stats["swim_py_1500"] += 1
 
                 if activity_month == current_month and activity_year == current_year:
                     if self.operations.is_activity_a_ride(activity):
@@ -428,6 +559,28 @@ class CalculateStats(object):
                             rider_stats["run_cm_fm"] += 1
                         elif distance > 44000.0:
                             rider_stats["run_cm_ultra"] += 1
+                    elif self.operations.is_activity_a_swim(activity):
+                        rider_stats["swim_cm_total"] += 1
+                        rider_stats["swim_cm_distance"] += distance
+                        rider_stats["swim_cm_moving_time"] += moving_time
+                        rider_stats["swim_cm_achievements"] += activity.achievement_count
+                        rider_stats["swim_cm_pr"] += activity.pr_count
+                        if activity.kilojoules:
+                            rider_stats["swim_cm_calories"] += activity.kilojoules
+                        if distance > rider_stats["swim_cm_biggest_swim"]:
+                            rider_stats["swim_cm_biggest_swim"] = distance
+                        if 50.0 <= distance < 100.0:
+                            rider_stats["swim_cm_50"] += 1
+                        elif 100.0 <= distance < 200.0:
+                            rider_stats["swim_cm_100"] += 1
+                        elif 200.0 <= distance < 400.0:
+                            rider_stats["swim_cm_200"] += 1
+                        elif 400.0 <= distance < 800.0:
+                            rider_stats["swim_cm_400"] += 1
+                        elif 800.0 <= distance < 1500.0:
+                            rider_stats["swim_cm_800"] += 1
+                        elif distance > 1500.0:
+                            rider_stats["swim_cm_1500"] += 1
 
                 if activity_month == previous_month and activity_year == previous_year:
                     if self.operations.is_activity_a_ride(activity):
@@ -482,5 +635,27 @@ class CalculateStats(object):
                             rider_stats["run_pm_fm"] += 1
                         elif distance > 44000.0:
                             rider_stats["run_pm_ultra"] += 1
+                    elif self.operations.is_activity_a_swim(activity):
+                        rider_stats["swim_pm_total"] += 1
+                        rider_stats["swim_pm_distance"] += distance
+                        rider_stats["swim_pm_moving_time"] += moving_time
+                        rider_stats["swim_pm_achievements"] += activity.achievement_count
+                        rider_stats["swim_pm_pr"] += activity.pr_count
+                        if activity.kilojoules:
+                            rider_stats["swim_pm_calories"] += activity.kilojoules
+                        if distance > rider_stats["swim_pm_biggest_swim"]:
+                            rider_stats["swim_pm_biggest_swim"] = distance
+                        if 50.0 <= distance < 100.0:
+                            rider_stats["swim_pm_50"] += 1
+                        elif 100.0 <= distance < 200.0:
+                            rider_stats["swim_pm_100"] += 1
+                        elif 200.0 <= distance < 400.0:
+                            rider_stats["swim_pm_200"] += 1
+                        elif 400.0 <= distance < 800.0:
+                            rider_stats["swim_pm_400"] += 1
+                        elif 800.0 <= distance < 1500.0:
+                            rider_stats["swim_pm_800"] += 1
+                        elif distance > 1500.0:
+                            rider_stats["swim_pm_1500"] += 1
 
         return rider_stats
