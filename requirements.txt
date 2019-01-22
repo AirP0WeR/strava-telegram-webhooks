@@ -7,3 +7,4 @@ stravalib==0.10.2
 redis==3.0.1
 iron-cache==0.3.2
 scout-apm==2.0.1
+pycryptodome==3.7.2
