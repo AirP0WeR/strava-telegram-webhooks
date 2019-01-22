@@ -8,7 +8,7 @@ from scout_apm.flask import ScoutApm
 
 from app.common.constants_and_variables import AppVariables, AppConstants
 from app.common.shadow_mode import ShadowMode
-from app.tasks import update_stats, handle_webhook, update_all_stats
+from app.processor import update_stats, handle_webhook, update_all_stats
 
 app_variables = AppVariables()
 app_constants = AppConstants()

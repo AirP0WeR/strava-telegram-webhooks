@@ -10,6 +10,7 @@ import requests
 from app.clients.iron_cache import IronCache
 from app.clients.strava import StravaClient
 from app.commands.calculate import CalculateStats
+from app.common.aes_cipher import AESCipher
 from app.common.constants_and_variables import AppConstants, AppVariables
 from app.common.operations import Operations
 from app.common.shadow_mode import ShadowMode
@@ -23,6 +24,7 @@ class Process(object):
         self.operations = Operations()
         self.shadow_mode = ShadowMode()
         self.iron_cache = IronCache()
+        self.aes_cipher = AESCipher(self.bot_variables.crypt_key_length, self.bot_variables.crypt_key)
 
     def refresh_and_update_token(self, athlete_id, refresh_token):
         response = requests.post(self.bot_constants.API_TOKEN_EXCHANGE, data={
@@ -40,8 +42,8 @@ class Process(object):
         database_connection = psycopg2.connect(self.bot_variables.database_url, sslmode='require')
         cursor = database_connection.cursor()
         cursor.execute(self.bot_constants.QUERY_UPDATE_TOKEN.format(
-            access_token=access_info['access_token'],
-            refresh_token=access_info['refresh_token'],
+            access_token=self.aes_cipher.encrypt(access_info['access_token']),
+            refresh_token=self.aes_cipher.encrypt(access_info['refresh_token']),
             expires_at=access_info['expires_at'],
             athlete_id=athlete_id
         ))
@@ -59,8 +61,8 @@ class Process(object):
         cursor.close()
         database_connection.close()
         if len(result) > 0:
-            access_token = result[0][0]
-            refresh_token = result[0][1]
+            access_token = self.aes_cipher.decrypt(result[0][0])
+            refresh_token = self.aes_cipher.decrypt(result[0][1])
             expires_at = result[0][2]
             name = result[0][3]
             telegram_username = result[0][4]

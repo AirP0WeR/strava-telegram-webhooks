@@ -20,6 +20,8 @@ class AppConstants(object):
 
 
 class AppVariables(object):
+    crypt_key_length = int(os.environ.get('CRYPT_KEY_LENGTH'))
+    crypt_key = os.environ.get('CRYPT_KEY')
     client_id = os.environ.get('CLIENT_ID')
     client_secret = os.environ.get('CLIENT_SECRET')
     app_port = os.environ.get('APP_PORT')
