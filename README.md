@@ -5,6 +5,7 @@ App is ready to be deployed on Heroku. Attach a Postgres Database to the app bef
 ```
 $ heroku addons:attach <database-app-name> -a <this-app-name>
 $ heroku redis:timeout --seconds 60 -a <this-app-name>
+$ heroku redis:maxmemory -a <this-app-name> --policy allkeys-lru
 ```
 
 ##### Subscription Creation Request:
