@@ -201,7 +201,7 @@ class Process(object):
             if self.operations.supported_activities(activity):
                 activity_summary = "New Activity Summary:\n\n" \
                                    "Athlete Name: {athlete_name}\n" \
-                                   "Activity: https://www.strava.com/activities/{activity_link}\n" \
+                                   "Activity: [{activity_name}](https://www.strava.com/activities/{activity_id})\n" \
                                    "Activity Date: {activity_date}\n" \
                                    "Activity Type: {activity_type}\n\n" \
                                    "Distance: {distance} km\n" \
@@ -211,7 +211,8 @@ class Process(object):
                                    "Max Speed: {max_speed}\n" \
                                    "Calories: {calories}\n".format(
                     athlete_name=name,
-                    activity_link=activity.id,
+                    activity_name=activity.name,
+                    activity_id=activity.id,
                     activity_type=activity.type,
                     activity_date=activity.start_date_local,
                     distance=self.operations.meters_to_kilometers(float(activity.distance)),
@@ -244,12 +245,13 @@ class Process(object):
             else:
                 activity_summary = "New Activity:\n\n" \
                                    "Athlete Name: {athlete_name}\n" \
-                                   "Activity: https://www.strava.com/activities/{activity_link}\n" \
+                                   "Activity: [{activity_name}](https://www.strava.com/activities/{activity_id})\n" \
                                    "Activity Date: {activity_date}\n" \
                                    "Activity Type: {activity_type}\n\n" \
                                    "{activity_type} is not yet supported for Activity Summary.".format(
                     athlete_name=name,
-                    activity_link=activity.id,
+                    activity_name=activity.name,
+                    activity_id=activity.id,
                     activity_type=activity.type,
                     activity_date=activity.start_date_local)
 
