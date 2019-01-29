@@ -241,7 +241,7 @@ class Process(object):
                     activity_summary += "\nAvg Watts: {avg_watts}\nMax Watts: {max_watts}".format(
                         avg_watts=activity.average_watts, max_watts=activity.max_watts)
 
-                activity_summary += "\n\n_Click /stats to check your updated stats_"
+                activity_summary += "\n\n_Click_ /stats _to check your updated stats_"
             else:
                 activity_summary = "*New Activity*:\n\n" \
                                    "Athlete Name: {athlete_name}\n" \
