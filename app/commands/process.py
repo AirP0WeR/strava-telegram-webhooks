@@ -6,9 +6,11 @@ import time
 
 import psycopg2
 import requests
+from stravalib import unithelper
 
 from app.clients.iron_cache import IronCache
 from app.clients.strava import StravaClient
+from app.clients.telegram import TelegramClient
 from app.commands.calculate import CalculateStats
 from app.common.aes_cipher import AESCipher
 from app.common.constants_and_variables import AppConstants, AppVariables
@@ -25,6 +27,7 @@ class Process(object):
         self.shadow_mode = ShadowMode()
         self.iron_cache = IronCache()
         self.aes_cipher = AESCipher(self.bot_variables.crypt_key_length, self.bot_variables.crypt_key)
+        self.telegram_client = TelegramClient()
 
     def refresh_and_update_token(self, athlete_id, refresh_token):
         response = requests.post(self.bot_constants.API_TOKEN_EXCHANGE, data={
@@ -107,17 +110,36 @@ class Process(object):
         else:
             return False
 
+    def is_activity_summary(self, athlete_id):
+        database_connection = psycopg2.connect(self.bot_variables.database_url, sslmode='require')
+        cursor = database_connection.cursor()
+        cursor.execute(self.bot_constants.QUERY_ACTIVITY_SUMMARY.format(athlete_id=athlete_id))
+        results = cursor.fetchone()
+        cursor.close()
+        database_connection.close()
+
+        enable_activity_summary = results[0]
+        chat_id = results[1]
+
+        if enable_activity_summary:
+            return chat_id
+        else:
+            return False
+
+    def calculate_stats(self, athlete_token, athlete_id, telegram_username):
+        calculate_stats = CalculateStats(athlete_token)
+        calculated_stats = calculate_stats.calculate()
+        name = calculated_stats['athlete_name']
+        calculated_stats = json.dumps(calculated_stats)
+        self.insert_strava_data(athlete_id, name, calculated_stats)
+        self.iron_cache.put(cache="stats", key=telegram_username, value=calculated_stats)
+        self.shadow_mode.send_message(self.bot_constants.MESSAGE_UPDATED_STATS.format(athlete_name=name))
+        logging.info("Updated stats for https://www.strava.com/athletes/{athlete_id}".format(athlete_id=athlete_id))
+
     def process_update_stats(self, athlete_id):
         athlete_token, name, telegram_username = self.get_athlete_details(athlete_id)
         if athlete_token:
-            calculate_stats = CalculateStats(athlete_token)
-            calculated_stats = calculate_stats.calculate()
-            name = calculated_stats['athlete_name']
-            calculated_stats = json.dumps(calculated_stats)
-            self.insert_strava_data(athlete_id, name, calculated_stats)
-            self.iron_cache.put(cache="stats", key=telegram_username, value=calculated_stats)
-            self.shadow_mode.send_message(self.bot_constants.MESSAGE_UPDATED_STATS.format(athlete_name=name))
-            logging.info("Updated stats for https://www.strava.com/athletes/{athlete_id}".format(athlete_id=athlete_id))
+            self.calculate_stats(athlete_token, athlete_id, telegram_username)
         else:
             message = "Old athlete (https://www.strava.com/athletes/{athlete_id}). Not registered anymore.".format(
                 athlete_id=athlete_id)
@@ -136,13 +158,7 @@ class Process(object):
             athlete_token, name, telegram_username = self.get_athlete_details(athlete_id[0])
             if athlete_token:
                 logging.info("Updating stats for {athlete_id}".format(athlete_id=athlete_id[0]))
-                calculate_stats = CalculateStats(athlete_token)
-                calculated_stats = calculate_stats.calculate()
-                name = calculated_stats['athlete_name']
-                calculated_stats = json.dumps(calculated_stats)
-                self.insert_strava_data(athlete_id[0], name, calculated_stats)
-                self.iron_cache.put(cache="stats", key=telegram_username, value=calculated_stats)
-                self.shadow_mode.send_message(self.bot_constants.MESSAGE_UPDATED_STATS.format(athlete_name=name))
+                self.calculate_stats(athlete_token, athlete_id[0], telegram_username)
 
     def process_auto_update_indoor_ride(self, event, athlete_token):
         athlete_id = event['owner_id']
@@ -175,12 +191,80 @@ class Process(object):
         else:
             logging.info("Auto update indoor ride is not enabled")
 
+    def process_activity_summary(self, event, athlete_token, name):
+        athlete_id = event['owner_id']
+        chat_id = self.is_activity_summary(athlete_id)
+        if chat_id:
+            activity_id = event['object_id']
+            strava_client_with_token = StravaClient().get_client_with_token(athlete_token)
+            activity = strava_client_with_token.get_activity(activity_id)
+            if self.operations.supported_activities(activity):
+                activity_summary = "*New Activity Summary*:\n\n" \
+                                   "Athlete Name: {athlete_name}\n" \
+                                   "Activity: [{activity_name}](https://www.strava.com/activities/{activity_id})\n" \
+                                   "Activity Date: {activity_date}\n" \
+                                   "Activity Type: {activity_type}\n\n" \
+                                   "Distance: {distance} km\n" \
+                                   "Moving Time: {moving_time}\n" \
+                                   "Elapsed Time: {elapsed_time}\n" \
+                                   "Avg Speed: {avg_speed}\n" \
+                                   "Max Speed: {max_speed}\n" \
+                                   "Calories: {calories}\n".format(
+                    athlete_name=name,
+                    activity_name=activity.name,
+                    activity_id=activity.id,
+                    activity_type=activity.type,
+                    activity_date=activity.start_date_local,
+                    distance=self.operations.meters_to_kilometers(float(activity.distance)),
+                    moving_time=self.operations.seconds_to_human_readable(
+                        unithelper.timedelta_to_seconds(activity.moving_time)),
+                    elapsed_time=self.operations.seconds_to_human_readable(
+                        unithelper.timedelta_to_seconds(activity.elapsed_time)),
+                    avg_speed=unithelper.kilometers_per_hour(activity.average_speed),
+                    max_speed=unithelper.kilometers_per_hour(activity.max_speed),
+                    calories=self.operations.remove_decimal_point(activity.calories))
+
+                if not self.operations.is_indoor(activity):
+                    activity_summary += "\nElevation Gain: {elevation_gain} meters".format(
+                        elevation_gain=self.operations.remove_decimal_point(activity.total_elevation_gain))
+
+                if activity.average_cadence:
+                    activity_summary += "\nAvg Cadence: {avg_cadence}".format(
+                        avg_cadence=self.operations.remove_decimal_point(activity.average_cadence))
+
+                if activity.has_heartrate:
+                    activity_summary += "\nAvg HR: {avg_hr} bpm\nMax HR: {max_hr} bpm".format(
+                        avg_hr=self.operations.remove_decimal_point(activity.average_heartrate),
+                        max_hr=self.operations.remove_decimal_point(activity.max_heartrate))
+
+                if self.operations.is_activity_a_ride(activity) and activity.device_watts:
+                    activity_summary += "\nAvg Watts: {avg_watts}\nMax Watts: {max_watts}".format(
+                        avg_watts=activity.average_watts, max_watts=activity.max_watts)
+
+                activity_summary += "\n\n_Click_ /stats _to check your updated stats_"
+            else:
+                activity_summary = "*New Activity*:\n\n" \
+                                   "Athlete Name: {athlete_name}\n" \
+                                   "Activity: [{activity_name}](https://www.strava.com/activities/{activity_id})\n" \
+                                   "Activity Date: {activity_date}\n" \
+                                   "Activity Type: {activity_type}\n\n" \
+                                   "{activity_type} is not yet supported for Activity Summary.".format(
+                    athlete_name=name,
+                    activity_name=activity.name,
+                    activity_id=activity.id,
+                    activity_type=activity.type,
+                    activity_date=activity.start_date_local)
+
+            self.telegram_client.send_message(chat_id=chat_id, message=activity_summary)
+            self.shadow_mode.send_message(activity_summary)
+
     def process_webhook(self, event):
         if event['aspect_type'] != "update":
             aspect_type = event['aspect_type']
             athlete_id = event['owner_id']
             object_type = event['object_type']
             activity_id = event['object_id']
+
             athlete_token, name, telegram_username = self.get_athlete_details(athlete_id)
             if athlete_token:
                 callback_type = "New Activity"
@@ -189,17 +273,12 @@ class Process(object):
                 self.shadow_mode.send_message(
                     self.bot_constants.MESSAGE_ACTIVITY_ALERT.format(callback_type=callback_type,
                                                                      activity_id=activity_id, athlete_name=name))
+
+                self.calculate_stats(athlete_token, athlete_id, telegram_username)
+
                 if aspect_type == "create" and object_type == "activity":
                     self.process_auto_update_indoor_ride(event, athlete_token)
-                calculate_stats = CalculateStats(athlete_token)
-                calculated_stats = calculate_stats.calculate()
-                name = calculated_stats['athlete_name']
-                calculated_stats = json.dumps(calculated_stats)
-                self.insert_strava_data(athlete_id, name, calculated_stats)
-                self.iron_cache.put(cache="stats", key=telegram_username, value=calculated_stats)
-                self.shadow_mode.send_message(self.bot_constants.MESSAGE_UPDATED_STATS.format(athlete_name=name))
-                logging.info(
-                    "Updated stats for https://www.strava.com/athletes/{athlete_id}".format(athlete_id=athlete_id))
+                    self.process_activity_summary(event, athlete_token, name)
             else:
                 message = self.bot_constants.MESSAGE_OLD_ATHLETE.format(athlete_id=athlete_id, activity_id=activity_id)
                 logging.info(message)
