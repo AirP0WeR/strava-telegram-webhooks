@@ -199,7 +199,7 @@ class Process(object):
             strava_client_with_token = StravaClient().get_client_with_token(athlete_token)
             activity = strava_client_with_token.get_activity(activity_id)
             if self.operations.supported_activities(activity):
-                activity_summary = "New Activity Summary:\n\n" \
+                activity_summary = "*New Activity Summary*:\n\n" \
                                    "Athlete Name: {athlete_name}\n" \
                                    "Activity: [{activity_name}](https://www.strava.com/activities/{activity_id})\n" \
                                    "Activity Date: {activity_date}\n" \
@@ -241,9 +241,9 @@ class Process(object):
                     activity_summary += "\nAvg Watts: {avg_watts}\nMax Watts: {max_watts}".format(
                         avg_watts=activity.average_watts, max_watts=activity.max_watts)
 
-                activity_summary += "\n\nClick /stats to check your updated stats."
+                activity_summary += "\n\n_Click /stats to check your updated stats_"
             else:
-                activity_summary = "New Activity:\n\n" \
+                activity_summary = "*New Activity*:\n\n" \
                                    "Athlete Name: {athlete_name}\n" \
                                    "Activity: [{activity_name}](https://www.strava.com/activities/{activity_id})\n" \
                                    "Activity Date: {activity_date}\n" \
