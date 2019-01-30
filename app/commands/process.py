@@ -230,7 +230,7 @@ class Process(object):
                     if self.operations.supported_activities(activity):
                         self.calculate_stats(athlete_details['athlete_token'], athlete_id,
                                              athlete_details['telegram_username'])
-                        if aspect_type == "create" and object_type == "activity":
+                        if object_type == "activity":
                             self.process_auto_update_indoor_ride(activity, athlete_details['athlete_token'], athlete_id,
                                                                  activity_id)
                             self.process_activity_summary(activity, athlete_details['name'], athlete_id)
