@@ -15,6 +15,7 @@ class AppConstants(object):
     API_TELEGRAM_SEND_MESSAGE = "https://api.telegram.org/bot{bot_token}/sendMessage"
 
     MESSAGE_ACTIVITY_ALERT = "[{callback_type}](https://www.strava.com/activities/{activity_id}) by {athlete_name}."
+    MESSAGE_UNSUPPORTED_ACTIVITY = "{activity_type} is not supported yet. Ignoring update stats."
     MESSAGE_OLD_ATHLETE = "Old Athlete: [Athlete](https://www.strava.com/athletes/{athlete_id}) | [Activity](https://www.strava.com/activities/{activity_id})"
     MESSAGE_UPDATED_INDOOR_RIDE = "Indoor Ride has been updated."
     MESSAGE_UPDATED_STATS = "Updated stats for {athlete_name}."

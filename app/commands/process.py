@@ -4,10 +4,10 @@ import json
 import logging
 import time
 
-import psycopg2
 import requests
 from stravalib import unithelper
 
+from app.clients.database import DatabaseClient
 from app.clients.iron_cache import IronCache
 from app.clients.strava import StravaClient
 from app.clients.telegram import TelegramClient
@@ -28,6 +28,7 @@ class Process(object):
         self.iron_cache = IronCache()
         self.aes_cipher = AESCipher(self.bot_variables.crypt_key_length, self.bot_variables.crypt_key)
         self.telegram_client = TelegramClient()
+        self.database_client = DatabaseClient()
 
     def refresh_and_update_token(self, athlete_id, refresh_token):
         response = requests.post(self.bot_constants.API_TOKEN_EXCHANGE, data={
@@ -37,71 +38,34 @@ class Process(object):
             'refresh_token': refresh_token,
         }).json()
 
-        access_info = dict()
-        access_info['access_token'] = response['access_token']
-        access_info['refresh_token'] = response['refresh_token']
-        access_info['expires_at'] = response['expires_at']
-
-        database_connection = psycopg2.connect(self.bot_variables.database_url, sslmode='require')
-        cursor = database_connection.cursor()
-        cursor.execute(self.bot_constants.QUERY_UPDATE_TOKEN.format(
-            access_token=self.aes_cipher.encrypt(access_info['access_token']),
-            refresh_token=self.aes_cipher.encrypt(access_info['refresh_token']),
-            expires_at=access_info['expires_at'],
+        self.database_client.write_operation(self.bot_constants.QUERY_UPDATE_TOKEN.format(
+            access_token=self.aes_cipher.encrypt(response['access_token']),
+            refresh_token=self.aes_cipher.encrypt(response['refresh_token']),
+            expires_at=response['expires_at'],
             athlete_id=athlete_id
         ))
-        cursor.close()
-        database_connection.commit()
-        database_connection.close()
 
         return response['access_token']
 
     def get_athlete_details(self, athlete_id):
-        database_connection = psycopg2.connect(self.bot_variables.database_url, sslmode='require')
-        cursor = database_connection.cursor()
-        cursor.execute(self.bot_constants.QUERY_FETCH_TOKEN_NAME_TELEGRAM_NAME.format(athlete_id=athlete_id))
-        result = cursor.fetchall()
-        cursor.close()
-        database_connection.close()
+        athlete_details = {'athlete_token': None, 'name': None, 'telegram_username': None}
+        result = self.database_client.read_operation(
+            self.bot_constants.QUERY_FETCH_TOKEN_NAME_TELEGRAM_NAME.format(athlete_id=athlete_id))
         if len(result) > 0:
-            access_token = self.aes_cipher.decrypt(result[0][0])
-            refresh_token = self.aes_cipher.decrypt(result[0][1])
-            expires_at = result[0][2]
-            name = result[0][3]
-            telegram_username = result[0][4]
-            current_time = int(time.time())
-            if current_time > expires_at:
-                logging.info(
-                    "Token has expired | Current Time: {current_time} | Token Expiry Time: {expires_at}".format(
-                        current_time=current_time, expires_at=expires_at))
-                access_token = self.refresh_and_update_token(athlete_id, refresh_token)
-                return access_token, name, telegram_username
-            else:
-                logging.info(
-                    "Token is still valid | Current Time: {current_time} | Token Expiry Time: {expires_at}".format(
-                        current_time=current_time, expires_at=expires_at))
-                return access_token, name, telegram_username
-        else:
-            return False, False, False
+            athlete_details['athlete_token'] = self.aes_cipher.decrypt(result[0])
+            refresh_token = self.aes_cipher.decrypt(result[1])
+            expires_at = result[2]
+            athlete_details['name'] = result[3]
+            athlete_details['telegram_username'] = result[4]
 
-    def insert_strava_data(self, athlete_id, name, strava_data):
-        database_connection = psycopg2.connect(self.bot_variables.database_url, sslmode='require')
-        cursor = database_connection.cursor()
-        cursor.execute(self.bot_constants.QUERY_UPDATE_STRAVA_DATA.format(name=name,
-                                                                          strava_data=strava_data,
-                                                                          athlete_id=athlete_id))
-        cursor.close()
-        database_connection.commit()
-        database_connection.close()
+            if int(time.time()) > expires_at:
+                athlete_details['athlete_token'] = self.refresh_and_update_token(athlete_id, refresh_token)
+
+        return athlete_details
 
     def is_update_indoor_ride(self, athlete_id):
-        database_connection = psycopg2.connect(self.bot_variables.database_url, sslmode='require')
-        cursor = database_connection.cursor()
-        cursor.execute(self.bot_constants.QUERY_FETCH_UPDATE_INDOOR_RIDE.format(athlete_id=athlete_id))
-        results = cursor.fetchone()
-        cursor.close()
-        database_connection.close()
-
+        results = self.database_client.read_operation(
+            self.bot_constants.QUERY_FETCH_UPDATE_INDOOR_RIDE.format(athlete_id=athlete_id))
         update_indoor_ride = results[0]
         update_indoor_ride_data = results[1]
 
@@ -111,13 +75,8 @@ class Process(object):
             return False
 
     def is_activity_summary(self, athlete_id):
-        database_connection = psycopg2.connect(self.bot_variables.database_url, sslmode='require')
-        cursor = database_connection.cursor()
-        cursor.execute(self.bot_constants.QUERY_ACTIVITY_SUMMARY.format(athlete_id=athlete_id))
-        results = cursor.fetchone()
-        cursor.close()
-        database_connection.close()
-
+        results = self.database_client.read_operation(
+            self.bot_constants.QUERY_ACTIVITY_SUMMARY.format(athlete_id=athlete_id))
         enable_activity_summary = results[0]
         chat_id = results[1]
 
@@ -131,15 +90,17 @@ class Process(object):
         calculated_stats = calculate_stats.calculate()
         name = calculated_stats['athlete_name']
         calculated_stats = json.dumps(calculated_stats)
-        self.insert_strava_data(athlete_id, name, calculated_stats)
+        self.database_client.write_operation(
+            self.bot_constants.QUERY_UPDATE_STRAVA_DATA.format(name=name, strava_data=calculated_stats,
+                                                               athlete_id=athlete_id))
         self.iron_cache.put(cache="stats", key=telegram_username, value=calculated_stats)
         self.shadow_mode.send_message(self.bot_constants.MESSAGE_UPDATED_STATS.format(athlete_name=name))
         logging.info("Updated stats for https://www.strava.com/athletes/{athlete_id}".format(athlete_id=athlete_id))
 
     def process_update_stats(self, athlete_id):
-        athlete_token, name, telegram_username = self.get_athlete_details(athlete_id)
-        if athlete_token:
-            self.calculate_stats(athlete_token, athlete_id, telegram_username)
+        athlete_details = self.get_athlete_details(athlete_id)
+        if athlete_details['athlete_token']:
+            self.calculate_stats(athlete_details['athlete_token'], athlete_id, athlete_details['telegram_username'])
         else:
             message = "Old athlete (https://www.strava.com/athletes/{athlete_id}). Not registered anymore.".format(
                 athlete_id=athlete_id)
@@ -147,27 +108,17 @@ class Process(object):
             self.shadow_mode.send_message(message)
 
     def process_update_all_stats(self):
-        database_connection = psycopg2.connect(self.bot_variables.database_url, sslmode='require')
-        cursor = database_connection.cursor()
-        cursor.execute(self.bot_constants.QUERY_FETCH_ALL_ATHLETE_IDS)
-        athlete_ids = cursor.fetchall()
-        cursor.close()
-        database_connection.close()
-
+        athlete_ids = self.database_client.read_all_operation(self.bot_constants.QUERY_FETCH_ALL_ATHLETE_IDS)
         for athlete_id in athlete_ids:
-            athlete_token, name, telegram_username = self.get_athlete_details(athlete_id[0])
-            if athlete_token:
+            athlete_details = self.get_athlete_details(athlete_id[0])
+            if athlete_details['athlete_token']:
                 logging.info("Updating stats for {athlete_id}".format(athlete_id=athlete_id[0]))
-                self.calculate_stats(athlete_token, athlete_id[0], telegram_username)
+                self.calculate_stats(athlete_details['athlete_token'], athlete_id[0],
+                                     athlete_details['telegram_username'])
 
-    def process_auto_update_indoor_ride(self, event, athlete_token):
-        athlete_id = event['owner_id']
+    def process_auto_update_indoor_ride(self, activity, athlete_token, athlete_id, activity_id):
         update_indoor_ride_data = self.is_update_indoor_ride(athlete_id)
         if update_indoor_ride_data:
-            activity_id = event['object_id']
-            strava_client_with_token = StravaClient().get_client_with_token(athlete_token)
-            activity = strava_client_with_token.get_activity(activity_id)
-
             if self.operations.is_activity_a_ride(activity) and self.operations.is_indoor(activity):
 
                 if update_indoor_ride_data['name'] == 'Automatic':
@@ -181,23 +132,20 @@ class Process(object):
                     elif (19 <= activity_hour <= 23) or (0 <= activity_hour <= 2):
                         update_indoor_ride_data['name'] = "Night Ride"
 
+                strava_client_with_token = StravaClient().get_client(athlete_token)
                 strava_client_with_token.update_activity(activity_id=activity_id,
                                                          name=update_indoor_ride_data['name'],
                                                          gear_id=update_indoor_ride_data['gear_id'])
                 logging.info("Updated indoor ride")
                 self.shadow_mode.send_message(self.bot_constants.MESSAGE_UPDATED_INDOOR_RIDE)
             else:
-                logging.info("Not a indoor ride")
+                logging.info("Not an indoor ride")
         else:
             logging.info("Auto update indoor ride is not enabled")
 
-    def process_activity_summary(self, event, athlete_token, name):
-        athlete_id = event['owner_id']
+    def process_activity_summary(self, activity, name, athlete_id):
         chat_id = self.is_activity_summary(athlete_id)
         if chat_id:
-            activity_id = event['object_id']
-            strava_client_with_token = StravaClient().get_client_with_token(athlete_token)
-            activity = strava_client_with_token.get_activity(activity_id)
             if self.operations.supported_activities(activity):
                 activity_summary = "*New Activity Summary*:\n\n" \
                                    "Athlete Name: {athlete_name}\n" \
@@ -265,20 +213,34 @@ class Process(object):
             object_type = event['object_type']
             activity_id = event['object_id']
 
-            athlete_token, name, telegram_username = self.get_athlete_details(athlete_id)
-            if athlete_token:
+            athlete_details = self.get_athlete_details(athlete_id)
+            if athlete_details['athlete_token']:
                 callback_type = "New Activity"
                 if aspect_type == "delete":
                     callback_type = "Activity Deleted"
                 self.shadow_mode.send_message(
                     self.bot_constants.MESSAGE_ACTIVITY_ALERT.format(callback_type=callback_type,
-                                                                     activity_id=activity_id, athlete_name=name))
+                                                                     activity_id=activity_id,
+                                                                     athlete_name=athlete_details['name']))
 
-                self.calculate_stats(athlete_token, athlete_id, telegram_username)
+                if aspect_type == "create":
+                    strava_client_with_token = StravaClient().get_client(athlete_details['athlete_token'])
+                    activity = strava_client_with_token.get_activity(activity_id)
 
-                if aspect_type == "create" and object_type == "activity":
-                    self.process_auto_update_indoor_ride(event, athlete_token)
-                    self.process_activity_summary(event, athlete_token, name)
+                    if self.operations.supported_activities(activity):
+                        self.calculate_stats(athlete_details['athlete_token'], athlete_id,
+                                             athlete_details['telegram_username'])
+                        if object_type == "activity":
+                            self.process_auto_update_indoor_ride(activity, athlete_details['athlete_token'], athlete_id,
+                                                                 activity_id)
+                            self.process_activity_summary(activity, athlete_details['name'], athlete_id)
+                    else:
+                        self.shadow_mode.send_message(
+                            self.bot_constants.MESSAGE_UNSUPPORTED_ACTIVITY.format(activity_type=activity.type))
+
+                elif aspect_type == "delete":
+                    self.calculate_stats(athlete_details['athlete_token'], athlete_id,
+                                         athlete_details['telegram_username'])
             else:
                 message = self.bot_constants.MESSAGE_OLD_ATHLETE.format(athlete_id=athlete_id, activity_id=activity_id)
                 logging.info(message)
