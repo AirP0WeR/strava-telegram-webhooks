@@ -2,7 +2,7 @@
 
 import psycopg2
 
-from common.constants_and_variables import AppVariables
+from app.common.constants_and_variables import AppVariables
 
 
 class DatabaseClient(object):
