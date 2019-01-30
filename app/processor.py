@@ -34,6 +34,7 @@ def handle_webhook(event):
         logging.error(message)
         shadow_mode.send_message(message)
 
+
 @app.task
 def update_stats(athlete_id):
     try:

@@ -255,7 +255,7 @@ class CalculateStats(object):
         }
 
     def calculate(self):
-        strava_client = StravaClient().get_client_with_token(self.athlete_token)
+        strava_client = StravaClient().get_client(self.athlete_token)
         athlete_info = strava_client.get_athlete()
         activities = strava_client.get_activities(after="1970-01-01T00:00:00Z")
         today_date = date.today()
