@@ -48,18 +48,18 @@ class Process(object):
         return response['access_token']
 
     def get_athlete_details(self, athlete_id):
-        athlete_details = {'access_token': None, 'name': None, 'telegram_username': None}
+        athlete_details = {'athlete_token': None, 'name': None, 'telegram_username': None}
         result = self.database_client.read_operation(
             self.bot_constants.QUERY_FETCH_TOKEN_NAME_TELEGRAM_NAME.format(athlete_id=athlete_id))
         if len(result) > 0:
-            athlete_details['access_token'] = self.aes_cipher.decrypt(result[0])
+            athlete_details['athlete_token'] = self.aes_cipher.decrypt(result[0])
             refresh_token = self.aes_cipher.decrypt(result[1])
             expires_at = result[2]
             athlete_details['name'] = result[3]
             athlete_details['telegram_username'] = result[4]
 
             if int(time.time()) > expires_at:
-                athlete_details['access_token'] = self.refresh_and_update_token(athlete_id, refresh_token)
+                athlete_details['athlete_token'] = self.refresh_and_update_token(athlete_id, refresh_token)
 
         return athlete_details
 
