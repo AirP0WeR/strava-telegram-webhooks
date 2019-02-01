@@ -7,7 +7,7 @@ class AppConstants(object):
     QUERY_FETCH_TOKEN_NAME_TELEGRAM_NAME = "select access_token, refresh_token, expires_at, name, telegram_username from strava_telegram_bot where athlete_id={athlete_id}"
     QUERY_UPDATE_TOKEN = "UPDATE strava_telegram_bot SET access_token='{access_token}', refresh_token='{refresh_token}', expires_at={expires_at}, updated=now() where athlete_id={athlete_id}"
     QUERY_UPDATE_STRAVA_DATA = "UPDATE strava_telegram_bot SET name='{name}', strava_data='{strava_data}', updated=now() WHERE athlete_id={athlete_id}"
-    QUERY_FETCH_UPDATE_INDOOR_RIDE = "select update_indoor_ride, update_indoor_ride_data from strava_telegram_bot where athlete_id={athlete_id}"
+    QUERY_FETCH_UPDATE_INDOOR_RIDE = "select update_indoor_ride, update_indoor_ride_data, chat_id from strava_telegram_bot where athlete_id={athlete_id}"
     QUERY_ACTIVITY_SUMMARY = "select enable_activity_summary, chat_id from strava_telegram_bot where athlete_id={athlete_id}"
     QUERY_FETCH_ALL_ATHLETE_IDS = "select athlete_id from strava_telegram_bot"
 
@@ -17,7 +17,7 @@ class AppConstants(object):
     MESSAGE_ACTIVITY_ALERT = "[{callback_type}](https://www.strava.com/activities/{activity_id}) by {athlete_name}."
     MESSAGE_UNSUPPORTED_ACTIVITY = "{activity_type} is not supported yet. Ignoring update stats."
     MESSAGE_OLD_ATHLETE = "Old Athlete: [Athlete](https://www.strava.com/athletes/{athlete_id}) | [Activity](https://www.strava.com/activities/{activity_id})"
-    MESSAGE_UPDATED_INDOOR_RIDE = "Indoor Ride has been updated."
+    MESSAGE_UPDATED_INDOOR_RIDE = "Updated your Indoor Ride with the below configuration:\n"
     MESSAGE_UPDATED_STATS = "Updated stats for {athlete_name}."
 
 
