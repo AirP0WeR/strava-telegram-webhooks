@@ -73,7 +73,7 @@ class Process(object):
         if update_indoor_ride:
             return update_indoor_ride_data, chat_id
         else:
-            return False
+            return False, False
 
     def is_activity_summary(self, athlete_id):
         results = self.database_client.read_operation(
