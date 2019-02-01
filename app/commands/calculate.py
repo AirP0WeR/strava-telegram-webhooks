@@ -582,6 +582,7 @@ class CalculateStats(object):
                         elif distance > 1500.0:
                             rider_stats["swim_cm_1500"] += 1
 
+                # TODO This condition fails for January. Fix it.
                 if activity_month == previous_month and activity_year == current_year:
                     if self.operations.is_activity_a_ride(activity):
                         rider_stats["ride_pm_total"] += 1

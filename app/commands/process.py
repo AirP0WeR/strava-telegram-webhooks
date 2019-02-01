@@ -68,9 +68,10 @@ class Process(object):
             self.bot_constants.QUERY_FETCH_UPDATE_INDOOR_RIDE.format(athlete_id=athlete_id))
         update_indoor_ride = results[0]
         update_indoor_ride_data = results[1]
+        chat_id = results[2]
 
         if update_indoor_ride:
-            return update_indoor_ride_data
+            return update_indoor_ride_data, chat_id
         else:
             return False
 
@@ -117,7 +118,7 @@ class Process(object):
                                      athlete_details['telegram_username'])
 
     def process_auto_update_indoor_ride(self, activity, athlete_token, athlete_id, activity_id):
-        update_indoor_ride_data = self.is_update_indoor_ride(athlete_id)
+        update_indoor_ride_data, chat_id = self.is_update_indoor_ride(athlete_id)
         if update_indoor_ride_data:
             if self.operations.is_activity_a_ride(activity) and self.operations.is_indoor(activity):
 
@@ -132,12 +133,21 @@ class Process(object):
                     elif (19 <= activity_hour <= 23) or (0 <= activity_hour <= 2):
                         update_indoor_ride_data['name'] = "Night Ride"
 
-                strava_client_with_token = StravaClient().get_client(athlete_token)
-                strava_client_with_token.update_activity(activity_id=activity_id,
-                                                         name=update_indoor_ride_data['name'],
-                                                         gear_id=update_indoor_ride_data['gear_id'])
+                strava_client = StravaClient().get_client(athlete_token)
+                strava_client.update_activity(activity_id=activity_id, name=update_indoor_ride_data['name'],
+                                              gear_id=update_indoor_ride_data['gear_id'])
                 logging.info("Updated indoor ride")
-                self.shadow_mode.send_message(self.bot_constants.MESSAGE_UPDATED_INDOOR_RIDE)
+                configured_data = self.bot_constants.MESSAGE_UPDATED_INDOOR_RIDE
+                if update_indoor_ride_data['name']:
+                    configured_data += "\nActivity Name: {activity_name}".format(
+                        activity_name=update_indoor_ride_data['name'])
+                if update_indoor_ride_data['gear_id']:
+                    bike_name = strava_client.get_gear(gear_id=update_indoor_ride_data['gear_id']).name
+                    configured_data += "\nBike: {bike_name}".format(bike_name=bike_name)
+
+                message = configured_data
+                self.telegram_client.send_message(chat_id=chat_id, message=message)
+                self.shadow_mode.send_message(message)
             else:
                 logging.info("Not an indoor ride")
         else:
