@@ -27,17 +27,11 @@ scout_apm.celery.install()
 
 @app.on_after_configure.connect
 def setup_periodic_tasks(sender, **kwargs):
-    sender.add_periodic_task(10.0, test.s('hello'), name='add every 10')
-
     sender.add_periodic_task(
-        crontab(hour=0, minute=5, day_of_month=1),
+        # crontab(hour=0, minute=5, day_of_month=1),
+        crontab(minute=1),
         update_all_stats.s()
     )
-
-
-@app.task
-def test(arg):
-    print(arg)
 
 
 @app.task
