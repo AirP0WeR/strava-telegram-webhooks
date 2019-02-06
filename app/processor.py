@@ -5,6 +5,7 @@ import traceback
 
 import scout_apm.celery
 from celery import Celery
+from celery.schedules import crontab
 
 from app.commands.process import Process
 from app.common.constants_and_variables import AppVariables
@@ -19,8 +20,24 @@ app.conf.BROKER_POOL_LIMIT = 0
 app.conf.SCOUT_MONITOR = app_variables.scout_monitor
 app.conf.SCOUT_NAME = app_variables.scout_name
 app.conf.SCOUT_KEY = app_variables.scout_key
+app.conf.CELERY_TIMEZONE = app_variables.timezone
 
 scout_apm.celery.install()
+
+
+@app.on_after_configure.connect
+def setup_periodic_tasks(sender, **kwargs):
+    sender.add_periodic_task(10.0, test.s('hello'), name='add every 10')
+
+    sender.add_periodic_task(
+        crontab(hour=0, minute=5, day_of_month=1),
+        update_all_stats.s()
+    )
+
+
+@app.task
+def test(arg):
+    print(arg)
 
 
 @app.task

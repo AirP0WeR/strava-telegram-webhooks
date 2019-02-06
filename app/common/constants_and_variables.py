@@ -40,3 +40,4 @@ class AppVariables(object):
     scout_key = os.environ.get('SCOUT_KEY')
     scout_name = os.environ.get('SCOUT_NAME')
     logging_level = os.environ.get('LOGGING_LEVEL')
+    timezone = os.environ.get('TZ')
