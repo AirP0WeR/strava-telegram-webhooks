@@ -3,6 +3,7 @@
 import json
 import logging
 import time
+import traceback
 
 import requests
 from stravalib import unithelper
@@ -235,18 +236,28 @@ class Process(object):
 
                 if aspect_type == "create":
                     strava_client_with_token = StravaClient().get_client(athlete_details['athlete_token'])
-                    activity = strava_client_with_token.get_activity(activity_id)
+                    try:
+                        activity = strava_client_with_token.get_activity(activity_id)
 
-                    if self.operations.supported_activities(activity):
+                        if self.operations.supported_activities(activity):
+                            self.calculate_stats(athlete_details['athlete_token'], athlete_id,
+                                                 athlete_details['telegram_username'])
+                            if object_type == "activity":
+                                self.process_auto_update_indoor_ride(activity, athlete_details['athlete_token'],
+                                                                     athlete_id,
+                                                                     activity_id)
+                                self.process_activity_summary(activity, athlete_details['name'], athlete_id)
+                        else:
+                            self.shadow_mode.send_message(
+                                self.bot_constants.MESSAGE_UNSUPPORTED_ACTIVITY.format(activity_type=activity.type))
+                    except Exception:
+                        message = "Something went wrong. Exception: {exception}".format(
+                            exception=traceback.format_exc())
+                        logging.error(message)
+                        self.shadow_mode.send_message(message)
+                        self.shadow_mode.send_message("Triggering update stats..")
                         self.calculate_stats(athlete_details['athlete_token'], athlete_id,
                                              athlete_details['telegram_username'])
-                        if object_type == "activity":
-                            self.process_auto_update_indoor_ride(activity, athlete_details['athlete_token'], athlete_id,
-                                                                 activity_id)
-                            self.process_activity_summary(activity, athlete_details['name'], athlete_id)
-                    else:
-                        self.shadow_mode.send_message(
-                            self.bot_constants.MESSAGE_UNSUPPORTED_ACTIVITY.format(activity_type=activity.type))
 
                 elif aspect_type == "delete":
                     self.calculate_stats(athlete_details['athlete_token'], athlete_id,
