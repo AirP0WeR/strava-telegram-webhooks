@@ -166,8 +166,6 @@ class Process(object):
                                    "Distance: {distance} km\n" \
                                    "Moving Time: {moving_time}\n" \
                                    "Elapsed Time: {elapsed_time}\n" \
-                                   "Avg Speed: {avg_speed}\n" \
-                                   "Max Speed: {max_speed}\n" \
                                    "Calories: {calories}\n".format(
                     athlete_name=name,
                     activity_name=activity.name,
@@ -179,9 +177,18 @@ class Process(object):
                         unithelper.timedelta_to_seconds(activity.moving_time)),
                     elapsed_time=self.operations.seconds_to_human_readable(
                         unithelper.timedelta_to_seconds(activity.elapsed_time)),
-                    avg_speed=unithelper.kilometers_per_hour(activity.average_speed),
-                    max_speed=unithelper.kilometers_per_hour(activity.max_speed),
                     calories=self.operations.remove_decimal_point(activity.calories))
+
+                if self.operations.is_activity_a_ride(activity):
+                    activity_summary += "Avg Speed: {avg_speed}\n" \
+                                        "Max Speed: {max_speed}\n".format(
+                        avg_speed=unithelper.kilometers_per_hour(activity.average_speed),
+                        max_speed=unithelper.kilometers_per_hour(activity.max_speed))
+                else:
+                    activity_summary += "Avg Pace: {avg_pace}\n" \
+                                        "Max Pace: {max_pace}\n".format(
+                        avg_pace=unithelper.kilometers_per_hour(activity.average_speed),
+                        max_pace=unithelper.kilometers_per_hour(activity.max_speed))
 
                 if not self.operations.is_indoor(activity):
                     activity_summary += "\nElevation Gain: {elevation_gain} meters".format(
