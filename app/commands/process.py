@@ -64,6 +64,17 @@ class Process(object):
 
         return athlete_details
 
+    def disable_athlete(self, athlete_id):
+        try:
+            self.database_client.write_operation(
+                self.bot_constants.QUERY_DEACTIVATE_ATHLETE.format(athlete_id=athlete_id))
+        except Exception:
+            logging.exception(
+                "Something went wrong while deactivating Athlete. Exception: {}".format(traceback.format_exc()))
+            return False
+        else:
+            return True
+
     def is_update_indoor_ride(self, athlete_id):
         results = self.database_client.read_operation(
             self.bot_constants.QUERY_FETCH_UPDATE_INDOOR_RIDE.format(athlete_id=athlete_id))
@@ -272,4 +283,17 @@ class Process(object):
             else:
                 message = self.bot_constants.MESSAGE_OLD_ATHLETE.format(athlete_id=athlete_id, activity_id=activity_id)
                 logging.info(message)
+                self.shadow_mode.send_message(message)
+
+        elif event['aspect_type'] == "update" and 'authorized' in event['updates'] and event['updates'][
+            'authorized'] == "false":
+            athlete_id = event['owner_id']
+            athlete_details = self.get_athlete_details(athlete_id)
+            if athlete_details['athlete_token']:
+                if self.disable_athlete(athlete_id):
+                    message = self.bot_constants.MESSAGE_DEAUTHORIZE_SUCCESS.format(name=athlete_details['name'],
+                                                                                    athlete_id=athlete_id)
+                else:
+                    message = self.bot_constants.MESSAGE_DEAUTHORIZE_FAILURE.format(name=athlete_details['name'],
+                                                                                    athlete_id=athlete_id)
                 self.shadow_mode.send_message(message)

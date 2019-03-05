@@ -10,6 +10,7 @@ class AppConstants(object):
     QUERY_FETCH_UPDATE_INDOOR_RIDE = "select update_indoor_ride, update_indoor_ride_data, chat_id from strava_telegram_bot where athlete_id={athlete_id}"
     QUERY_ACTIVITY_SUMMARY = "select enable_activity_summary, chat_id from strava_telegram_bot where athlete_id={athlete_id}"
     QUERY_FETCH_ALL_ATHLETE_IDS = "select athlete_id from strava_telegram_bot"
+    QUERY_DEACTIVATE_ATHLETE = "UPDATE strava_telegram_bot SET active=false, strava_data=null, update_indoor_ride=false, update_indoor_ride_data=null, chat_id=null, enable_activity_summary=false, updated=now() WHERE athlete_id={athlete_id}"
 
     API_TOKEN_EXCHANGE = 'https://www.strava.com/oauth/token'
     API_TELEGRAM_SEND_MESSAGE = "https://api.telegram.org/bot{bot_token}/sendMessage"
@@ -19,6 +20,8 @@ class AppConstants(object):
     MESSAGE_OLD_ATHLETE = "Old Athlete: [Athlete](https://www.strava.com/athletes/{athlete_id}) | [Activity](https://www.strava.com/activities/{activity_id})"
     MESSAGE_UPDATED_INDOOR_RIDE = "Updated your Indoor Ride with the below configuration:\n"
     MESSAGE_UPDATED_STATS = "Updated stats for {athlete_name}."
+    MESSAGE_DEAUTHORIZE_SUCCESS = "[{name}](https://www.strava.com/athletes/{athlete_id}) deauthorized Strava App."
+    MESSAGE_DEAUTHORIZE_FAILURE = "Failed to deactivate [{name}](https://www.strava.com/athletes/{athlete_id})."
 
 
 class AppVariables(object):
