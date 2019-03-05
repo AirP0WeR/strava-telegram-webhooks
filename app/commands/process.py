@@ -52,7 +52,7 @@ class Process(object):
         athlete_details = {'athlete_token': None, 'name': None, 'telegram_username': None}
         result = self.database_client.read_operation(
             self.bot_constants.QUERY_FETCH_TOKEN_NAME_TELEGRAM_NAME.format(athlete_id=athlete_id))
-        if len(result) > 0:
+        if result:
             athlete_details['athlete_token'] = self.aes_cipher.decrypt(result[0])
             refresh_token = self.aes_cipher.decrypt(result[1])
             expires_at = result[2]
