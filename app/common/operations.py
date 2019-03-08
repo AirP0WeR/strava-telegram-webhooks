@@ -48,5 +48,8 @@ class Operations(object):
 
     @staticmethod
     def supported_activities(activity):
-        return True if (
-                    activity.type == 'VirtualRide' or activity.type == 'VirtualRun' or activity.type == 'Ride' or activity.type == 'Run' or activity.type == 'Swim') else False
+        return True if (activity.type == 'VirtualRide'
+                        or activity.type == 'VirtualRun'
+                        or activity.type == 'Ride'
+                        or activity.type == 'Run'
+                        or activity.type == 'Swim') else False

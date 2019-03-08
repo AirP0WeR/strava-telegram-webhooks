@@ -8,10 +8,11 @@ from celery import Celery
 
 from app.commands.process import Process
 from app.common.constants_and_variables import AppVariables
-from app.common.shadow_mode import ShadowMode
+from app.resources.telegram import TelegramResource
 
 app_variables = AppVariables()
-shadow_mode = ShadowMode()
+process = Process()
+telegram_resource = TelegramResource()
 
 app = Celery()
 app.conf.BROKER_URL = app_variables.redis_url
@@ -27,35 +28,45 @@ scout_apm.celery.install()
 def handle_webhook(event):
     try:
         logging.info("Webhook Event Received: {event}".format(event=event))
-        process = Process()
         process.process_webhook(event)
     except Exception:
         message = "Something went wrong. Exception: {exception}".format(exception=traceback.format_exc())
         logging.error(message)
-        shadow_mode.send_message(message)
+        telegram_resource.shadow_message(message)
 
 
 @app.task
 def update_stats(athlete_id):
     try:
-        logging.info("Received callback to update stats for https://www.strava.com/athletes/{athlete_id}".format(
+        logging.info("Received request to update stats for https://www.strava.com/athletes/{athlete_id}.".format(
             athlete_id=athlete_id))
-        process_stats = Process()
-        process_stats.process_update_stats(athlete_id)
+        process.process_update_stats(athlete_id)
     except Exception:
         message = "Something went wrong. Exception: {exception}".format(exception=traceback.format_exc())
         logging.error(message)
-        shadow_mode.send_message(message)
+        telegram_resource.shadow_message(message)
 
 
 @app.task
 def update_all_stats():
     try:
-        logging.info("Received callback to update stats for all the athletes")
-        process_stats = Process()
-        process_stats.process_update_all_stats()
-        logging.info("Updated stats for all the athletes")
+        logging.info("Received request to update stats for all the athletes.")
+        process.process_update_all_stats()
     except Exception:
         message = "Something went wrong. Exception: {exception}".format(exception=traceback.format_exc())
         logging.error(message)
-        shadow_mode.send_message(message)
+        telegram_resource.shadow_message(message)
+
+
+@app.task
+def telegram_send_message(chat_id, message):
+    logging.info(
+        "Received request to send message to a user. Chat ID: {chat_id}, Message: {message}".format(chat_id=chat_id,
+                                                                                                    message=message))
+    telegram_resource.send_message(chat_id, message)
+
+
+@app.task
+def telegram_shadow_message(message):
+    logging.info("Received request to shadow message to the admin group. Message: {message}".format(message=message))
+    telegram_resource.shadow_message(message)

@@ -1,11 +1,12 @@
 #  -*- encoding: utf-8 -*-
 
+import logging
 from datetime import date, datetime
 
 from stravalib import unithelper
 
-from app.clients.strava import StravaClient
 from app.common.operations import Operations
+from app.resources.strava import StravaResource
 
 
 class CalculateStats(object):
@@ -13,6 +14,7 @@ class CalculateStats(object):
     def __init__(self, athlete_token):
         self.athlete_token = athlete_token
         self.operations = Operations()
+        self.strava_resource = StravaResource()
 
     @staticmethod
     def get_rider_stats():
@@ -255,9 +257,9 @@ class CalculateStats(object):
         }
 
     def calculate(self):
-        strava_client = StravaClient().get_client(self.athlete_token)
-        athlete_info = strava_client.get_athlete()
-        activities = strava_client.get_activities(after="1970-01-01T00:00:00Z")
+        logging.info("Calculating stats..")
+        athlete_info = self.strava_resource.get_athlete_info(self.athlete_token)
+        activities = self.strava_resource.get_strava_activities_after_date(self.athlete_token, "1970-01-01T00:00:00Z")
         today_date = date.today()
         current_month = today_date.month
         previous_month = (current_month - 1) if (current_month > 1) else 12
