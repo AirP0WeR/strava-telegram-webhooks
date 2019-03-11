@@ -76,7 +76,7 @@ class StravaResource(object):
 
     def get_gear_name(self, token, gear_id):
         strava_client = self.strava_client.get_client(token)
-        gear_name = str()
+        gear_name = False
         try:
             logging.info("Getting gear name for {gear_id}".format(gear_id=gear_id))
             result = strava_client.get_gear(gear_id=gear_id)
@@ -87,6 +87,17 @@ class StravaResource(object):
 
         logging.info("Gear name: {gear_name}".format(gear_name=gear_name))
         return gear_name
+
+    def get_bikes_list(self, token):
+        strava_client = self.strava_client.get_client(token)
+        athlete = strava_client.get_athlete()
+        bikes = dict()
+        count = 1
+        for bike in athlete.bikes:
+            bikes.update({count: {'bike_name': bike.name, 'bike_id': bike.id}})
+            count += 1
+
+        return bikes
 
     def get_strava_activity(self, token, activity_id):
         strava_client = self.strava_client.get_client(token)
@@ -104,7 +115,7 @@ class StravaResource(object):
 
     def get_athlete_info(self, token):
         strava_client = self.strava_client.get_client(token)
-        activity = False
+        athlete = False
         try:
             logging.info("Getting athlete info..")
             result = strava_client.get_athlete()
@@ -112,9 +123,9 @@ class StravaResource(object):
             logging.error(traceback.format_exc())
         else:
             logging.info("Success.")
-            activity = result
+            athlete = result
 
-        return activity
+        return athlete
 
     def get_strava_activities_after_date(self, token, after_date):
         strava_client = self.strava_client.get_client(token)

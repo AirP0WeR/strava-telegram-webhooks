@@ -73,17 +73,6 @@ def token_exchange(code):
             return jsonify(''), 500
 
 
-@app.route("/token/get/<athlete_id>", methods=['GET'])
-def get_token(athlete_id):
-    if request.method == 'GET':
-        logging.info("Received request to get token for athlete: {athlete_id}".format(athlete_id=athlete_id))
-        athlete_token = athlete_resource.get_token(athlete_id)
-        if athlete_token:
-            return jsonify(athlete_token), 200
-        else:
-            return jsonify(''), 500
-
-
 @app.route("/athlete/exists/<athlete_id>", methods=['GET'])
 def athlete_exists(athlete_id):
     if request.method == 'GET':
@@ -96,6 +85,76 @@ def athlete_exists(athlete_id):
             return jsonify(''), 404
 
 
+@app.route("/athlete/get/<athlete_id>", methods=['GET'])
+def get_athlete(athlete_id):
+    if request.method == 'GET':
+        logging.info("Received request to get athlete https://www.strava.com/athletes/{athlete_id}".format(
+            athlete_id=athlete_id))
+        result = athlete_resource.get_athlete_details(athlete_id)
+        if result:
+            return jsonify(result), 200
+        else:
+            return jsonify(''), 500
+
+
+@app.route("/athlete/stats/<telegram_username>", methods=['GET'])
+def get_stats(telegram_username):
+    if request.method == 'GET':
+        logging.info(
+            "Received request to get stats for {telegram_username}".format(telegram_username=telegram_username))
+        result = athlete_resource.get_stats(telegram_username)
+        if result:
+            return jsonify(result), 200
+        else:
+            return jsonify(''), 500
+
+
+@app.route("/strava/bikes/<token>", methods=['GET'])
+def get_bikes_list(token):
+    if request.method == 'GET':
+        logging.info("Received request to get bikes list")
+        bikes = strava_resource.get_bikes_list(token)
+        if bikes:
+            return jsonify(bikes), 200
+        else:
+            return jsonify(''), 500
+
+
+@app.route("/strava/gear/name/<token>/<gear_id>", methods=['GET'])
+def get_gear_name(token, gear_id):
+    if request.method == 'GET':
+        logging.info("Received request to get gear name. Gear ID {gear_id}".format(gear_id=gear_id))
+        gear_name = strava_resource.get_gear_name(token, gear_id)
+        if gear_name:
+            return jsonify(gear_name), 200
+        else:
+            return jsonify(''), 500
+
+
+@app.route("/athlete/get_by_telegram_username/<telegram_username>", methods=['GET'])
+def get_athlete_by_telegram_username(telegram_username):
+    if request.method == 'GET':
+        logging.info("Received request to get athlete details for {telegram_username}".format(
+            telegram_username=telegram_username))
+        result = athlete_resource.get_athlete_details_by_telegram_username(telegram_username)
+        if result:
+            return jsonify(result), 200
+        else:
+            return jsonify(''), 500
+
+
+@app.route("/athlete/athlete_id/<telegram_username>", methods=['GET'])
+def get_athlete_id(telegram_username):
+    if request.method == 'GET':
+        logging.info(
+            "Received request to get Athlete ID for {telegram_username}.".format(telegram_username=telegram_username))
+        athlete_id = athlete_resource.get_athlete_id(telegram_username)
+        if athlete_id:
+            return jsonify(athlete_id), 200
+        else:
+            return jsonify(''), 404
+
+
 @app.route("/database/write", methods=['POST'])
 def database_write():
     if request.method == 'POST' and request.json and "query" in request.json:
@@ -104,6 +163,30 @@ def database_write():
         result = database_resource.write_operation(query)
         if result:
             return jsonify(''), 200
+        else:
+            return jsonify(''), 500
+
+
+@app.route("/database/read", methods=['GET'])
+def database_read():
+    if request.method == 'GET' and request.json and "query" in request.json:
+        query = request.json["query"]
+        logging.info("Received request to fetch one from the database: {query}".format(query=query))
+        result = database_resource.read_operation(query)
+        if result:
+            return jsonify(result), 200
+        else:
+            return jsonify(''), 500
+
+
+@app.route("/database/read/all", methods=['GET'])
+def database_read_all():
+    if request.method == 'GET' and request.json and "query" in request.json:
+        query = request.json["query"]
+        logging.info("Received request to fetch all from the database: {query}".format(query=query))
+        result = database_resource.read_all_operation(query)
+        if result:
+            return jsonify(result), 200
         else:
             return jsonify(''), 500
 

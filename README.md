@@ -1,9 +1,16 @@
 # Strava Telegram Webhooks
 
-App is ready to be deployed on Heroku. Attach a Postgres Database to the app before using.
+App is ready to be deployed on Heroku. Create the table using the below commands:
+
+### Create table
 
 ```
-$ heroku addons:attach <database-app-name> -a <this-app-name>
+$ heroku run bash --app <app_name>
+$ python app/ddl/create_table.py
+$ exit
+```
+
+```
 $ heroku redis:timeout --seconds 60 -a <this-app-name>
 $ heroku redis:maxmemory -a <this-app-name> --policy allkeys-lru
 ```
