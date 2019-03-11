@@ -7,6 +7,7 @@ from flask import Flask, request, jsonify
 from scout_apm.flask import ScoutApm
 
 from app.common.constants_and_variables import AppVariables, AppConstants
+from app.common.execution_time import execution_time
 from app.processor import update_stats, handle_webhook, update_all_stats, telegram_shadow_message, telegram_send_message
 from app.resources.athlete import AthleteResource
 from app.resources.database import DatabaseResource
@@ -63,6 +64,7 @@ def stats_for_all():
 
 
 @app.route("/token/exchange/<code>", methods=['POST'])
+@execution_time
 def token_exchange(code):
     if request.method == 'POST':
         logging.info("Received request for token exchange with code: {code}".format(code=code))
@@ -74,6 +76,7 @@ def token_exchange(code):
 
 
 @app.route("/athlete/exists/<athlete_id>", methods=['GET'])
+@execution_time
 def athlete_exists(athlete_id):
     if request.method == 'GET':
         logging.info("Received request to check if athlete https://www.strava.com/athletes/{athlete_id} exists.".format(
@@ -86,6 +89,7 @@ def athlete_exists(athlete_id):
 
 
 @app.route("/athlete/get/<athlete_id>", methods=['GET'])
+@execution_time
 def get_athlete(athlete_id):
     if request.method == 'GET':
         logging.info("Received request to get athlete https://www.strava.com/athletes/{athlete_id}".format(
@@ -98,6 +102,7 @@ def get_athlete(athlete_id):
 
 
 @app.route("/athlete/stats/<telegram_username>", methods=['GET'])
+@execution_time
 def get_stats(telegram_username):
     if request.method == 'GET':
         logging.info(
@@ -110,6 +115,7 @@ def get_stats(telegram_username):
 
 
 @app.route("/strava/bikes/<token>", methods=['GET'])
+@execution_time
 def get_bikes_list(token):
     if request.method == 'GET':
         logging.info("Received request to get bikes list")
@@ -121,6 +127,7 @@ def get_bikes_list(token):
 
 
 @app.route("/strava/gear/name/<token>/<gear_id>", methods=['GET'])
+@execution_time
 def get_gear_name(token, gear_id):
     if request.method == 'GET':
         logging.info("Received request to get gear name. Gear ID {gear_id}".format(gear_id=gear_id))
@@ -132,6 +139,7 @@ def get_gear_name(token, gear_id):
 
 
 @app.route("/athlete/get_by_telegram_username/<telegram_username>", methods=['GET'])
+@execution_time
 def get_athlete_by_telegram_username(telegram_username):
     if request.method == 'GET':
         logging.info("Received request to get athlete details for {telegram_username}".format(
@@ -144,6 +152,7 @@ def get_athlete_by_telegram_username(telegram_username):
 
 
 @app.route("/athlete/athlete_id/<telegram_username>", methods=['GET'])
+@execution_time
 def get_athlete_id(telegram_username):
     if request.method == 'GET':
         logging.info(
@@ -156,6 +165,7 @@ def get_athlete_id(telegram_username):
 
 
 @app.route("/database/write", methods=['POST'])
+@execution_time
 def database_write():
     if request.method == 'POST' and request.json and "query" in request.json:
         query = request.json["query"]
@@ -168,6 +178,7 @@ def database_write():
 
 
 @app.route("/database/read", methods=['GET'])
+@execution_time
 def database_read():
     if request.method == 'GET' and request.json and "query" in request.json:
         query = request.json["query"]
@@ -180,6 +191,7 @@ def database_read():
 
 
 @app.route("/database/read/all", methods=['GET'])
+@execution_time
 def database_read_all():
     if request.method == 'GET' and request.json and "query" in request.json:
         query = request.json["query"]

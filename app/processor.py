@@ -8,6 +8,7 @@ from celery import Celery
 
 from app.commands.process import Process
 from app.common.constants_and_variables import AppVariables
+from app.common.execution_time import execution_time
 from app.resources.telegram import TelegramResource
 
 app_variables = AppVariables()
@@ -25,6 +26,7 @@ scout_apm.celery.install()
 
 
 @app.task
+@execution_time
 def handle_webhook(event):
     try:
         logging.info("Webhook Event Received: {event}".format(event=event))
@@ -36,6 +38,7 @@ def handle_webhook(event):
 
 
 @app.task
+@execution_time
 def update_stats(athlete_id):
     try:
         logging.info("Received request to update stats for https://www.strava.com/athletes/{athlete_id}.".format(
@@ -48,6 +51,7 @@ def update_stats(athlete_id):
 
 
 @app.task
+@execution_time
 def update_all_stats():
     try:
         logging.info("Received request to update stats for all the athletes.")
@@ -59,6 +63,7 @@ def update_all_stats():
 
 
 @app.task
+@execution_time
 def telegram_send_message(chat_id, message):
     logging.info(
         "Received request to send message to a user. Chat ID: {chat_id}, Message: {message}".format(chat_id=chat_id,
@@ -67,6 +72,7 @@ def telegram_send_message(chat_id, message):
 
 
 @app.task
+@execution_time
 def telegram_shadow_message(message):
     logging.info("Received request to shadow message to the admin group. Message: {message}".format(message=message))
     telegram_resource.shadow_message(message)
