@@ -110,3 +110,54 @@ class AthleteResource(object):
             stats = result[0]
 
         return stats
+
+    def enable_activity_summary(self, chat_id, athlete_id):
+        enable = False
+        logging.info("Enabling activity summary for {athlete_id} with chat id: {chat_id}".format(chat_id=chat_id,
+                                                                                                 athlete_id=athlete_id))
+        if self.database_resource.write_operation(
+                self.app_constants.QUERY_ACTIVITY_SUMMARY_ENABLE.format(chat_id=chat_id, athlete_id=athlete_id)):
+            enable = True
+
+        return enable
+
+    def disable_activity_summary(self, athlete_id):
+        success = False
+        logging.info("Disabling activity summary for: {athlete_id}".format(athlete_id=athlete_id))
+        if self.database_resource.write_operation(
+                self.app_constants.QUERY_ACTIVITY_SUMMARY_DISABLE.format(athlete_id=athlete_id)):
+            success = True
+
+        return success
+
+    def disable_auto_update_indoor_ride(self, athlete_id):
+        success = False
+        logging.info("Disabling auto update indoor ride for: {athlete_id}".format(athlete_id=athlete_id))
+        if self.database_resource.write_operation(
+                self.app_constants.QUERY_UPDATE_INDOOR_RIDE_DISABLE.format(athlete_id=athlete_id)):
+            success = True
+
+        return success
+
+    def update_chat_id(self, chat_id, athlete_id):
+        success = False
+        logging.info(
+            "Updating chat id for {athlete_id} | Chat ID: {chat_id}".format(chat_id=chat_id, athlete_id=athlete_id))
+        if self.database_resource.write_operation(
+                self.app_constants.QUERY_UPDATE_CHAT_ID.format(chat_id=chat_id, athlete_id=athlete_id)):
+            success = True
+
+        return success
+
+    def activate_deactivate_flag_athlete(self, operation, athlete_id):
+        success = False
+        if operation:
+            logging.info("Activating athlete: {athlete_id}".format(athlete_id=athlete_id))
+            query = self.app_constants.QUERY_ACTIVATE_ACTIVE_FLAG_ATHLETE.format(athlete_id=athlete_id)
+        else:
+            logging.info("Deactivating athlete: {athlete_id}".format(athlete_id=athlete_id))
+            query = self.app_constants.QUERY_DEACTIVATE_ACTIVE_FLAG_ATHLETE.format(athlete_id=athlete_id)
+        if self.database_resource.write_operation(query):
+            success = True
+
+        return success

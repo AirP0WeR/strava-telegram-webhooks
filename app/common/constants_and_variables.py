@@ -13,6 +13,12 @@ class AppConstants(object):
     QUERY_ATHLETE_EXISTS = "select count(*) from strava_telegram_bot where athlete_id={athlete_id}"
     QUERY_GET_ATHLETE_ID = "select athlete_id from strava_telegram_bot where telegram_username='{telegram_username}' and active=TRUE"
     QUERY_GET_STRAVA_DATA = "select strava_data from strava_telegram_bot where telegram_username='{telegram_username}'"
+    QUERY_ACTIVITY_SUMMARY_ENABLE = "UPDATE strava_telegram_bot SET enable_activity_summary=True, chat_id='{chat_id}' where athlete_id={athlete_id}"
+    QUERY_ACTIVATE_ACTIVE_FLAG_ATHLETE = "UPDATE strava_telegram_bot SET active=true where athlete_id={athlete_id}"
+    QUERY_DEACTIVATE_ACTIVE_FLAG_ATHLETE = "UPDATE strava_telegram_bot SET active=false where athlete_id={athlete_id}"
+    QUERY_UPDATE_CHAT_ID = "UPDATE strava_telegram_bot SET chat_id='{chat_id}' where athlete_id={athlete_id}"
+    QUERY_ACTIVITY_SUMMARY_DISABLE = "UPDATE strava_telegram_bot SET enable_activity_summary=False where athlete_id={athlete_id}"
+    QUERY_UPDATE_INDOOR_RIDE_DISABLE = "UPDATE strava_telegram_bot SET update_indoor_ride=False, update_indoor_ride_data=NULL where athlete_id={athlete_id}"
     QUERY_CREATE_TABLE = '''create table strava_telegram_bot(
             id serial NOT NULL,
             athlete_id INTEGER PRIMARY KEY,

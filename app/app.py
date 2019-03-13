@@ -220,6 +220,77 @@ def shadow_message():
         return jsonify('Accepted'), 200
 
 
+@app.route("/athlete/activity_summary/enable/<chat_id>/<athlete_id>", methods=['POST'])
+@execution_time
+def athlete_enable_activity_summary(chat_id, athlete_id):
+    if request.method == 'POST':
+        logging.info(
+            "Received request to enable activity summary for Athlete: {athlete_id} with Chat ID: {chat_id}.".format(
+                athlete_id=athlete_id, chat_id=chat_id))
+        if athlete_resource.enable_activity_summary(chat_id, athlete_id):
+            return jsonify(''), 200
+        else:
+            return jsonify(''), 404
+
+
+@app.route("/athlete/activity_summary/disable/<athlete_id>", methods=['POST'])
+@execution_time
+def athlete_disable_activity_summary(athlete_id):
+    if request.method == 'POST':
+        logging.info(
+            "Received request to disable activity summary for Athlete: {athlete_id}.".format(athlete_id=athlete_id))
+        if athlete_resource.disable_activity_summary(athlete_id):
+            return jsonify(''), 200
+        else:
+            return jsonify(''), 404
+
+
+@app.route("/athlete/auto_update_indoor_ride/disable/<athlete_id>", methods=['POST'])
+@execution_time
+def athlete_disable_auto_update_indoor_ride(athlete_id):
+    if request.method == 'POST':
+        logging.info("Received request to disable auto update indoor ride for Athlete: {athlete_id}.".format(
+            athlete_id=athlete_id))
+        if athlete_resource.disable_auto_update_indoor_ride(athlete_id):
+            return jsonify(''), 200
+        else:
+            return jsonify(''), 404
+
+
+@app.route("/athlete/update_chat_id/<chat_id>/<athlete_id>", methods=['POST'])
+@execution_time
+def athlete_update_chat_id(chat_id, athlete_id):
+    if request.method == 'POST':
+        logging.info("Received request to update chat id for Athlete: {athlete_id} with chat id: {chat_id}.".format(
+            athlete_id=athlete_id, chat_id=chat_id))
+        if athlete_resource.update_chat_id(chat_id, athlete_id):
+            return jsonify(''), 200
+        else:
+            return jsonify(''), 404
+
+
+@app.route("/athlete/activate/<athlete_id>", methods=['POST'])
+@execution_time
+def athlete_activate(athlete_id):
+    if request.method == 'POST':
+        logging.info("Received request to activate athlete: {athlete_id}.".format(athlete_id=athlete_id))
+        if athlete_resource.activate_deactivate_flag_athlete(True, athlete_id):
+            return jsonify(''), 200
+        else:
+            return jsonify(''), 404
+
+
+@app.route("/athlete/deactivate/<athlete_id>", methods=['POST'])
+@execution_time
+def athlete_deactivate(athlete_id):
+    if request.method == 'POST':
+        logging.info("Received request to deactivate athlete: {athlete_id}.".format(athlete_id=athlete_id))
+        if athlete_resource.activate_deactivate_flag_athlete(False, athlete_id):
+            return jsonify(''), 200
+        else:
+            return jsonify(''), 404
+
+
 @app.route("/healthcheck")
 def healthcheck():
     return jsonify('OK'), 200
