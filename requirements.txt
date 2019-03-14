@@ -8,3 +8,4 @@ redis==3.2.0
 iron-cache==0.3.2
 scout-apm==2.0.2
 pycryptodome==3.7.3
+ujson==1.35

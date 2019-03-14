@@ -1,8 +1,8 @@
 #  -*- encoding: utf-8 -*-
 
-import json
 import logging
 import traceback
+import ujson
 
 from app.commands.activity_summary import ActivitySummary
 from app.commands.auto_update_indoor_ride import AutoUpdateIndoorRide
@@ -36,7 +36,7 @@ class Process(object):
         calculate_stats = CalculateStats(athlete_details['athlete_token'])
         calculated_stats = calculate_stats.calculate()
         name = calculated_stats['athlete_name']
-        calculated_stats = json.dumps(calculated_stats)
+        calculated_stats = ujson.dumps(calculated_stats)
         self.database_resource.write_operation(
             self.bot_constants.QUERY_UPDATE_STRAVA_DATA.format(name=name, strava_data=calculated_stats,
                                                                athlete_id=athlete_details['athlete_id']))
