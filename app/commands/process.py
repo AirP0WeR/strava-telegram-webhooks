@@ -49,6 +49,7 @@ class Process(object):
         athlete_details = self.athlete_resource.get_athlete_details(athlete_id)
         if athlete_details:
             self.calculate_stats(athlete_details)
+            self.telegram_resource.send_message(athlete_details['chat_id'], "Updated stats. Click /stats to check.")
         else:
             message = "Old athlete [Athlete](https://www.strava.com/athletes/{athlete_id}). Not registered anymore.".format(
                 athlete_id=athlete_id)

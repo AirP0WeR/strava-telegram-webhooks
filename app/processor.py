@@ -39,6 +39,17 @@ def handle_webhook(event):
 
 @app.task
 @execution_time
+def handle_challenges_webhook(event):
+    try:
+        logging.info("Challenges Webhook Event Received: {event}".format(event=event))
+    except Exception:
+        message = "Something went wrong. Exception: {exception}".format(exception=traceback.format_exc())
+        logging.error(message)
+        telegram_resource.shadow_message(message)
+
+
+@app.task
+@execution_time
 def update_stats(athlete_id):
     try:
         logging.info("Received request to update stats for https://www.strava.com/athletes/{athlete_id}.".format(

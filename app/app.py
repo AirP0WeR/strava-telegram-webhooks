@@ -8,7 +8,8 @@ from scout_apm.flask import ScoutApm
 
 from app.common.constants_and_variables import AppVariables, AppConstants
 from app.common.execution_time import execution_time
-from app.processor import update_stats, handle_webhook, update_all_stats, telegram_shadow_message, telegram_send_message
+from app.processor import update_stats, handle_webhook, update_all_stats, telegram_shadow_message, \
+    telegram_send_message, handle_challenges_webhook
 from app.resources.athlete import AthleteResource
 from app.resources.database import DatabaseResource
 from app.resources.strava import StravaResource
@@ -49,6 +50,22 @@ def strava_webhook():
         telegram_shadow_message.delay(message)
 
 
+@app.route('/challenges/webhook', methods=['GET', 'POST'])
+def strava_challenges_webhook():
+    try:
+        if request.method == 'POST':
+            event = request.json
+            handle_challenges_webhook.delay(event)
+            return jsonify(''), 200
+        elif request.method == 'GET':
+            hub_challenge = request.args.get('hub.challenge')
+            return jsonify({'hub.challenge': hub_challenge}), 200
+    except Exception:
+        message = "Something went wrong. Exception: {exception}".format(exception=traceback.format_exc())
+        logging.error(message)
+        telegram_shadow_message.delay(message)
+
+
 @app.route("/stats/<athlete_id>", methods=['POST'])
 def stats(athlete_id):
     if request.method == 'POST':
@@ -75,6 +92,18 @@ def token_exchange(code):
             return jsonify(''), 500
 
 
+@app.route("/token/exchange/challenges/<code>", methods=['POST'])
+@execution_time
+def token_exchange_challenges(code):
+    if request.method == 'POST':
+        logging.info("Received request for challenges token exchange with code: {code}".format(code=code))
+        access_info = strava_resource.token_exchange_for_challenges(code)
+        if access_info:
+            return jsonify(access_info), 200
+        else:
+            return jsonify(''), 500
+
+
 @app.route("/athlete/exists/<athlete_id>", methods=['GET'])
 @execution_time
 def athlete_exists(athlete_id):
@@ -95,6 +124,20 @@ def get_athlete(athlete_id):
         logging.info("Received request to get athlete https://www.strava.com/athletes/{athlete_id}".format(
             athlete_id=athlete_id))
         result = athlete_resource.get_athlete_details(athlete_id)
+        if result:
+            return jsonify(result), 200
+        else:
+            return jsonify(''), 500
+
+
+@app.route("/challenges/athlete/<athlete_id>", methods=['GET'])
+@execution_time
+def get_athlete_from_challenges(athlete_id):
+    if request.method == 'GET':
+        logging.info(
+            "Received request to get athlete https://www.strava.com/athletes/{athlete_id} from challenges".format(
+                athlete_id=athlete_id))
+        result = athlete_resource.get_athlete_details_in_challenges(athlete_id)
         if result:
             return jsonify(result), 200
         else:

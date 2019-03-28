@@ -37,6 +37,24 @@ class AppConstants(object):
             updated timestamp default current_timestamp NOT NULL
             );'''
 
+    QUERY_CREATE_TABLE_CHALLENGES = '''create table strava_challenges(
+                id serial NOT NULL,
+                athlete_id INTEGER PRIMARY KEY,
+                name VARCHAR NOT NULL,
+                access_token VARCHAR NOT NULL,
+                refresh_token VARCHAR NOT NULL,
+                expires_at INTEGER NOT NULL,
+                even_challenges json DEFAULT NULL,
+                even_challenges_data json DEFAULT NULL,
+                odd_challenges json DEFAULT NULL,
+                odd_challenges_data json DEFAULT NULL,
+                created timestamp NOT NULL,
+                updated timestamp default current_timestamp NOT NULL
+                );'''
+
+    QUERY_FETCH_ATHLETE_DETAILS_IN_CHALLENGES = "select name, access_token, refresh_token, expires_at, even_challenges, even_challenges_data, odd_challenges, odd_challenges_data from strava_challenges where athlete_id={athlete_id}"
+    QUERY_UPDATE_TOKEN_IN_CHALLENGES = "UPDATE strava_challenges SET access_token='{access_token}', refresh_token='{refresh_token}', expires_at={expires_at}, updated=now() where athlete_id={athlete_id}"
+
     API_TOKEN_EXCHANGE = 'https://www.strava.com/oauth/token'
     API_TELEGRAM_SEND_MESSAGE = "https://api.telegram.org/bot{bot_token}/sendMessage"
 
@@ -53,7 +71,9 @@ class AppVariables(object):
     crypt_key_length = int(os.environ.get('CRYPT_KEY_LENGTH'))
     crypt_key = os.environ.get('CRYPT_KEY')
     client_id = os.environ.get('CLIENT_ID')
+    challenges_client_id = os.environ.get('CHALLENGES_CLIENT_ID')
     client_secret = os.environ.get('CLIENT_SECRET')
+    challenges_client_secret = os.environ.get('CHALLENGES_CLIENT_SECRET')
     app_port = os.environ.get('APP_PORT')
     database_url = os.environ.get('DATABASE_URL')
     app_debug = os.environ.get('APP_DEBUG')
