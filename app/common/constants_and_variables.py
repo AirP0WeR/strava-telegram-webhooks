@@ -54,17 +54,27 @@ class AppConstants(object):
 
     QUERY_FETCH_ATHLETE_DETAILS_IN_CHALLENGES = "select name, access_token, refresh_token, expires_at, even_challenges, even_challenges_data, odd_challenges, odd_challenges_data from strava_challenges where athlete_id={athlete_id}"
     QUERY_UPDATE_TOKEN_IN_CHALLENGES = "UPDATE strava_challenges SET access_token='{access_token}', refresh_token='{refresh_token}', expires_at={expires_at}, updated=now() where athlete_id={athlete_id}"
+    QUERY_DEACTIVATE_ATHLETE_IN_CHALLENGES = "UPDATE strava_challenges SET even_challenges=null, even_challenges_data=null, odd_challenges=null, odd_challenges_data=null, updated=now() WHERE athlete_id={athlete_id}"
+    QUERY_UPDATE_EVEN_CHALLENGES_DATA = "UPDATE strava_challenges SET even_challenges_data='{even_challenges_data}', updated=now() where athlete_id={athlete_id}"
+    QUERY_UPDATE_ODD_CHALLENGES_DATA = "UPDATE strava_challenges SET odd_challenges_data='{odd_challenges_data}', updated=now() where athlete_id={athlete_id}"
+    QUERY_GET_ATHLETE_IDS_FROM_CHALLENGES = "select athlete_id from strava_challenges"
+    QUERY_GET_EVEN_CHALLENGES_DATA = "select name, even_challenges, even_challenges_data from strava_challenges"
+    QUERY_GET_ODD_CHALLENGES_DATA = "select name, odd_challenges, odd_challenges_data from strava_challenges"
 
     API_TOKEN_EXCHANGE = 'https://www.strava.com/oauth/token'
     API_TELEGRAM_SEND_MESSAGE = "https://api.telegram.org/bot{bot_token}/sendMessage"
 
     MESSAGE_ACTIVITY_ALERT = "[{callback_type}](https://www.strava.com/activities/{activity_id}) by `{athlete_name}`."
+    MESSAGE_CHALLENGES_ACTIVITY_ALERT = "[{callback_type}](https://www.strava.com/activities/{activity_id}) by `{athlete_name}` who has registered for the Challenges."
     MESSAGE_UNSUPPORTED_ACTIVITY = "{activity_type} is not supported yet. Ignoring update stats."
+    MESSAGE_CHALLENGES_UNSUPPORTED_ACTIVITY = "{activity_type} is not part of the Challenges. Ignoring.."
     MESSAGE_OLD_ATHLETE = "Old Athlete: [Athlete](https://www.strava.com/athletes/{athlete_id}) | [Activity](https://www.strava.com/activities/{activity_id})"
     MESSAGE_UPDATED_INDOOR_RIDE = "Updated your Indoor Ride with the below configuration:\n"
     MESSAGE_UPDATED_STATS = "Updated stats for `{athlete_name}`."
     MESSAGE_DEAUTHORIZE_SUCCESS = "[{name}](https://www.strava.com/athletes/{athlete_id}) deauthorized Strava App."
+    MESSAGE_CHALLENGES_DEAUTHORIZE_SUCCESS = "[{name}](https://www.strava.com/athletes/{athlete_id}) deauthorized Cadence90 Challenges App."
     MESSAGE_DEAUTHORIZE_FAILURE = "Failed to deactivate [{name}](https://www.strava.com/athletes/{athlete_id})."
+    MESSAGE_CHALLENGES_DEAUTHORIZE_FAILURE = "Failed to deactivate [{name}](https://www.strava.com/athletes/{athlete_id}) in Cadence90 Challenges."
 
 
 class AppVariables(object):
@@ -88,3 +98,11 @@ class AppVariables(object):
     scout_key = os.environ.get('SCOUT_KEY')
     scout_name = os.environ.get('SCOUT_NAME')
     logging_level = os.environ.get('LOGGING_LEVEL')
+    even_challenges_year = int(os.environ.get('EVEN_CHALLENGES_YEAR'))
+    even_challenges_month = int(os.environ.get('EVEN_CHALLENGES_MONTH'))
+    even_challenges_from_date = os.environ.get('EVEN_CHALLENGES_FROM_DATE')
+    even_challenges_to_date = os.environ.get('EVEN_CHALLENGES_TO_DATE')
+    odd_challenges_year = int(os.environ.get('ODD_CHALLENGES_YEAR'))
+    odd_challenges_month = int(os.environ.get('ODD_CHALLENGES_MONTH'))
+    odd_challenges_from_date = os.environ.get('ODD_CHALLENGES_FROM_DATE')
+    odd_challenges_to_date = os.environ.get('ODD_CHALLENGES_TO_DATE')

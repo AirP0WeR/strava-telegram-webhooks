@@ -125,6 +125,5 @@ class Process(object):
                 elif aspect_type == "delete":
                     self.calculate_stats(athlete_details)
             else:
-                message = self.bot_constants.MESSAGE_OLD_ATHLETE.format(athlete_id=athlete_id, activity_id=activity_id)
-                logging.info(message)
-                self.telegram_resource.shadow_message(message)
+                logging.info(
+                    self.bot_constants.MESSAGE_OLD_ATHLETE.format(athlete_id=athlete_id, activity_id=activity_id))

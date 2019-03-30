@@ -6,12 +6,14 @@ import traceback
 from flask import Flask, request, jsonify
 from scout_apm.flask import ScoutApm
 
+from app.commands.challenges import CalculateChallengesStats
 from app.common.constants_and_variables import AppVariables, AppConstants
 from app.common.execution_time import execution_time
 from app.processor import update_stats, handle_webhook, update_all_stats, telegram_shadow_message, \
-    telegram_send_message, handle_challenges_webhook
+    telegram_send_message, handle_challenges_webhook, update_challenges_stats, update_all_challenges_stats
 from app.resources.athlete import AthleteResource
 from app.resources.database import DatabaseResource
+from app.resources.iron_cache import IronCacheResource
 from app.resources.strava import StravaResource
 
 app_variables = AppVariables()
@@ -19,6 +21,8 @@ app_constants = AppConstants()
 strava_resource = StravaResource()
 athlete_resource = AthleteResource()
 database_resource = DatabaseResource()
+iron_cache_resource = IronCacheResource()
+calculate_challenge_stats = CalculateChallengesStats()
 
 app = Flask(__name__)
 app.config.from_object(__name__)
@@ -77,6 +81,20 @@ def stats(athlete_id):
 def stats_for_all():
     if request.method == 'POST':
         update_all_stats.delay()
+        return jsonify('Accepted'), 200
+
+
+@app.route("/challenges/stats/<athlete_id>", methods=['POST'])
+def challenges_stats(athlete_id):
+    if request.method == 'POST':
+        update_challenges_stats.delay(athlete_id)
+        return jsonify('Accepted'), 200
+
+
+@app.route("/challenges/stats/all", methods=['POST'])
+def challenges_stats_for_all():
+    if request.method == 'POST':
+        update_all_challenges_stats.delay()
         return jsonify('Accepted'), 200
 
 
@@ -332,6 +350,108 @@ def athlete_deactivate(athlete_id):
             return jsonify(''), 200
         else:
             return jsonify(''), 404
+
+
+@app.route("/challenges/even/twenty_twenty", methods=['GET'])
+@execution_time
+def get_challenges_even_twenty_twenty():
+    if request.method == 'GET':
+        logging.info("Received request to get athlete 20-20 challenge standings.")
+        result = iron_cache_resource.get_cache("even_challenges", "20_20")
+        if result:
+            return jsonify(result), 200
+        else:
+            calculate_challenge_stats.consolidate_even_challenges()
+            result = iron_cache_resource.get_cache("even_challenges", "20_20")
+            if result:
+                return jsonify(result), 200
+            else:
+                return jsonify(''), 500
+
+
+@app.route("/challenges/even/thousand_km", methods=['GET'])
+@execution_time
+def get_challenges_even_thousand_km():
+    if request.method == 'GET':
+        logging.info("Received request to get athlete 1,000 km challenge standings.")
+        result = iron_cache_resource.get_cache("even_challenges", "1000_km")
+        if result:
+            return jsonify(result), 200
+        else:
+            calculate_challenge_stats.consolidate_even_challenges()
+            result = iron_cache_resource.get_cache("even_challenges", "1000_km")
+            if result:
+                return jsonify(result), 200
+            else:
+                return jsonify(''), 500
+
+
+@app.route("/challenges/even/ten_thousand_meters", methods=['GET'])
+@execution_time
+def get_challenges_even_ten_thousand_meters():
+    if request.method == 'GET':
+        logging.info("Received request to get athlete 10,000 meters challenge standings.")
+        result = iron_cache_resource.get_cache("even_challenges", "10000_meters")
+        if result:
+            return jsonify(result), 200
+        else:
+            calculate_challenge_stats.consolidate_even_challenges()
+            result = iron_cache_resource.get_cache("even_challenges", "10000_meters")
+            if result:
+                return jsonify(result), 200
+            else:
+                return jsonify(''), 500
+
+
+@app.route("/challenges/odd/twenty_twenty", methods=['GET'])
+@execution_time
+def get_challenges_odd_twenty_twenty():
+    if request.method == 'GET':
+        logging.info("Received request to get athlete 20-20 challenge standings.")
+        result = iron_cache_resource.get_cache("odd_challenges", "20_20")
+        if result:
+            return jsonify(result), 200
+        else:
+            calculate_challenge_stats.consolidate_odd_challenges()
+            result = iron_cache_resource.get_cache("odd_challenges", "20_20")
+            if result:
+                return jsonify(result), 200
+            else:
+                return jsonify(''), 500
+
+
+@app.route("/challenges/odd/thousand_km", methods=['GET'])
+@execution_time
+def get_challenges_odd_thousand_km():
+    if request.method == 'GET':
+        logging.info("Received request to get athlete 1,000 km challenge standings.")
+        result = iron_cache_resource.get_cache("odd_challenges", "1000_km")
+        if result:
+            return jsonify(result), 200
+        else:
+            calculate_challenge_stats.consolidate_odd_challenges()
+            result = iron_cache_resource.get_cache("odd_challenges", "1000_km")
+            if result:
+                return jsonify(result), 200
+            else:
+                return jsonify(''), 500
+
+
+@app.route("/challenges/odd/ten_thousand_meters", methods=['GET'])
+@execution_time
+def get_challenges_odd_ten_thousand_meters():
+    if request.method == 'GET':
+        logging.info("Received request to get athlete 10,000 meters challenge standings.")
+        result = iron_cache_resource.get_cache("odd_challenges", "10000_meters")
+        if result:
+            return jsonify(result), 200
+        else:
+            calculate_challenge_stats.consolidate_odd_challenges()
+            result = iron_cache_resource.get_cache("odd_challenges", "10000_meters")
+            if result:
+                return jsonify(result), 200
+            else:
+                return jsonify(''), 500
 
 
 @app.route("/healthcheck")

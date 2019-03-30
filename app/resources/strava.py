@@ -174,8 +174,24 @@ class StravaResource(object):
         strava_client = self.strava_client.get_client(token)
         activity = False
         try:
-            logging.info("Getting activities..")
+            logging.info("Getting activities after {after_date}..".format(after_date=after_date))
             result = strava_client.get_activities(after=after_date)
+        except Exception:
+            logging.error(traceback.format_exc())
+        else:
+            logging.info("Success.")
+            activity = result
+
+        return activity
+
+    def get_strava_activities_after_date_before_date(self, token, after_date, before_date):
+        strava_client = self.strava_client.get_client(token)
+        activity = False
+        try:
+            logging.info(
+                "Getting activities after {after_date} and before {before_date}..".format(after_date=after_date,
+                                                                                          before_date=before_date))
+            result = strava_client.get_activities(after=after_date, before=before_date)
         except Exception:
             logging.error(traceback.format_exc())
         else:
