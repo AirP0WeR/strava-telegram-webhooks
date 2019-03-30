@@ -152,7 +152,8 @@ class CalculateChallengesStats(object):
             if '1000_km' in even_challenges:
                 even_challenges_stats['1000_km'] = self.operations.meters_to_kilometers(even_challenges_total_distance)
             if '10000_meters' in even_challenges:
-                even_challenges_stats['10000_meters'] = even_challenges_total_elevation
+                even_challenges_stats['10000_meters'] = self.operations.remove_decimal_point(
+                    even_challenges_total_elevation)
 
             if self.database_resource.write_operation(
                     self.app_constants.QUERY_UPDATE_EVEN_CHALLENGES_DATA.format(
@@ -201,7 +202,8 @@ class CalculateChallengesStats(object):
             if '1000_km' in odd_challenges:
                 odd_challenges_stats['1000_km'] = self.operations.meters_to_kilometers(odd_challenges_total_distance)
             if '10000_meters' in odd_challenges:
-                odd_challenges_stats['10000_meters'] = odd_challenges_total_elevation
+                odd_challenges_stats['10000_meters'] = self.operations.remove_decimal_point(
+                    odd_challenges_total_elevation)
 
             if self.database_resource.write_operation(
                     self.app_constants.QUERY_UPDATE_ODD_CHALLENGES_DATA.format(
