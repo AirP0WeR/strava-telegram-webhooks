@@ -457,6 +457,17 @@ def get_challenges_odd_ten_thousand_meters():
                 return jsonify(''), 500
 
 
+@app.route("/challenges/hits/reset", methods=['POST'])
+@execution_time
+def challenges_hits_reset():
+    if request.method == 'POST':
+        logging.info("Received request to reset challenges hits.")
+        if iron_cache_resource.put_cache(cache="challenges_hits", key="hits", value=0):
+            return jsonify(''), 200
+        else:
+            return jsonify(''), 404
+
+
 @app.route("/healthcheck")
 def healthcheck():
     return jsonify('OK'), 200
