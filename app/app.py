@@ -10,7 +10,8 @@ from app.commands.challenges import CalculateChallengesStats
 from app.common.constants_and_variables import AppVariables, AppConstants
 from app.common.execution_time import execution_time
 from app.processor import update_stats, handle_webhook, update_all_stats, telegram_shadow_message, \
-    telegram_send_message, handle_challenges_webhook, update_challenges_stats, update_all_challenges_stats
+    telegram_send_message, handle_challenges_webhook, update_challenges_stats, update_all_challenges_stats, \
+    challenges_page_hits
 from app.resources.athlete import AthleteResource
 from app.resources.database import DatabaseResource
 from app.resources.iron_cache import IronCacheResource
@@ -357,6 +358,7 @@ def athlete_deactivate(athlete_id):
 def get_challenges_even_twenty_twenty():
     if request.method == 'GET':
         logging.info("Received request to get athlete 20-20 challenge standings.")
+        challenges_page_hits.delay()
         result = iron_cache_resource.get_cache("even_challenges", "20_20")
         if result:
             return jsonify(result), 200
@@ -408,6 +410,7 @@ def get_challenges_even_ten_thousand_meters():
 def get_challenges_odd_twenty_twenty():
     if request.method == 'GET':
         logging.info("Received request to get athlete 20-20 challenge standings.")
+        challenges_page_hits.delay()
         result = iron_cache_resource.get_cache("odd_challenges", "20_20")
         if result:
             return jsonify(result), 200

@@ -41,3 +41,16 @@ class IronCacheResource(object):
 
         logging.info("Result: {result}".format(result=result))
         return result
+
+    def get_int_cache(self, cache, key):
+        result = False
+        try:
+            logging.info("Requesting get operation on cache. Cache: {cache} | Key: {key}".format(cache=cache, key=key))
+            data = self.iron_cache_client.get(cache=cache, key=key).value
+        except Exception:
+            logging.error(traceback.format_exc())
+        else:
+            result = data
+
+        logging.info("Result: {result}".format(result=result))
+        return result

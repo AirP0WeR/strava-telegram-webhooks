@@ -24,6 +24,7 @@ class Challenges(object):
         self.telegram_resource = TelegramResource()
         self.database_resource = DatabaseResource()
         self.calculate_challenges_stats = CalculateChallengesStats()
+        self.iron_cache_resource = IronCacheResource()
 
     def handle_aspect_type_update(self, event, athlete_details):
         athlete_id = event['owner_id']
@@ -85,6 +86,17 @@ class Challenges(object):
                     self.calculate_challenges_stats.main(athlete_details)
             self.calculate_challenges_stats.consolidate_even_challenges()
             self.calculate_challenges_stats.consolidate_odd_challenges()
+
+    def page_hits(self):
+        hits = self.iron_cache_resource.get_int_cache(cache="challenges_hits", key="hits")
+        if hits:
+            self.iron_cache_resource.put_cache(cache="challenges_hits", key="hits", value=hits + 1)
+            challenges_hits = hits + 1
+        else:
+            self.iron_cache_resource.put_cache(cache="challenges_hits", key="hits", value=1)
+            challenges_hits = 1
+
+        self.telegram_resource.shadow_message("Challenges Page Hits: {hits}".format(hits=challenges_hits))
 
     def main(self, event):
         aspect_type = event['aspect_type']

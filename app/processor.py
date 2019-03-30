@@ -104,6 +104,18 @@ def update_all_challenges_stats():
 
 @app.task
 @execution_time
+def challenges_page_hits():
+    try:
+        logging.info("Received request for challenges page hits.")
+        challenges.page_hits()
+    except Exception:
+        message = "Something went wrong. Exception: {exception}".format(exception=traceback.format_exc())
+        logging.error(message)
+        telegram_resource.shadow_message(message)
+
+
+@app.task
+@execution_time
 def telegram_send_message(chat_id, message):
     logging.info(
         "Received request to send message to a user. Chat ID: {chat_id}, Message: {message}".format(chat_id=chat_id,
