@@ -260,6 +260,7 @@ class CalculateChallengesStats(object):
         self.iron_cache_resource.put_cache("even_challenges", "1000_km", ujson.dumps(even_challenge_thousand_km))
         self.iron_cache_resource.put_cache("even_challenges", "10000_meters",
                                            ujson.dumps(even_challenge_ten_thousand_meters))
+        self.telegram_resource.shadow_message("Updated cache for even challenges.")
 
     def consolidate_odd_challenges(self):
         odd_challenge_twenty_twenty = list()
@@ -289,6 +290,7 @@ class CalculateChallengesStats(object):
         self.iron_cache_resource.put_cache("odd_challenges", "1000_km", ujson.dumps(odd_challenge_thousand_km))
         self.iron_cache_resource.put_cache("odd_challenges", "10000_meters",
                                            ujson.dumps(odd_challenge_ten_thousand_meters))
+        self.telegram_resource.shadow_message("Updated cache for odd challenges.")
 
     def main(self, athlete_details):
         self.even_challenges(athlete_details)
