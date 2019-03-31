@@ -238,6 +238,11 @@ class CalculateChallengesStats(object):
             challenges = result[1]
             challenges_data = result[2]
 
+            logging.info(challenges)
+            logging.info(type(challenges))
+            logging.info(challenges_data)
+            logging.info(type(challenges_data))
+
             if challenges:
                 if '20_20' in challenges:
                     even_challenges = {'name': name, 'value': challenges_data['20_20']}
