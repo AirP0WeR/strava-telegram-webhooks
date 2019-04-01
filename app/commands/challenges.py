@@ -147,14 +147,15 @@ class CalculateChallengesStats(object):
             for activity in self.strava_resource.get_strava_activities_after_date_before_date(
                     athlete_details['athlete_token'], self.app_variables.even_challenges_from_date,
                     self.app_variables.even_challenges_to_date):
-                if '20_20' in even_challenges:
-                    if activity.start_date_local.month == self.app_variables.even_challenges_month and activity.start_date_local.year == self.app_variables.even_challenges_year:
+                if self.operations.supported_activities_for_challenges(
+                        activity) and activity.start_date_local.month == self.app_variables.even_challenges_month and activity.start_date_local.year == self.app_variables.even_challenges_year:
+                    if '20_20' in even_challenges:
                         even_challenges_ride_calendar[activity.start_date_local.day] += float(activity.distance)
-                if '1000_km' in even_challenges:
-                    even_challenges_total_distance += float(activity.distance)
-                if '10000_meters' in even_challenges:
-                    if not self.operations.is_indoor(activity):
-                        even_challenges_total_elevation += float(activity.total_elevation_gain)
+                    if '1000_km' in even_challenges:
+                        even_challenges_total_distance += float(activity.distance)
+                    if '10000_meters' in even_challenges:
+                        if not self.operations.is_indoor(activity):
+                            even_challenges_total_elevation += float(activity.total_elevation_gain)
 
             if '20_20' in even_challenges:
                 for distance in even_challenges_ride_calendar:
@@ -197,14 +198,15 @@ class CalculateChallengesStats(object):
             for activity in self.strava_resource.get_strava_activities_after_date_before_date(
                     athlete_details['athlete_token'], self.app_variables.odd_challenges_from_date,
                     self.app_variables.odd_challenges_to_date):
-                if '20_20' in odd_challenges:
-                    if activity.start_date_local.month == self.app_variables.odd_challenges_month and activity.start_date_local.year == self.app_variables.odd_challenges_year:
+                if self.operations.supported_activities_for_challenges(
+                        activity) and activity.start_date_local.month == self.app_variables.even_challenges_month and activity.start_date_local.year == self.app_variables.even_challenges_year:
+                    if '20_20' in odd_challenges:
                         odd_challenges_ride_calendar[activity.start_date_local.day] += float(activity.distance)
-                if '1000_km' in odd_challenges:
-                    odd_challenges_total_distance += float(activity.distance)
-                if '10000_meters' in odd_challenges:
-                    if not self.operations.is_indoor(activity):
-                        odd_challenges_total_elevation += float(activity.total_elevation_gain)
+                    if '1000_km' in odd_challenges:
+                        odd_challenges_total_distance += float(activity.distance)
+                    if '10000_meters' in odd_challenges:
+                        if not self.operations.is_indoor(activity):
+                            odd_challenges_total_elevation += float(activity.total_elevation_gain)
 
             if '20_20' in odd_challenges:
                 for distance in odd_challenges_ride_calendar:
