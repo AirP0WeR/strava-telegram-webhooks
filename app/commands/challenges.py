@@ -56,8 +56,6 @@ class Challenges(object):
         if activity:
             if self.operations.supported_activities_for_challenges(activity):
                 self.calculate_challenges_stats.main(athlete_details)
-                self.calculate_challenges_stats.consolidate_even_challenges()
-                self.calculate_challenges_stats.consolidate_odd_challenges()
                 self.calculate_challenges_stats.consolidate_even_challenges_result()
                 self.calculate_challenges_stats.consolidate_odd_challenges_result()
             else:
@@ -70,16 +68,12 @@ class Challenges(object):
             logging.error(message)
             self.telegram_resource.shadow_message(message)
             self.calculate_challenges_stats.main(athlete_details)
-            self.calculate_challenges_stats.consolidate_even_challenges()
-            self.calculate_challenges_stats.consolidate_odd_challenges()
             self.calculate_challenges_stats.consolidate_even_challenges_result()
             self.calculate_challenges_stats.consolidate_odd_challenges_result()
 
     def update_challenges_stats(self, athlete_id):
         athlete_details = self.athlete_resource.get_athlete_details_in_challenges(athlete_id)
         self.calculate_challenges_stats.main(athlete_details)
-        self.calculate_challenges_stats.consolidate_even_challenges()
-        self.calculate_challenges_stats.consolidate_odd_challenges()
         self.calculate_challenges_stats.consolidate_even_challenges_result()
         self.calculate_challenges_stats.consolidate_odd_challenges_result()
 
@@ -91,8 +85,6 @@ class Challenges(object):
                 athlete_details = self.athlete_resource.get_athlete_details_in_challenges(athlete_id[0])
                 if athlete_details:
                     self.calculate_challenges_stats.main(athlete_details)
-            self.calculate_challenges_stats.consolidate_even_challenges()
-            self.calculate_challenges_stats.consolidate_odd_challenges()
             self.calculate_challenges_stats.consolidate_even_challenges_result()
             self.calculate_challenges_stats.consolidate_odd_challenges_result()
 
@@ -211,8 +203,6 @@ class Challenges(object):
                     self.handle_aspect_type_create(event, athlete_details)
                 elif aspect_type == "delete":
                     self.calculate_challenges_stats.main(athlete_details)
-                    self.calculate_challenges_stats.consolidate_even_challenges()
-                    self.calculate_challenges_stats.consolidate_odd_challenges()
                     self.calculate_challenges_stats.consolidate_even_challenges_result()
                     self.calculate_challenges_stats.consolidate_odd_challenges_result()
 
@@ -330,36 +320,6 @@ class CalculateChallengesStats(object):
                 self.telegram_resource.shadow_message(
                     "Failed to update odd challenges data for {name}".format(name=athlete_details['name']))
 
-    def consolidate_even_challenges(self):
-        even_challenge_twenty_twenty = list()
-        even_challenge_thousand_km = list()
-        even_challenge_ten_thousand_meters = list()
-
-        results = self.database_resource.read_all_operation(self.app_constants.QUERY_GET_EVEN_CHALLENGES_DATA)
-        for result in results:
-            name = result[0]
-            challenges = result[1]
-            challenges_data = result[2]
-
-            if challenges:
-                if '20_20' in challenges:
-                    even_challenges = {'name': name, 'value': challenges_data['20_20']}
-                    even_challenge_twenty_twenty.append(even_challenges)
-
-                if '1000_km' in challenges:
-                    even_challenges = {'name': name, 'value': challenges_data['1000_km']}
-                    even_challenge_thousand_km.append(even_challenges)
-
-                if '10000_meters' in challenges:
-                    even_challenges = {'name': name, 'value': challenges_data['10000_meters']}
-                    even_challenge_ten_thousand_meters.append(even_challenges)
-
-        self.iron_cache_resource.put_cache("even_challenges", "20_20", ujson.dumps(even_challenge_twenty_twenty))
-        self.iron_cache_resource.put_cache("even_challenges", "1000_km", ujson.dumps(even_challenge_thousand_km))
-        self.iron_cache_resource.put_cache("even_challenges", "10000_meters",
-                                           ujson.dumps(even_challenge_ten_thousand_meters))
-        self.telegram_resource.shadow_message("Updated cache for even challenges.")
-
     def consolidate_even_challenges_result(self):
         even_challenge_twenty_twenty = list()
         even_challenge_thousand_km = list()
@@ -413,36 +373,6 @@ class CalculateChallengesStats(object):
         self.iron_cache_resource.put_cache("even_challenges_result", "10000_meters",
                                            ujson.dumps(even_challenge_ten_thousand_meters_sorted))
         self.telegram_resource.shadow_message("Updated cache for even challenges.")
-
-    def consolidate_odd_challenges(self):
-        odd_challenge_twenty_twenty = list()
-        odd_challenge_thousand_km = list()
-        odd_challenge_ten_thousand_meters = list()
-
-        results = self.database_resource.read_all_operation(self.app_constants.QUERY_GET_ODD_CHALLENGES_DATA)
-        for result in results:
-            name = result[0]
-            challenges = result[1]
-            challenges_data = result[2]
-
-            if challenges:
-                if '20_20' in challenges:
-                    odd_challenges = {'name': name, 'value': challenges_data['20_20']}
-                    odd_challenge_twenty_twenty.append(odd_challenges)
-
-                if '1000_km' in challenges:
-                    odd_challenges = {'name': name, 'value': challenges_data['1000_km']}
-                    odd_challenge_thousand_km.append(odd_challenges)
-
-                if '10000_meters' in challenges:
-                    odd_challenges = {'name': name, 'value': challenges_data['10000_meters']}
-                    odd_challenge_ten_thousand_meters.append(odd_challenges)
-
-        self.iron_cache_resource.put_cache("odd_challenges", "20_20", ujson.dumps(odd_challenge_twenty_twenty))
-        self.iron_cache_resource.put_cache("odd_challenges", "1000_km", ujson.dumps(odd_challenge_thousand_km))
-        self.iron_cache_resource.put_cache("odd_challenges", "10000_meters",
-                                           ujson.dumps(odd_challenge_ten_thousand_meters))
-        self.telegram_resource.shadow_message("Updated cache for odd challenges.")
 
     def consolidate_odd_challenges_result(self):
         odd_challenge_twenty_twenty = list()
