@@ -98,6 +98,96 @@ class Challenges(object):
 
         self.telegram_resource.shadow_message("Challenges Page Hits: {hits}".format(hits=challenges_hits))
 
+    def challenges_even_athletes_list(self):
+        messages = list()
+
+        results = self.database_resource.read_all_operation(self.app_constants.QUERY_GET_ATHLETES_EVEN_CHALLENGES)
+
+        twenty_twenty = "20-20:\n\n"
+        twenty_twenty_sl_no = 1
+        thousand_km = "1,000 km:\n\n"
+        thousand_km_sl_no = 1
+        ten_thousand_meters = "10,000 meters:\n\n"
+        ten_thousand_meters_sl_no = 1
+        total_count = 0
+
+        for result in results:
+            athlete_id = result[0]
+            name = result[1]
+            challenges = result[2]
+
+            if challenges:
+                if '20_20' in challenges:
+                    twenty_twenty += "{sl_no}. [{name}](https://www.strava.com/athletes/{athlete_id})\n".format(
+                        sl_no=twenty_twenty_sl_no, name=name, athlete_id=athlete_id)
+                    twenty_twenty_sl_no += 1
+
+                if '1000_km' in challenges:
+                    thousand_km += "{sl_no}. [{name}](https://www.strava.com/athletes/{athlete_id})\n".format(
+                        sl_no=thousand_km_sl_no, name=name, athlete_id=athlete_id)
+                    thousand_km_sl_no += 1
+
+                if '10000_meters' in challenges:
+                    ten_thousand_meters += "{sl_no}. [{name}](https://www.strava.com/athletes/{athlete_id})\n".format(
+                        sl_no=ten_thousand_meters_sl_no, name=name, athlete_id=athlete_id)
+                    ten_thousand_meters_sl_no += 1
+
+                total_count += 1
+
+        total = "Total athletes registered for even month's challenges: {total}".format(total=total_count)
+
+        messages.append(twenty_twenty)
+        messages.append(thousand_km)
+        messages.append(ten_thousand_meters)
+        messages.append(total)
+
+        return messages if messages != [] else False
+
+    def challenges_odd_athletes_list(self):
+        messages = list()
+
+        results = self.database_resource.read_all_operation(self.app_constants.QUERY_GET_ATHLETES_ODD_CHALLENGES)
+
+        twenty_twenty = "20-20:\n\n"
+        twenty_twenty_sl_no = 1
+        thousand_km = "1,000 km:\n\n"
+        thousand_km_sl_no = 1
+        ten_thousand_meters = "10,000 meters:\n\n"
+        ten_thousand_meters_sl_no = 1
+        total_count = 0
+
+        for result in results:
+            athlete_id = result[0]
+            name = result[1]
+            challenges = result[2]
+
+            if challenges:
+                if '20_20' in challenges:
+                    twenty_twenty += "{sl_no}. [{name}](https://www.strava.com/athletes/{athlete_id})\n".format(
+                        sl_no=twenty_twenty_sl_no, name=name, athlete_id=athlete_id)
+                    twenty_twenty_sl_no += 1
+
+                if '1000_km' in challenges:
+                    thousand_km += "{sl_no}. [{name}](https://www.strava.com/athletes/{athlete_id})\n".format(
+                        sl_no=thousand_km_sl_no, name=name, athlete_id=athlete_id)
+                    thousand_km_sl_no += 1
+
+                if '10000_meters' in challenges:
+                    ten_thousand_meters += "{sl_no}. [{name}](https://www.strava.com/athletes/{athlete_id})\n".format(
+                        sl_no=ten_thousand_meters_sl_no, name=name, athlete_id=athlete_id)
+                    ten_thousand_meters_sl_no += 1
+
+                total_count += 1
+
+        total = "Total athletes registered for odd month's challenges: {total}".format(total=total_count)
+
+        messages.append(twenty_twenty)
+        messages.append(thousand_km)
+        messages.append(ten_thousand_meters)
+        messages.append(total)
+
+        return messages if messages != [] else False
+
     def main(self, event):
         aspect_type = event['aspect_type']
         athlete_id = event['owner_id']

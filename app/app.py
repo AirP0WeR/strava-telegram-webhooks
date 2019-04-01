@@ -6,7 +6,7 @@ import traceback
 from flask import Flask, request, jsonify
 from scout_apm.flask import ScoutApm
 
-from app.commands.challenges import CalculateChallengesStats
+from app.commands.challenges import CalculateChallengesStats, Challenges
 from app.common.constants_and_variables import AppVariables, AppConstants
 from app.common.execution_time import execution_time
 from app.processor import update_stats, handle_webhook, update_all_stats, telegram_shadow_message, \
@@ -24,6 +24,7 @@ athlete_resource = AthleteResource()
 database_resource = DatabaseResource()
 iron_cache_resource = IronCacheResource()
 calculate_challenge_stats = CalculateChallengesStats()
+challenges = Challenges()
 
 app = Flask(__name__)
 app.config.from_object(__name__)
@@ -455,6 +456,30 @@ def get_challenges_odd_ten_thousand_meters():
                 return jsonify(result), 200
             else:
                 return jsonify(''), 500
+
+
+@app.route("/challenges/even/athletes/list", methods=['GET'])
+@execution_time
+def get_challenges_even_athletes_list():
+    if request.method == 'GET':
+        logging.info("Received request to get registered athletes for even challenges.")
+        result = challenges.challenges_even_athletes_list()
+        if result:
+            return jsonify(result), 200
+        else:
+            return jsonify(''), 500
+
+
+@app.route("/challenges/odd/athletes/list", methods=['GET'])
+@execution_time
+def get_challenges_odd_athletes_list():
+    if request.method == 'GET':
+        logging.info("Received request to get registered athletes for odd challenges.")
+        result = challenges.challenges_odd_athletes_list()
+        if result:
+            return jsonify(result), 200
+        else:
+            return jsonify(''), 500
 
 
 @app.route("/challenges/hits/reset", methods=['POST'])
