@@ -1,6 +1,7 @@
 #  -*- encoding: utf-8 -*-
 
 import logging
+import operator
 import traceback
 
 import ujson
@@ -57,6 +58,8 @@ class Challenges(object):
                 self.calculate_challenges_stats.main(athlete_details)
                 self.calculate_challenges_stats.consolidate_even_challenges()
                 self.calculate_challenges_stats.consolidate_odd_challenges()
+                self.calculate_challenges_stats.consolidate_even_challenges_result()
+                self.calculate_challenges_stats.consolidate_odd_challenges_result()
             else:
                 message = self.app_constants.MESSAGE_CHALLENGES_UNSUPPORTED_ACTIVITY.format(activity_type=activity.type)
                 logging.info(message)
@@ -69,12 +72,16 @@ class Challenges(object):
             self.calculate_challenges_stats.main(athlete_details)
             self.calculate_challenges_stats.consolidate_even_challenges()
             self.calculate_challenges_stats.consolidate_odd_challenges()
+            self.calculate_challenges_stats.consolidate_even_challenges_result()
+            self.calculate_challenges_stats.consolidate_odd_challenges_result()
 
     def update_challenges_stats(self, athlete_id):
         athlete_details = self.athlete_resource.get_athlete_details_in_challenges(athlete_id)
         self.calculate_challenges_stats.main(athlete_details)
         self.calculate_challenges_stats.consolidate_even_challenges()
         self.calculate_challenges_stats.consolidate_odd_challenges()
+        self.calculate_challenges_stats.consolidate_even_challenges_result()
+        self.calculate_challenges_stats.consolidate_odd_challenges_result()
 
     def update_all_challenges_stats(self):
         athlete_ids = self.database_resource.read_all_operation(
@@ -86,6 +93,8 @@ class Challenges(object):
                     self.calculate_challenges_stats.main(athlete_details)
             self.calculate_challenges_stats.consolidate_even_challenges()
             self.calculate_challenges_stats.consolidate_odd_challenges()
+            self.calculate_challenges_stats.consolidate_even_challenges_result()
+            self.calculate_challenges_stats.consolidate_odd_challenges_result()
 
     def page_hits(self):
         hits = self.iron_cache_resource.get_int_cache(cache="challenges_hits", key="hits")
@@ -204,6 +213,8 @@ class Challenges(object):
                     self.calculate_challenges_stats.main(athlete_details)
                     self.calculate_challenges_stats.consolidate_even_challenges()
                     self.calculate_challenges_stats.consolidate_odd_challenges()
+                    self.calculate_challenges_stats.consolidate_even_challenges_result()
+                    self.calculate_challenges_stats.consolidate_odd_challenges_result()
 
 
 class CalculateChallengesStats(object):
@@ -349,6 +360,60 @@ class CalculateChallengesStats(object):
                                            ujson.dumps(even_challenge_ten_thousand_meters))
         self.telegram_resource.shadow_message("Updated cache for even challenges.")
 
+    def consolidate_even_challenges_result(self):
+        even_challenge_twenty_twenty = list()
+        even_challenge_thousand_km = list()
+        even_challenge_ten_thousand_meters = list()
+
+        results = self.database_resource.read_all_operation(self.app_constants.QUERY_GET_EVEN_CHALLENGES_DATA)
+        for result in results:
+            name = result[0]
+            challenges = result[1]
+            challenges_data = result[2]
+
+            if challenges:
+                if '20_20' in challenges:
+                    even_challenge_twenty_twenty.append({'name': name, 'value': challenges_data['20_20']})
+                if '1000_km' in challenges:
+                    even_challenge_thousand_km.append({'name': name, 'value': challenges_data['1000_km']})
+                if '10000_meters' in challenges:
+                    even_challenge_ten_thousand_meters.append({'name': name, 'value': challenges_data['10000_meters']})
+
+        even_challenge_twenty_twenty_temp = sorted(even_challenge_twenty_twenty, key=operator.itemgetter('value'),
+                                                   reverse=True)
+        even_challenge_thousand_km_temp = sorted(even_challenge_thousand_km, key=operator.itemgetter('value'),
+                                                 reverse=True)
+        even_challenge_ten_thousand_meters_temp = sorted(even_challenge_ten_thousand_meters,
+                                                         key=operator.itemgetter('value'), reverse=True)
+
+        even_challenge_twenty_twenty_sorted = list()
+        rank = 1
+        for athlete in even_challenge_twenty_twenty_temp:
+            even_challenge_twenty_twenty_sorted.append(
+                {'rank': rank, 'name': athlete['name'], 'value': athlete['value']})
+            rank += 1
+
+        even_challenge_thousand_km_sorted = list()
+        rank = 1
+        for athlete in even_challenge_thousand_km_temp:
+            even_challenge_thousand_km_sorted.append({'rank': rank, 'name': athlete['name'], 'value': athlete['value']})
+            rank += 1
+
+        even_challenge_ten_thousand_meters_sorted = list()
+        rank = 1
+        for athlete in even_challenge_ten_thousand_meters_temp:
+            even_challenge_ten_thousand_meters_sorted.append(
+                {'rank': rank, 'name': athlete['name'], 'value': athlete['value']})
+            rank += 1
+
+        self.iron_cache_resource.put_cache("even_challenges_result", "20_20",
+                                           ujson.dumps(even_challenge_twenty_twenty_sorted))
+        self.iron_cache_resource.put_cache("even_challenges_result", "1000_km",
+                                           ujson.dumps(even_challenge_thousand_km_sorted))
+        self.iron_cache_resource.put_cache("even_challenges_result", "10000_meters",
+                                           ujson.dumps(even_challenge_ten_thousand_meters_sorted))
+        self.telegram_resource.shadow_message("Updated cache for even challenges.")
+
     def consolidate_odd_challenges(self):
         odd_challenge_twenty_twenty = list()
         odd_challenge_thousand_km = list()
@@ -377,6 +442,60 @@ class CalculateChallengesStats(object):
         self.iron_cache_resource.put_cache("odd_challenges", "1000_km", ujson.dumps(odd_challenge_thousand_km))
         self.iron_cache_resource.put_cache("odd_challenges", "10000_meters",
                                            ujson.dumps(odd_challenge_ten_thousand_meters))
+        self.telegram_resource.shadow_message("Updated cache for odd challenges.")
+
+    def consolidate_odd_challenges_result(self):
+        odd_challenge_twenty_twenty = list()
+        odd_challenge_thousand_km = list()
+        odd_challenge_ten_thousand_meters = list()
+
+        results = self.database_resource.read_all_operation(self.app_constants.QUERY_GET_ODD_CHALLENGES_DATA)
+        for result in results:
+            name = result[0]
+            challenges = result[1]
+            challenges_data = result[2]
+
+            if challenges:
+                if '20_20' in challenges:
+                    odd_challenge_twenty_twenty.append({'name': name, 'value': challenges_data['20_20']})
+                if '1000_km' in challenges:
+                    odd_challenge_thousand_km.append({'name': name, 'value': challenges_data['1000_km']})
+                if '10000_meters' in challenges:
+                    odd_challenge_ten_thousand_meters.append({'name': name, 'value': challenges_data['10000_meters']})
+
+        odd_challenge_twenty_twenty_temp = sorted(odd_challenge_twenty_twenty, key=operator.itemgetter('value'),
+                                                  reverse=True)
+        odd_challenge_thousand_km_temp = sorted(odd_challenge_thousand_km, key=operator.itemgetter('value'),
+                                                reverse=True)
+        odd_challenge_ten_thousand_meters_temp = sorted(odd_challenge_ten_thousand_meters,
+                                                        key=operator.itemgetter('value'), reverse=True)
+
+        odd_challenge_twenty_twenty_sorted = list()
+        rank = 1
+        for athlete in odd_challenge_twenty_twenty_temp:
+            odd_challenge_twenty_twenty_sorted.append(
+                {'rank': rank, 'name': athlete['name'], 'value': athlete['value']})
+            rank += 1
+
+        odd_challenge_thousand_km_sorted = list()
+        rank = 1
+        for athlete in odd_challenge_thousand_km_temp:
+            odd_challenge_thousand_km_sorted.append({'rank': rank, 'name': athlete['name'], 'value': athlete['value']})
+            rank += 1
+
+        odd_challenge_ten_thousand_meters_sorted = list()
+        rank = 1
+        for athlete in odd_challenge_ten_thousand_meters_temp:
+            odd_challenge_ten_thousand_meters_sorted.append(
+                {'rank': rank, 'name': athlete['name'], 'value': athlete['value']})
+            rank += 1
+
+        self.iron_cache_resource.put_cache("odd_challenges_result", "20_20",
+                                           ujson.dumps(odd_challenge_twenty_twenty_sorted))
+        self.iron_cache_resource.put_cache("odd_challenges_result", "1000_km",
+                                           ujson.dumps(odd_challenge_thousand_km_sorted))
+        self.iron_cache_resource.put_cache("odd_challenges_result", "10000_meters",
+                                           ujson.dumps(odd_challenge_ten_thousand_meters_sorted))
         self.telegram_resource.shadow_message("Updated cache for odd challenges.")
 
     def main(self, athlete_details):
