@@ -54,7 +54,7 @@ class AppConstants(object):
 
     QUERY_FETCH_ATHLETE_DETAILS_IN_CHALLENGES = "select name, access_token, refresh_token, expires_at, even_challenges, even_challenges_data, odd_challenges, odd_challenges_data from strava_challenges where athlete_id={athlete_id}"
     QUERY_UPDATE_TOKEN_IN_CHALLENGES = "UPDATE strava_challenges SET access_token='{access_token}', refresh_token='{refresh_token}', expires_at={expires_at}, updated=now() where athlete_id={athlete_id}"
-    QUERY_DEACTIVATE_ATHLETE_IN_CHALLENGES = "UPDATE strava_challenges SET even_challenges=null, even_challenges_data=null, odd_challenges=null, odd_challenges_data=null, updated=now() WHERE athlete_id={athlete_id}"
+    QUERY_DELETE_ATHLETE_FROM_CHALLENGES = "DELETE from strava_challenges WHERE athlete_id={athlete_id}"
     QUERY_UPDATE_EVEN_CHALLENGES_DATA = "UPDATE strava_challenges SET even_challenges_data='{even_challenges_data}', updated=now() where athlete_id={athlete_id}"
     QUERY_UPDATE_ODD_CHALLENGES_DATA = "UPDATE strava_challenges SET odd_challenges_data='{odd_challenges_data}', updated=now() where athlete_id={athlete_id}"
     QUERY_GET_ATHLETE_IDS_FROM_CHALLENGES = "select athlete_id from strava_challenges"

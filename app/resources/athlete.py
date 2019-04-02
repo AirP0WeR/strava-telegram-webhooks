@@ -197,3 +197,19 @@ class AthleteResource(object):
             success = True
 
         return success
+
+    def deauthorise_and_delete_from_challenges(self, athlete_id):
+        success = False
+        athlete_details = self.get_athlete_details_in_challenges(athlete_id)
+        if self.strava_resource.deauthorise_athlete_from_challenges(athlete_details['athlete_token']):
+            if self.database_resource.write_operation(
+                    self.app_constants.QUERY_DELETE_ATHLETE_FROM_CHALLENGES.format(athlete_id=athlete_id)):
+                logging.info(
+                    "Successfully deauthorised and deleted {athlete_id} from challenges".format(athlete_id=athlete_id))
+                success = True
+            else:
+                logging.error("Failed to delete {athlete_id} from challenges".format(athlete_id=athlete_id))
+        else:
+            logging.error("Failed to deauthorise {athlete_id}".format(athlete_id=athlete_id))
+
+        return success

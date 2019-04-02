@@ -31,7 +31,7 @@ class Challenges(object):
         athlete_id = event['owner_id']
         if 'authorized' in event['updates'] and event['updates']['authorized'] == "false" and athlete_details:
             if self.database_resource.write_operation(
-                    self.app_constants.QUERY_DEACTIVATE_ATHLETE_IN_CHALLENGES.format(athlete_id=athlete_id)):
+                    self.app_constants.QUERY_DELETE_ATHLETE_FROM_CHALLENGES.format(athlete_id=athlete_id)):
                 message = self.app_constants.MESSAGE_CHALLENGES_DEAUTHORIZE_SUCCESS.format(
                     name=athlete_details['name'],
                     athlete_id=athlete_id)

@@ -493,6 +493,15 @@ def challenges_hits_reset():
             return jsonify(''), 404
 
 
+@app.route("/challenges/remove/<athlete_id>", methods=['POST'])
+def challenges_remove_athlete(athlete_id):
+    if request.method == 'POST':
+        if athlete_resource.deauthorise_and_delete_from_challenges(athlete_id):
+            return jsonify(''), 200
+        else:
+            return jsonify(''), 500
+
+
 @app.route("/healthcheck")
 def healthcheck():
     return jsonify('OK'), 200
