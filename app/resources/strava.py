@@ -200,7 +200,7 @@ class StravaResource(object):
 
         return activity
 
-    def deauthorise_athlete_from_challenges(self, token):
+    def deauthorise_athlete(self, token):
         strava_client = self.strava_client.get_client(token)
         success = False
         try:
