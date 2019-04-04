@@ -233,11 +233,18 @@ class CalculateChallengesStats(object):
             '10000_meters': 0
         }
 
+        logging.info("Athlete Details: {details}".format(details=athlete_details))
         if athlete_details['even_challenges']:
             even_challenges = athlete_details['even_challenges']
             for activity in self.strava_resource.get_strava_activities_after_date_before_date(
                     athlete_details['athlete_token'], self.app_variables.even_challenges_from_date,
                     self.app_variables.even_challenges_to_date):
+                logging.info(
+                    "Type: {activity_type} | Month: {activity_month} | Year: {activity_year} | Day: {activity_day} | Distance: {activity_distance} | Total Elevation Gain: {total_elevation_gain}".format(
+                        activity_type=activity.type, activity_month=activity.start_date_local.month,
+                        activity_year=activity.start_date_local.year, activity_day=activity.start_date_local.day,
+                        activity_distance=float(activity.distance),
+                        total_elevation_gain=float(activity.total_elevation_gain)))
                 if self.operations.supported_activities_for_challenges(
                         activity) and activity.start_date_local.month == self.app_variables.even_challenges_month and activity.start_date_local.year == self.app_variables.even_challenges_year:
                     if '20_20' in even_challenges:
@@ -247,6 +254,13 @@ class CalculateChallengesStats(object):
                     if '10000_meters' in even_challenges:
                         if not self.operations.is_indoor(activity):
                             even_challenges_total_elevation += float(activity.total_elevation_gain)
+
+            logging.info(
+                "Even Ride Calendar: {even_challenges_ride_calendar} | Even Rides Count : {even_challenges_rides_count}| Even Total Distance: {even_challenges_total_distance} | Even Total Elevation: {even_challenges_total_elevation}".format(
+                    even_challenges_ride_calendar=even_challenges_ride_calendar,
+                    even_challenges_rides_count=even_challenges_rides_count,
+                    even_challenges_total_distance=even_challenges_total_distance,
+                    even_challenges_total_elevation=even_challenges_total_elevation))
 
             if '20_20' in even_challenges:
                 for distance in even_challenges_ride_calendar:
