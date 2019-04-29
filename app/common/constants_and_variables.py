@@ -52,7 +52,7 @@ class AppConstants(object):
                 updated timestamp default current_timestamp NOT NULL
                 );'''
 
-    QUERY_FETCH_ATHLETE_DETAILS_IN_CHALLENGES = "select name, access_token, refresh_token, expires_at, even_challenges, even_challenges_data, odd_challenges, odd_challenges_data from strava_challenges where athlete_id={athlete_id}"
+    QUERY_FETCH_ATHLETE_DETAILS_IN_CHALLENGES = "select name, access_token, refresh_token, expires_at, even_challenges, even_challenges_data, odd_challenges, odd_challenges_data, bosch_even_challenges, bosch_even_challenges_data, bosch_odd_challenges, bosch_odd_challenges_data from strava_challenges where athlete_id={athlete_id}"
     QUERY_UPDATE_TOKEN_IN_CHALLENGES = "UPDATE strava_challenges SET access_token='{access_token}', refresh_token='{refresh_token}', expires_at={expires_at}, updated=now() where athlete_id={athlete_id}"
     QUERY_DELETE_ATHLETE_FROM_CHALLENGES = "DELETE from strava_challenges WHERE athlete_id={athlete_id}"
     QUERY_UPDATE_EVEN_CHALLENGES_DATA = "UPDATE strava_challenges SET even_challenges_data='{even_challenges_data}', updated=now() where athlete_id={athlete_id}"

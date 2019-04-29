@@ -193,18 +193,18 @@ class Challenges(object):
         aspect_type = event['aspect_type']
         athlete_id = event['owner_id']
         athlete_details = self.athlete_resource.get_athlete_details_in_challenges(athlete_id)
-
-        if aspect_type == "update":
-            self.handle_aspect_type_update(event, athlete_details)
-        else:
-            if athlete_details:
-                self.alert_webhook_event_of_athlete(event, athlete_details)
-                if aspect_type == "create":
-                    self.handle_aspect_type_create(event, athlete_details)
-                elif aspect_type == "delete":
-                    self.calculate_challenges_stats.main(athlete_details)
-                    self.calculate_challenges_stats.consolidate_even_challenges_result()
-                    self.calculate_challenges_stats.consolidate_odd_challenges_result()
+        if not athlete_details['bosch_even_challenges']:  # TODO Remove this code
+            if aspect_type == "update":
+                self.handle_aspect_type_update(event, athlete_details)
+            else:
+                if athlete_details:
+                    self.alert_webhook_event_of_athlete(event, athlete_details)
+                    if aspect_type == "create":
+                        self.handle_aspect_type_create(event, athlete_details)
+                    elif aspect_type == "delete":
+                        self.calculate_challenges_stats.main(athlete_details)
+                        self.calculate_challenges_stats.consolidate_even_challenges_result()
+                        self.calculate_challenges_stats.consolidate_odd_challenges_result()
 
 
 class CalculateChallengesStats(object):
@@ -233,7 +233,6 @@ class CalculateChallengesStats(object):
             '10000_meters': 0
         }
 
-        logging.info("Athlete Details: {details}".format(details=athlete_details))
         if athlete_details['even_challenges']:
             even_challenges = athlete_details['even_challenges']
             for activity in self.strava_resource.get_strava_activities_after_date_before_date(

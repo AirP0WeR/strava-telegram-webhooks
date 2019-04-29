@@ -116,6 +116,10 @@ class AthleteResource(object):
             athlete_details['even_challenges_data'] = result[5]
             athlete_details['odd_challenges'] = result[6]
             athlete_details['odd_challenges_data'] = result[7]
+            athlete_details['bosch_even_challenges'] = result[4]
+            athlete_details['bosch_even_challenges_data'] = result[5]
+            athlete_details['bosch_odd_challenges'] = result[6]
+            athlete_details['bosch_odd_challenges_data'] = result[7]
 
             if int(time.time()) > athlete_details['expires_at']:
                 logging.info("Token has expired.")
