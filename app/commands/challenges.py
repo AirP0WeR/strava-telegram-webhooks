@@ -193,7 +193,7 @@ class Challenges(object):
         aspect_type = event['aspect_type']
         athlete_id = event['owner_id']
         athlete_details = self.athlete_resource.get_athlete_details_in_challenges(athlete_id)
-        if not athlete_details['bosch_even_challenges']:  # TODO Remove this code
+        if athlete_details['even_challenges']:  # TODO Remove this code
             if aspect_type == "update":
                 self.handle_aspect_type_update(event, athlete_details)
             else:
