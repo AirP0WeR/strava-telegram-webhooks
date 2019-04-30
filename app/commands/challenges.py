@@ -193,18 +193,17 @@ class Challenges(object):
         aspect_type = event['aspect_type']
         athlete_id = event['owner_id']
         athlete_details = self.athlete_resource.get_athlete_details_in_challenges(athlete_id)
-        if athlete_details['even_challenges']:  # TODO Remove this code
-            if aspect_type == "update":
-                self.handle_aspect_type_update(event, athlete_details)
-            else:
-                if athlete_details:
-                    self.alert_webhook_event_of_athlete(event, athlete_details)
-                    if aspect_type == "create":
-                        self.handle_aspect_type_create(event, athlete_details)
-                    elif aspect_type == "delete":
-                        self.calculate_challenges_stats.main(athlete_details)
-                        self.calculate_challenges_stats.consolidate_even_challenges_result()
-                        self.calculate_challenges_stats.consolidate_odd_challenges_result()
+        if aspect_type == "update":
+            self.handle_aspect_type_update(event, athlete_details)
+        else:
+            if athlete_details:
+                self.alert_webhook_event_of_athlete(event, athlete_details)
+                if aspect_type == "create":
+                    self.handle_aspect_type_create(event, athlete_details)
+                elif aspect_type == "delete":
+                    self.calculate_challenges_stats.main(athlete_details)
+                    self.calculate_challenges_stats.consolidate_even_challenges_result()
+                    self.calculate_challenges_stats.consolidate_odd_challenges_result()
 
 
 class CalculateChallengesStats(object):
