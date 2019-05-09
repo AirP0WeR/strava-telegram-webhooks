@@ -406,6 +406,92 @@ def get_challenges_even_result_ten_thousand_meters():
                 return jsonify(''), 500
 
 
+@app.route("/challenges/bosch/even/result/five_km", methods=['GET'])
+@execution_time
+def get_challenges_bosch_even_result_five_km():
+    if request.method == 'GET':
+        logging.info("Received request to get Bosch 5 km standings.")
+        challenges_page_hits.delay()
+        result = iron_cache_resource.get_cache("bosch_even_challenges_result", "5_20")
+        if result:
+            return jsonify(result), 200
+        else:
+            calculate_challenge_stats.consolidate_bosch_even_challenges_result()
+            result = iron_cache_resource.get_cache("bosch_even_challenges_result", "5_20")
+            if result:
+                return jsonify(result), 200
+            else:
+                return jsonify(''), 500
+
+
+@app.route("/challenges/bosch/even/result/twenty_min", methods=['GET'])
+@execution_time
+def get_challenges_bosch_even_result_twenty_min():
+    if request.method == 'GET':
+        logging.info("Received request to get Bosch 20 min challenge standings.")
+        result = iron_cache_resource.get_cache("bosch_even_challenges_result", "20_20")
+        if result:
+            return jsonify(result), 200
+        else:
+            calculate_challenge_stats.consolidate_bosch_even_challenges_result()
+            result = iron_cache_resource.get_cache("bosch_even_challenges_result", "20_20")
+            if result:
+                return jsonify(result), 200
+            else:
+                return jsonify(''), 500
+
+
+@app.route("/challenges/bosch/even/result/power_play", methods=['GET'])
+@execution_time
+def get_challenges_bosch_even_result_power_play():
+    if request.method == 'GET':
+        logging.info("Received request to get Bosch power play challenge standings.")
+        result = iron_cache_resource.get_cache("bosch_even_challenges_result", "power_play")
+        if result:
+            return jsonify(result), 200
+        else:
+            calculate_challenge_stats.consolidate_bosch_even_challenges_result()
+            result = iron_cache_resource.get_cache("bosch_even_challenges_result", "power_play")
+            if result:
+                return jsonify(result), 200
+            else:
+                return jsonify(''), 500
+
+
+@app.route("/challenges/bosch/even/result/middle_overs", methods=['GET'])
+@execution_time
+def get_challenges_bosch_even_result_middle_overs():
+    if request.method == 'GET':
+        logging.info("Received request to get Bosch middle overs challenge standings.")
+        result = iron_cache_resource.get_cache("bosch_even_challenges_result", "middle_overs")
+        if result:
+            return jsonify(result), 200
+        else:
+            calculate_challenge_stats.consolidate_bosch_even_challenges_result()
+            result = iron_cache_resource.get_cache("bosch_even_challenges_result", "middle_overs")
+            if result:
+                return jsonify(result), 200
+            else:
+                return jsonify(''), 500
+
+
+@app.route("/challenges/bosch/even/result/final_overs", methods=['GET'])
+@execution_time
+def get_challenges_bosch_even_result_final_overs():
+    if request.method == 'GET':
+        logging.info("Received request to get Bosch final overs challenge standings.")
+        result = iron_cache_resource.get_cache("bosch_even_challenges_result", "final_overs")
+        if result:
+            return jsonify(result), 200
+        else:
+            calculate_challenge_stats.consolidate_bosch_even_challenges_result()
+            result = iron_cache_resource.get_cache("bosch_even_challenges_result", "final_overs")
+            if result:
+                return jsonify(result), 200
+            else:
+                return jsonify(''), 500
+
+
 @app.route("/challenges/odd/result/twenty_twenty", methods=['GET'])
 @execution_time
 def get_challenges_odd_result_twenty_twenty():

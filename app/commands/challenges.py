@@ -5,6 +5,7 @@ import operator
 import traceback
 
 import ujson
+from stravalib import unithelper
 
 from app.common.constants_and_variables import AppConstants, AppVariables
 from app.common.operations import Operations
@@ -56,8 +57,6 @@ class Challenges(object):
         if activity:
             if self.operations.supported_activities_for_challenges(activity):
                 self.calculate_challenges_stats.main(athlete_details)
-                self.calculate_challenges_stats.consolidate_even_challenges_result()
-                self.calculate_challenges_stats.consolidate_odd_challenges_result()
             else:
                 message = self.app_constants.MESSAGE_CHALLENGES_UNSUPPORTED_ACTIVITY.format(activity_type=activity.type)
                 logging.info(message)
@@ -68,14 +67,10 @@ class Challenges(object):
             logging.error(message)
             self.telegram_resource.shadow_message(message)
             self.calculate_challenges_stats.main(athlete_details)
-            self.calculate_challenges_stats.consolidate_even_challenges_result()
-            self.calculate_challenges_stats.consolidate_odd_challenges_result()
 
     def update_challenges_stats(self, athlete_id):
         athlete_details = self.athlete_resource.get_athlete_details_in_challenges(athlete_id)
         self.calculate_challenges_stats.main(athlete_details)
-        self.calculate_challenges_stats.consolidate_even_challenges_result()
-        self.calculate_challenges_stats.consolidate_odd_challenges_result()
 
     def update_all_challenges_stats(self):
         athlete_ids = self.database_resource.read_all_operation(
@@ -84,9 +79,15 @@ class Challenges(object):
             for athlete_id in athlete_ids:
                 athlete_details = self.athlete_resource.get_athlete_details_in_challenges(athlete_id[0])
                 if athlete_details:
-                    self.calculate_challenges_stats.main(athlete_details)
+                    if athlete_details['even_challenges']:
+                        self.calculate_challenges_stats.even_challenges(athlete_details)
+                    if athlete_details['odd_challenges']:
+                        self.calculate_challenges_stats.odd_challenges(athlete_details)
+                    if athlete_details['bosch_even_challenges']:
+                        self.calculate_challenges_stats.bosch_even_challenges(athlete_details)
             self.calculate_challenges_stats.consolidate_even_challenges_result()
             self.calculate_challenges_stats.consolidate_odd_challenges_result()
+            self.calculate_challenges_stats.consolidate_bosch_even_challenges_result()
 
     def page_hits(self):
         hits = self.iron_cache_resource.get_int_cache(cache="challenges_hits", key="hits")
@@ -202,8 +203,8 @@ class Challenges(object):
                     self.handle_aspect_type_create(event, athlete_details)
                 elif aspect_type == "delete":
                     self.calculate_challenges_stats.main(athlete_details)
-                    self.calculate_challenges_stats.consolidate_even_challenges_result()
-                    self.calculate_challenges_stats.consolidate_odd_challenges_result()
+            else:
+                logging.warning("Athlete does not exist in the database.")
 
 
 class CalculateChallengesStats(object):
@@ -232,54 +233,53 @@ class CalculateChallengesStats(object):
             '10000_meters': 0
         }
 
-        if athlete_details['even_challenges']:
-            even_challenges = athlete_details['even_challenges']
-            for activity in self.strava_resource.get_strava_activities_after_date_before_date(
-                    athlete_details['athlete_token'], self.app_variables.even_challenges_from_date,
-                    self.app_variables.even_challenges_to_date):
-                logging.info(
-                    "Type: {activity_type} | Month: {activity_month} | Year: {activity_year} | Day: {activity_day} | Distance: {activity_distance} | Total Elevation Gain: {total_elevation_gain}".format(
-                        activity_type=activity.type, activity_month=activity.start_date_local.month,
-                        activity_year=activity.start_date_local.year, activity_day=activity.start_date_local.day,
-                        activity_distance=float(activity.distance),
-                        total_elevation_gain=float(activity.total_elevation_gain)))
-                if self.operations.supported_activities_for_challenges(
-                        activity) and activity.start_date_local.month == self.app_variables.even_challenges_month and activity.start_date_local.year == self.app_variables.even_challenges_year:
-                    if '20_20' in even_challenges:
-                        even_challenges_ride_calendar[activity.start_date_local.day] += float(activity.distance)
-                    if '1000_km' in even_challenges:
-                        even_challenges_total_distance += float(activity.distance)
-                    if '10000_meters' in even_challenges:
-                        if not self.operations.is_indoor(activity):
-                            even_challenges_total_elevation += float(activity.total_elevation_gain)
-
+        even_challenges = athlete_details['even_challenges']
+        for activity in self.strava_resource.get_strava_activities_after_date_before_date(
+                athlete_details['athlete_token'], self.app_variables.even_challenges_from_date,
+                self.app_variables.even_challenges_to_date):
             logging.info(
-                "Even Ride Calendar: {even_challenges_ride_calendar} | Even Rides Count : {even_challenges_rides_count}| Even Total Distance: {even_challenges_total_distance} | Even Total Elevation: {even_challenges_total_elevation}".format(
-                    even_challenges_ride_calendar=even_challenges_ride_calendar,
-                    even_challenges_rides_count=even_challenges_rides_count,
-                    even_challenges_total_distance=even_challenges_total_distance,
-                    even_challenges_total_elevation=even_challenges_total_elevation))
+                "Type: {activity_type} | Month: {activity_month} | Year: {activity_year} | Day: {activity_day} | Distance: {activity_distance} | Total Elevation Gain: {total_elevation_gain}".format(
+                    activity_type=activity.type, activity_month=activity.start_date_local.month,
+                    activity_year=activity.start_date_local.year, activity_day=activity.start_date_local.day,
+                    activity_distance=float(activity.distance),
+                    total_elevation_gain=float(activity.total_elevation_gain)))
+            if self.operations.supported_activities_for_challenges(
+                    activity) and activity.start_date_local.month == self.app_variables.even_challenges_month and activity.start_date_local.year == self.app_variables.even_challenges_year:
+                if '20_20' in even_challenges:
+                    even_challenges_ride_calendar[activity.start_date_local.day] += float(activity.distance)
+                if '1000_km' in even_challenges:
+                    even_challenges_total_distance += float(activity.distance)
+                if '10000_meters' in even_challenges:
+                    if not self.operations.is_indoor(activity):
+                        even_challenges_total_elevation += float(activity.total_elevation_gain)
 
-            if '20_20' in even_challenges:
-                for distance in even_challenges_ride_calendar:
-                    if even_challenges_ride_calendar[distance] >= 20000.0:
-                        even_challenges_rides_count += 1
-                even_challenges_stats['20_20'] = even_challenges_rides_count
-            if '1000_km' in even_challenges:
-                even_challenges_stats['1000_km'] = self.operations.meters_to_kilometers(even_challenges_total_distance)
-            if '10000_meters' in even_challenges:
-                even_challenges_stats['10000_meters'] = self.operations.remove_decimal_point(
-                    even_challenges_total_elevation)
+        logging.info(
+            "Even Ride Calendar: {even_challenges_ride_calendar} | Even Rides Count : {even_challenges_rides_count}| Even Total Distance: {even_challenges_total_distance} | Even Total Elevation: {even_challenges_total_elevation}".format(
+                even_challenges_ride_calendar=even_challenges_ride_calendar,
+                even_challenges_rides_count=even_challenges_rides_count,
+                even_challenges_total_distance=even_challenges_total_distance,
+                even_challenges_total_elevation=even_challenges_total_elevation))
 
-            if self.database_resource.write_operation(
-                    self.app_constants.QUERY_UPDATE_EVEN_CHALLENGES_DATA.format(
-                        even_challenges_data=ujson.dumps(even_challenges_stats),
-                        athlete_id=athlete_details['athlete_id'])):
-                self.telegram_resource.shadow_message(
-                    "Updated even challenges data for {name}.".format(name=athlete_details['name']))
-            else:
-                self.telegram_resource.shadow_message(
-                    "Failed to update even challenges data for {name}".format(name=athlete_details['name']))
+        if '20_20' in even_challenges:
+            for distance in even_challenges_ride_calendar:
+                if even_challenges_ride_calendar[distance] >= 20000.0:
+                    even_challenges_rides_count += 1
+            even_challenges_stats['20_20'] = even_challenges_rides_count
+        if '1000_km' in even_challenges:
+            even_challenges_stats['1000_km'] = self.operations.meters_to_kilometers(even_challenges_total_distance)
+        if '10000_meters' in even_challenges:
+            even_challenges_stats['10000_meters'] = self.operations.remove_decimal_point(
+                even_challenges_total_elevation)
+
+        if self.database_resource.write_operation(
+                self.app_constants.QUERY_UPDATE_EVEN_CHALLENGES_DATA.format(
+                    even_challenges_data=ujson.dumps(even_challenges_stats),
+                    athlete_id=athlete_details['athlete_id'])):
+            self.telegram_resource.shadow_message(
+                "Updated even challenges data for {name}.".format(name=athlete_details['name']))
+        else:
+            self.telegram_resource.shadow_message(
+                "Failed to update even challenges data for {name}".format(name=athlete_details['name']))
 
     def odd_challenges(self, athlete_details):
         odd_challenges_ride_calendar = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0, 11: 0,
@@ -296,41 +296,227 @@ class CalculateChallengesStats(object):
             '10000_meters': 0
         }
 
-        if athlete_details['odd_challenges']:
-            odd_challenges = athlete_details['odd_challenges']
-            for activity in self.strava_resource.get_strava_activities_after_date_before_date(
-                    athlete_details['athlete_token'], self.app_variables.odd_challenges_from_date,
-                    self.app_variables.odd_challenges_to_date):
-                if self.operations.supported_activities_for_challenges(
-                        activity) and activity.start_date_local.month == self.app_variables.even_challenges_month and activity.start_date_local.year == self.app_variables.even_challenges_year:
-                    if '20_20' in odd_challenges:
-                        odd_challenges_ride_calendar[activity.start_date_local.day] += float(activity.distance)
-                    if '1000_km' in odd_challenges:
-                        odd_challenges_total_distance += float(activity.distance)
-                    if '10000_meters' in odd_challenges:
-                        if not self.operations.is_indoor(activity):
-                            odd_challenges_total_elevation += float(activity.total_elevation_gain)
+        odd_challenges = athlete_details['odd_challenges']
+        for activity in self.strava_resource.get_strava_activities_after_date_before_date(
+                athlete_details['athlete_token'], self.app_variables.odd_challenges_from_date,
+                self.app_variables.odd_challenges_to_date):
+            if self.operations.supported_activities_for_challenges(
+                    activity) and activity.start_date_local.month == self.app_variables.even_challenges_month and activity.start_date_local.year == self.app_variables.even_challenges_year:
+                if '20_20' in odd_challenges:
+                    odd_challenges_ride_calendar[activity.start_date_local.day] += float(activity.distance)
+                if '1000_km' in odd_challenges:
+                    odd_challenges_total_distance += float(activity.distance)
+                if '10000_meters' in odd_challenges:
+                    if not self.operations.is_indoor(activity):
+                        odd_challenges_total_elevation += float(activity.total_elevation_gain)
 
-            if '20_20' in odd_challenges:
-                for distance in odd_challenges_ride_calendar:
-                    if odd_challenges_ride_calendar[distance] >= 20000.0:
-                        odd_challenges_rides_count += 1
-                odd_challenges_stats['20_20'] = odd_challenges_rides_count
-            if '1000_km' in odd_challenges:
-                odd_challenges_stats['1000_km'] = self.operations.meters_to_kilometers(odd_challenges_total_distance)
-            if '10000_meters' in odd_challenges:
-                odd_challenges_stats['10000_meters'] = self.operations.remove_decimal_point(
-                    odd_challenges_total_elevation)
+        if '20_20' in odd_challenges:
+            for distance in odd_challenges_ride_calendar:
+                if odd_challenges_ride_calendar[distance] >= 20000.0:
+                    odd_challenges_rides_count += 1
+            odd_challenges_stats['20_20'] = odd_challenges_rides_count
+        if '1000_km' in odd_challenges:
+            odd_challenges_stats['1000_km'] = self.operations.meters_to_kilometers(odd_challenges_total_distance)
+        if '10000_meters' in odd_challenges:
+            odd_challenges_stats['10000_meters'] = self.operations.remove_decimal_point(
+                odd_challenges_total_elevation)
 
-            if self.database_resource.write_operation(
-                    self.app_constants.QUERY_UPDATE_ODD_CHALLENGES_DATA.format(
-                        odd_challenges_data=ujson.dumps(odd_challenges_stats),
-                        athlete_id=athlete_details['athlete_id'])):
-                self.telegram_resource.shadow_message(
-                    "Updated odd challenges data for {name}.".format(name=athlete_details['name']))
-            else:
-                self.telegram_resource.shadow_message(
-                    "Failed to update odd challenges data for {name}".format(name=athlete_details['name']))
+        if self.database_resource.write_operation(
+                self.app_constants.QUERY_UPDATE_ODD_CHALLENGES_DATA.format(
+                    odd_challenges_data=ujson.dumps(odd_challenges_stats),
+                    athlete_id=athlete_details['athlete_id'])):
+            self.telegram_resource.shadow_message(
+                "Updated odd challenges data for {name}.".format(name=athlete_details['name']))
+        else:
+            self.telegram_resource.shadow_message(
+                "Failed to update odd challenges data for {name}".format(name=athlete_details['name']))
+
+    def bosch_even_challenges(self, athlete_details):
+        five_km_ride_calendar = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0, 11: 0,
+                                 12: 0, 13: 0, 14: 0, 15: 0, 16: 0, 17: 0, 18: 0, 19: 0, 20: 0,
+                                 21: 0, 22: 0, 23: 0, 24: 0, 25: 0, 26: 0, 27: 0, 28: 0, 29: 0,
+                                 30: 0, 31: 0}
+
+        twenty_min_ride_calendar = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0, 11: 0,
+                                    12: 0, 13: 0, 14: 0, 15: 0, 16: 0, 17: 0, 18: 0, 19: 0, 20: 0,
+                                    21: 0, 22: 0, 23: 0, 24: 0, 25: 0, 26: 0, 27: 0, 28: 0, 29: 0,
+                                    30: 0, 31: 0}
+
+        ride_calendar = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0, 11: 0,
+                         12: 0, 13: 0, 14: 0, 15: 0, 16: 0, 17: 0, 18: 0, 19: 0, 20: 0,
+                         21: 0, 22: 0, 23: 0, 24: 0, 25: 0, 26: 0, 27: 0, 28: 0, 29: 0,
+                         30: 0, 31: 0}
+
+        for activity in self.strava_resource.get_strava_activities_after_date_before_date(
+                athlete_details['athlete_token'], self.app_variables.even_challenges_from_date,
+                self.app_variables.even_challenges_to_date):
+            logging.info(
+                "Type: {activity_type} | Month: {activity_month} | Year: {activity_year} | Day: {activity_day} | Distance: {activity_distance} | Time: {time}".format(
+                    activity_type=activity.type, activity_month=activity.start_date_local.month,
+                    activity_year=activity.start_date_local.year, activity_day=activity.start_date_local.day,
+                    activity_distance=float(activity.distance),
+                    time=unithelper.timedelta_to_seconds(activity.moving_time)))
+            if self.operations.supported_activities_for_challenges(
+                    activity) and activity.start_date_local.month == self.app_variables.even_challenges_month and activity.start_date_local.year == self.app_variables.even_challenges_year:
+                if float(activity.distance) > five_km_ride_calendar[activity.start_date_local.day]:
+                    five_km_ride_calendar[activity.start_date_local.day] = float(activity.distance)
+                if unithelper.timedelta_to_seconds(activity.moving_time) > twenty_min_ride_calendar[
+                    activity.start_date_local.day]:
+                    twenty_min_ride_calendar[activity.start_date_local.day] = unithelper.timedelta_to_seconds(
+                        activity.moving_time)
+                ride_calendar[activity.start_date_local.day] += float(activity.distance)
+
+        logging.info(
+            "Ride Calendar: {ride_calendar} | 5 km Calendar : {five_km_ride_calendar}| 20 min Calendar: {twenty_min_ride_calendar}".format(
+                ride_calendar=ride_calendar,
+                five_km_ride_calendar=five_km_ride_calendar,
+                twenty_min_ride_calendar=twenty_min_ride_calendar))
+
+        five_km_rides_count = 0
+        twenty_min_rides_count = 0
+        power_play_distance = 0.0
+        middle_overs_distance = 0.0
+        final_overs_distance = 0.0
+
+        challenges = athlete_details['bosch_even_challenges']
+
+        challenges_stats = {
+            '5_20': 0,
+            '20_20': 0,
+            'power_play': 0.0,
+            'middle_overs': 0.0,
+            'final_overs': 0.0,
+            'location': challenges['location']
+        }
+
+        if '5_20' in challenges['id']:
+            for distance in five_km_ride_calendar:
+                if five_km_ride_calendar[distance] >= 5000.0:
+                    five_km_rides_count += 1
+            challenges_stats['5_20'] = five_km_rides_count
+        if '20_20' in challenges['id']:
+            for mins in twenty_min_ride_calendar:
+                if twenty_min_ride_calendar[mins] >= 1200:
+                    twenty_min_rides_count += 1
+            challenges_stats['20_20'] = twenty_min_rides_count
+        if 'power_play' in challenges['id']:
+            power_play_days = [1, 2, 3, 4, 5, 6, 7, 8]
+            for day in ride_calendar:
+                if day in power_play_days:
+                    power_play_distance += ride_calendar[day]
+            challenges_stats['power_play'] = power_play_distance
+        if 'middle_overs' in challenges['id']:
+            middle_overs_days = [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
+            for day in ride_calendar:
+                if day in middle_overs_days:
+                    middle_overs_distance += ride_calendar[day]
+            challenges_stats['middle_overs'] = middle_overs_distance
+        if 'final_overs' in challenges['id']:
+            final_overs_days = [24, 25, 26, 27, 28, 29, 30, 31]
+            for day in ride_calendar:
+                if day in final_overs_days:
+                    final_overs_distance += ride_calendar[day]
+            challenges_stats['final_overs'] = final_overs_distance
+
+        if self.database_resource.write_operation(
+                self.app_constants.QUERY_UPDATE_BOSCH_EVEN_CHALLENGES_DATA.format(
+                    bosch_even_challenges_data=ujson.dumps(challenges_stats),
+                    athlete_id=athlete_details['athlete_id'])):
+            self.telegram_resource.shadow_message(
+                "Updated Bosch even challenges data for {name}.".format(name=athlete_details['name']))
+        else:
+            self.telegram_resource.shadow_message(
+                "Failed to update Bosch even challenges data for {name}".format(name=athlete_details['name']))
+
+    def consolidate_bosch_even_challenges_result(self):
+        five_km_rides = list()
+        twenty_min_rides = list()
+        power_play_distance = list()
+        middle_overs_distance = list()
+        final_overs_distance = list()
+
+        results = self.database_resource.read_all_operation(self.app_constants.QUERY_GET_BOSCH_EVEN_CHALLENGES_DATA)
+        for result in results:
+            name = result[0]
+            challenges = result[1]
+            challenges_data = result[2]
+
+            if challenges:
+                if '5_20' in challenges['id']:
+                    five_km_rides.append(
+                        {'name': name, 'value': challenges_data['5_20'], 'location': challenges_data['location']})
+                if '20_20' in challenges['id']:
+                    twenty_min_rides.append(
+                        {'name': name, 'value': challenges_data['20_20'], 'location': challenges_data['location']})
+                if 'power_play' in challenges['id']:
+                    power_play_distance.append(
+                        {'name': name, 'value': self.operations.meters_to_kilometers(challenges_data['power_play']),
+                         'location': challenges_data['location']})
+                if 'middle_overs' in challenges['id']:
+                    middle_overs_distance.append(
+                        {'name': name, 'value': self.operations.meters_to_kilometers(challenges_data['middle_overs']),
+                                                  'location': challenges_data['location']})
+                if 'final_overs' in challenges['id']:
+                    final_overs_distance.append(
+                        {'name': name, 'value': self.operations.meters_to_kilometers(challenges_data['final_overs']),
+                                                 'location': challenges_data['location']})
+
+        bosch_even_challenge_five_km_temp = sorted(five_km_rides, key=operator.itemgetter('value'), reverse=True)
+        bosch_even_challenge_twenty_twenty_temp = sorted(twenty_min_rides, key=operator.itemgetter('value'),
+                                                         reverse=True)
+        bosch_even_challenge_power_play_temp = sorted(power_play_distance, key=operator.itemgetter('value'),
+                                                      reverse=True)
+        bosch_even_challenge_middle_overs_temp = sorted(middle_overs_distance, key=operator.itemgetter('value'),
+                                                        reverse=True)
+        bosch_even_challenge_final_overs_temp = sorted(final_overs_distance, key=operator.itemgetter('value'),
+                                                       reverse=True)
+
+        five_km_rides_sorted = list()
+        rank = 1
+        for athlete in bosch_even_challenge_five_km_temp:
+            five_km_rides_sorted.append(
+                {'rank': rank, 'name': athlete['name'], 'value': athlete['value'], 'location': athlete['location']})
+            rank += 1
+
+        bosch_even_challenge_twenty_twenty_sorted = list()
+        rank = 1
+        for athlete in bosch_even_challenge_twenty_twenty_temp:
+            bosch_even_challenge_twenty_twenty_sorted.append(
+                {'rank': rank, 'name': athlete['name'], 'value': athlete['value'], 'location': athlete['location']})
+            rank += 1
+
+        bosch_even_challenge_power_play_sorted = list()
+        rank = 1
+        for athlete in bosch_even_challenge_power_play_temp:
+            bosch_even_challenge_power_play_sorted.append(
+                {'rank': rank, 'name': athlete['name'], 'value': athlete['value'], 'location': athlete['location']})
+            rank += 1
+
+        bosch_even_challenge_middle_overs_sorted = list()
+        rank = 1
+        for athlete in bosch_even_challenge_middle_overs_temp:
+            bosch_even_challenge_middle_overs_sorted.append(
+                {'rank': rank, 'name': athlete['name'], 'value': athlete['value'], 'location': athlete['location']})
+            rank += 1
+
+        bosch_even_challenge_final_overs_sorted = list()
+        rank = 1
+        for athlete in bosch_even_challenge_final_overs_temp:
+            bosch_even_challenge_final_overs_sorted.append(
+                {'rank': rank, 'name': athlete['name'], 'value': athlete['value'], 'location': athlete['location']})
+            rank += 1
+
+        self.iron_cache_resource.put_cache("bosch_even_challenges_result", "5_20",
+                                           ujson.dumps(five_km_rides_sorted))
+        self.iron_cache_resource.put_cache("bosch_even_challenges_result", "20_20",
+                                           ujson.dumps(bosch_even_challenge_twenty_twenty_sorted))
+        self.iron_cache_resource.put_cache("bosch_even_challenges_result", "power_play",
+                                           ujson.dumps(bosch_even_challenge_power_play_sorted))
+        self.iron_cache_resource.put_cache("bosch_even_challenges_result", "middle_overs",
+                                           ujson.dumps(bosch_even_challenge_middle_overs_sorted))
+        self.iron_cache_resource.put_cache("bosch_even_challenges_result", "final_overs",
+                                           ujson.dumps(bosch_even_challenge_final_overs_sorted))
+        self.telegram_resource.shadow_message("Updated cache for even challenges.")
 
     def consolidate_even_challenges_result(self):
         even_challenge_twenty_twenty = list()
@@ -441,5 +627,12 @@ class CalculateChallengesStats(object):
         self.telegram_resource.shadow_message("Updated cache for odd challenges.")
 
     def main(self, athlete_details):
-        self.even_challenges(athlete_details)
-        self.odd_challenges(athlete_details)
+        if athlete_details['even_challenges']:
+            self.even_challenges(athlete_details)
+            self.consolidate_even_challenges_result()
+        if athlete_details['odd_challenges']:
+            self.odd_challenges(athlete_details)
+            self.consolidate_odd_challenges_result()
+        if athlete_details['bosch_even_challenges']:
+            self.bosch_even_challenges(athlete_details)
+            self.consolidate_bosch_even_challenges_result()

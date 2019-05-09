@@ -104,3 +104,4 @@ venv.bak/
 .mypy_cache/
 .idea/
 /postgresql/Dockerfile
+/app/common/deauth_athletes.py
