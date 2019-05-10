@@ -396,7 +396,7 @@ class CalculateChallengesStats(object):
             challenges_stats['5_20'] = five_km_rides_count
         if '20_20' in challenges['id']:
             for mins in twenty_min_ride_calendar:
-                if twenty_min_ride_calendar[mins] >= 1200:
+                if twenty_min_ride_calendar[mins] >= 900:
                     twenty_min_rides_count += 1
             challenges_stats['20_20'] = twenty_min_rides_count
         if 'power_play' in challenges['id']:
@@ -516,7 +516,7 @@ class CalculateChallengesStats(object):
                                            ujson.dumps(bosch_even_challenge_middle_overs_sorted))
         self.iron_cache_resource.put_cache("bosch_even_challenges_result", "final_overs",
                                            ujson.dumps(bosch_even_challenge_final_overs_sorted))
-        self.telegram_resource.shadow_message("Updated cache for even challenges.")
+        self.telegram_resource.shadow_message("Updated cache for Bosch even challenges.")
 
     def consolidate_even_challenges_result(self):
         even_challenge_twenty_twenty = list()
