@@ -5,7 +5,7 @@ import os
 
 class AppConstants(object):
     QUERY_FETCH_ATHLETE_DETAILS = "select telegram_username, name, access_token, refresh_token, expires_at, strava_data, update_indoor_ride, update_indoor_ride_data, chat_id, enable_activity_summary from strava_telegram_bot where active=true and athlete_id={athlete_id}"
-    QUERY_FETCH_ATHLETE_DETAILS_BY_TELEGRAM_USERNAME = "select athlete_id, name, access_token, refresh_token, expires_at, strava_data, update_indoor_ride, update_indoor_ride_data, chat_id, enable_activity_summary from strava_telegram_bot where active=true and telegram_username='{telegram_username}'"
+    QUERY_FETCH_ATHLETE_DETAILS_BY_TELEGRAM_USERNAME = "select athlete_id, name, access_token, refresh_token, expires_at, strava_data, update_indoor_ride, update_indoor_ride_data, chat_id, enable_activity_summary from strava_telegram_bot where active=true and LOWER(telegram_username)=LOWER('{telegram_username}')"
     QUERY_UPDATE_TOKEN = "UPDATE strava_telegram_bot SET access_token='{access_token}', refresh_token='{refresh_token}', expires_at={expires_at}, updated=now() where athlete_id={athlete_id}"
     QUERY_UPDATE_STRAVA_DATA = "UPDATE strava_telegram_bot SET name='{name}', strava_data='{strava_data}', updated=now() WHERE athlete_id={athlete_id}"
     QUERY_FETCH_ALL_ATHLETE_IDS = "select athlete_id from strava_telegram_bot where active=true"
