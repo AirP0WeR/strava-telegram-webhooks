@@ -103,5 +103,6 @@ venv.bak/
 # mypy
 .mypy_cache/
 .idea/
-/postgresql/Dockerfile
+/app/.DS_Store
 /app/common/deauth_athletes.py
+/app/common/export_to_csv.py
