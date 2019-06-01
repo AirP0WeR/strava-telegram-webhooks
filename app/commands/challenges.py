@@ -503,36 +503,18 @@ class CalculateChallengesStats(object):
 
         distance_sorted = list()
         rank = 1
-        for athlete in bosch_even_challenge_power_play_temp:
-            bosch_even_challenge_power_play_sorted.append(
-                {'rank': rank, 'name': athlete['name'], 'value': athlete['value'], 'location': athlete['location']})
+        for athlete in bosch_even_challenge_distance_temp:
+            distance_sorted.append(
+                {'rank': rank, 'name': athlete['name'], 'distance': athlete['value'], 'points': athlete['points'],
+                 'athlete_id': athlete['athlete_id'], 'location': athlete['location']})
             rank += 1
 
-        bosch_even_challenge_middle_overs_sorted = list()
-        rank = 1
-        for athlete in bosch_even_challenge_middle_overs_temp:
-            bosch_even_challenge_middle_overs_sorted.append(
-                {'rank': rank, 'name': athlete['name'], 'value': athlete['value'], 'location': athlete['location']})
-            rank += 1
-
-        bosch_even_challenge_final_overs_sorted = list()
-        rank = 1
-        for athlete in bosch_even_challenge_final_overs_temp:
-            bosch_even_challenge_final_overs_sorted.append(
-                {'rank': rank, 'name': athlete['name'], 'value': athlete['value'], 'location': athlete['location']})
-            rank += 1
-
-        self.iron_cache_resource.put_cache("bosch_even_challenges_result", "5_20",
-                                           ujson.dumps(five_km_rides_sorted))
-        self.iron_cache_resource.put_cache("bosch_even_challenges_result", "20_20",
-                                           ujson.dumps(bosch_even_challenge_twenty_twenty_sorted))
-        self.iron_cache_resource.put_cache("bosch_even_challenges_result", "power_play",
-                                           ujson.dumps(bosch_even_challenge_power_play_sorted))
-        self.iron_cache_resource.put_cache("bosch_even_challenges_result", "middle_overs",
-                                           ujson.dumps(bosch_even_challenge_middle_overs_sorted))
-        self.iron_cache_resource.put_cache("bosch_even_challenges_result", "final_overs",
-                                           ujson.dumps(bosch_even_challenge_final_overs_sorted))
-        self.telegram_resource.shadow_message("Updated cache for Bosch even challenges.")
+        self.iron_cache_resource.put_cache("bosch_even_challenges_result", "6x15",
+                                           ujson.dumps(six_km_rides_sorted))
+        self.iron_cache_resource.put_cache("bosch_even_challenges_result", "30x30",
+                                           ujson.dumps(thirty_mins_rides_sorted))
+        self.iron_cache_resource.put_cache("bosch_even_challenges_result", "distance",
+                                           ujson.dumps(distance_sorted))
 
     def consolidate_even_challenges_result(self):
         even_challenge_twenty_twenty = list()
