@@ -402,6 +402,7 @@ class CalculateChallengesStats(object):
             '30x30_points': 0,
             'distance': 0.0,
             'distance_points': 0,
+            'athlete_id': athlete_details['athlete_id'],
             'location': challenges['location']
         }
 
@@ -468,15 +469,15 @@ class CalculateChallengesStats(object):
                 if challenges['id'] == '6x15':
                     six_km_rides.append(
                         {'name': name, 'value': challenges_data['6x15'], 'points': challenges_data['6x15_points'],
-                         'location': challenges_data['location']})
+                         'athlete_id': challenges_data['athlete_id'], 'location': challenges_data['location']})
                 elif challenges['id'] == '30x30':
                     thirty_mins_rides.append(
                         {'name': name, 'value': challenges_data['30x30'], 'points': challenges_data['30x30_points'],
-                         'location': challenges_data['location']})
+                         'athlete_id': challenges_data['athlete_id'], 'location': challenges_data['location']})
                 elif challenges['id'] == 'distance':
                     distance.append(
                         {'name': name, 'value': self.operations.meters_to_kilometers(challenges_data['distance']),
-                         'points': challenges_data['distance_points'],
+                         'points': challenges_data['distance_points'], 'athlete_id': challenges_data['athlete_id'],
                          'location': challenges_data['location']})
 
         bosch_even_challenge_six_km_temp = sorted(six_km_rides, key=operator.itemgetter('points'), reverse=True)
@@ -489,7 +490,7 @@ class CalculateChallengesStats(object):
         for athlete in bosch_even_challenge_six_km_temp:
             six_km_rides_sorted.append(
                 {'rank': rank, 'name': athlete['name'], 'count': athlete['value'], 'points': athlete['points'],
-                 'location': athlete['location']})
+                 'athlete_id': athlete['athlete_id'], 'location': athlete['location']})
             rank += 1
 
         thirty_mins_rides_sorted = list()
@@ -497,23 +498,41 @@ class CalculateChallengesStats(object):
         for athlete in bosch_even_challenge_30_mins_temp:
             thirty_mins_rides_sorted.append(
                 {'rank': rank, 'name': athlete['name'], 'count': athlete['value'], 'points': athlete['points'],
-                 'location': athlete['location']})
+                 'athlete_id': athlete['athlete_id'], 'location': athlete['location']})
             rank += 1
 
         distance_sorted = list()
         rank = 1
-        for athlete in bosch_even_challenge_distance_temp:
-            distance_sorted.append(
-                {'rank': rank, 'name': athlete['name'], 'distance': athlete['value'], 'points': athlete['points'],
-                 'location': athlete['location']})
+        for athlete in bosch_even_challenge_power_play_temp:
+            bosch_even_challenge_power_play_sorted.append(
+                {'rank': rank, 'name': athlete['name'], 'value': athlete['value'], 'location': athlete['location']})
             rank += 1
 
-        self.iron_cache_resource.put_cache("bosch_even_challenges_result", "6x15",
-                                           ujson.dumps(six_km_rides_sorted))
-        self.iron_cache_resource.put_cache("bosch_even_challenges_result", "30x30",
-                                           ujson.dumps(thirty_mins_rides_sorted))
-        self.iron_cache_resource.put_cache("bosch_even_challenges_result", "distance",
-                                           ujson.dumps(distance_sorted))
+        bosch_even_challenge_middle_overs_sorted = list()
+        rank = 1
+        for athlete in bosch_even_challenge_middle_overs_temp:
+            bosch_even_challenge_middle_overs_sorted.append(
+                {'rank': rank, 'name': athlete['name'], 'value': athlete['value'], 'location': athlete['location']})
+            rank += 1
+
+        bosch_even_challenge_final_overs_sorted = list()
+        rank = 1
+        for athlete in bosch_even_challenge_final_overs_temp:
+            bosch_even_challenge_final_overs_sorted.append(
+                {'rank': rank, 'name': athlete['name'], 'value': athlete['value'], 'location': athlete['location']})
+            rank += 1
+
+        self.iron_cache_resource.put_cache("bosch_even_challenges_result", "5_20",
+                                           ujson.dumps(five_km_rides_sorted))
+        self.iron_cache_resource.put_cache("bosch_even_challenges_result", "20_20",
+                                           ujson.dumps(bosch_even_challenge_twenty_twenty_sorted))
+        self.iron_cache_resource.put_cache("bosch_even_challenges_result", "power_play",
+                                           ujson.dumps(bosch_even_challenge_power_play_sorted))
+        self.iron_cache_resource.put_cache("bosch_even_challenges_result", "middle_overs",
+                                           ujson.dumps(bosch_even_challenge_middle_overs_sorted))
+        self.iron_cache_resource.put_cache("bosch_even_challenges_result", "final_overs",
+                                           ujson.dumps(bosch_even_challenge_final_overs_sorted))
+        self.telegram_resource.shadow_message("Updated cache for Bosch even challenges.")
 
     def consolidate_even_challenges_result(self):
         even_challenge_twenty_twenty = list()
