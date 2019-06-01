@@ -440,7 +440,7 @@ class CalculateChallengesStats(object):
                 if distance_calendar[each_distance] >= 150000.0:
                     is_eligible_for_distance_bonus = True
 
-            points = int(((challenges_stats['distance'] / 1000.0) / 30.0) * 6.0)
+            points = (int((challenges_stats['distance'] / 1000.0) / 30.0)) * 6.0
             challenges_stats['distance_points'] += points if points <= 180 else 180
             if challenges_stats['distance'] >= 1000000.0:
                 challenges_stats['distance_points'] += 20
