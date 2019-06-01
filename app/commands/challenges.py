@@ -159,6 +159,7 @@ class Challenges(object):
                                  'ntid': details['ntid'],
                                  'email': details['email'],
                                  'phone': details['phone'],
+                                 'athlete_id': athlete_id,
                                  'strava': "https://www.strava.com/athletes/{}".format(athlete_id),
                                  '6x15': True if details['id'] == '6x15' else False,
                                  '30x30': True if details['id'] == '30x30' else False,
