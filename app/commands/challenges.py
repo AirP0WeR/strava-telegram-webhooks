@@ -449,6 +449,7 @@ class CalculateChallengesStats(object):
 
         challenges_stats = {
             'c2w': 0,
+            'c2w_rides': 0,
             'c2w_points': 0,
             '6x15': 0,
             '6x15_points': 0,
@@ -464,6 +465,10 @@ class CalculateChallengesStats(object):
             if cycle_to_work_calendar[day]['to'] and cycle_to_work_calendar[day]['from']:
                 challenges_stats['c2w'] += 1
                 challenges_stats['c2w_points'] += 30
+            if cycle_to_work_calendar[day]['to']:
+                challenges_stats['c2w_rides'] += 1
+            if cycle_to_work_calendar[day]['from']:
+                challenges_stats['c2w_rides'] += 1
         if challenges_stats['c2w'] >= 1:
             challenges_stats['c2w_points'] += 50
         if challenges_stats['c2w'] >= 2:
@@ -534,7 +539,8 @@ class CalculateChallengesStats(object):
             if challenges:
                 cycle_to_work.append(
                     {'name': name, 'value': challenges_data['c2w'], 'points': challenges_data['c2w_points'],
-                     'athlete_id': challenges_data['athlete_id'], 'location': challenges_data['location']})
+                     'rides': challenges_data['c2w_rides'], 'athlete_id': challenges_data['athlete_id'],
+                     'location': challenges_data['location']})
                 if challenges['id'] == '6x15':
                     six_km_rides.append(
                         {'name': name, 'value': challenges_data['6x15'], 'points': challenges_data['6x15_points'],
@@ -560,7 +566,7 @@ class CalculateChallengesStats(object):
         for athlete in bosch_even_challenge_c2w_points_temp:
             c2w_points_sorted.append(
                 {'rank': rank, 'name': athlete['name'], 'count': athlete['value'], 'points': athlete['points'],
-                 'athlete_id': athlete['athlete_id'], 'location': athlete['location']})
+                 'rides': athlete['c2w_rides'], 'athlete_id': athlete['athlete_id'], 'location': athlete['location']})
             rank += 1
 
         six_km_rides_sorted = list()
