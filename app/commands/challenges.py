@@ -405,7 +405,7 @@ class CalculateChallengesStats(object):
             31: {'to': False, 'from': False}
         }
 
-        lat_long = self.app_variables.location_gps
+        lat_long = {'EC': [12.83783, 77.66371], 'KOR': [12.9356707, 77.612429]}
 
         challenges = athlete_details['bosch_even_challenges']
 
