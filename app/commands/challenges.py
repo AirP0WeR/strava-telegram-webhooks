@@ -406,7 +406,7 @@ class CalculateChallengesStats(object):
         }
 
         lat_long = {
-            'EC': [12.8873026, 77.6105575],
+            'EC': [12.84, 77.66],
             'KOR': [12.9356707, 77.612429]
         }
 
