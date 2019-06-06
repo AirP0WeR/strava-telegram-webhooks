@@ -1,5 +1,4 @@
 #  -*- encoding: utf-8 -*-
-
 import logging
 import operator
 import traceback
@@ -405,7 +404,7 @@ class CalculateChallengesStats(object):
             31: {'to': False, 'from': False}
         }
 
-        lat_long = {'EC': [12.83783, 77.66371], 'KOR': [12.9356707, 77.612429]}
+        lat_long = self.app_variables.location_gps
 
         challenges = athlete_details['bosch_even_challenges']
 
