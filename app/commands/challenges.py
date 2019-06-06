@@ -406,6 +406,9 @@ class CalculateChallengesStats(object):
         }
 
         lat_long = self.app_variables.location_gps
+        print(lat_long)
+        print(type(lat_long))
+        lat_long = ujson.loads(str(lat_long))
 
         challenges = athlete_details['bosch_even_challenges']
 
