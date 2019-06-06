@@ -1,4 +1,5 @@
 #  -*- encoding: utf-8 -*-
+import json
 import os
 
 
@@ -110,4 +111,4 @@ class AppVariables(object):
     odd_challenges_month = int(os.environ.get('ODD_CHALLENGES_MONTH'))
     odd_challenges_from_date = os.environ.get('ODD_CHALLENGES_FROM_DATE')
     odd_challenges_to_date = os.environ.get('ODD_CHALLENGES_TO_DATE')
-    location_gps = os.environ.get('LOCATION_GPS')
+    location_gps = json.loads(os.environ.get('LOCATION_GPS'))

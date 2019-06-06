@@ -1,5 +1,4 @@
 #  -*- encoding: utf-8 -*-
-import json
 import logging
 import operator
 import traceback
@@ -406,9 +405,6 @@ class CalculateChallengesStats(object):
         }
 
         lat_long = self.app_variables.location_gps
-        print(lat_long)
-        print(type(lat_long))
-        lat_long = json.loads(str(lat_long))
 
         challenges = athlete_details['bosch_even_challenges']
 
