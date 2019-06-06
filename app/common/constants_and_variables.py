@@ -2,6 +2,8 @@
 
 import os
 
+import ujson
+
 
 class AppConstants(object):
     QUERY_FETCH_ATHLETE_DETAILS = "select telegram_username, name, access_token, refresh_token, expires_at, strava_data, update_indoor_ride, update_indoor_ride_data, chat_id, enable_activity_summary from strava_telegram_bot where active=true and athlete_id={athlete_id}"
@@ -111,3 +113,4 @@ class AppVariables(object):
     odd_challenges_month = int(os.environ.get('ODD_CHALLENGES_MONTH'))
     odd_challenges_from_date = os.environ.get('ODD_CHALLENGES_FROM_DATE')
     odd_challenges_to_date = os.environ.get('ODD_CHALLENGES_TO_DATE')
+    location_gps = ujson.loads(os.environ.get('LOCATION_GPS'))
