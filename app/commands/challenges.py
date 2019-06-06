@@ -566,7 +566,7 @@ class CalculateChallengesStats(object):
         for athlete in bosch_even_challenge_c2w_points_temp:
             c2w_points_sorted.append(
                 {'rank': rank, 'name': athlete['name'], 'count': athlete['value'], 'points': athlete['points'],
-                 'rides': athlete['c2w_rides'], 'athlete_id': athlete['athlete_id'], 'location': athlete['location']})
+                 'rides': athlete['rides'], 'athlete_id': athlete['athlete_id'], 'location': athlete['location']})
             rank += 1
 
         six_km_rides_sorted = list()
