@@ -354,6 +354,23 @@ def athlete_deactivate(athlete_id):
             return jsonify(''), 404
 
 
+@app.route("/challenges/bosch/even/result/c2w", methods=['GET'])
+@execution_time
+def get_challenges_bosch_even_result_c2w():
+    if request.method == 'GET':
+        logging.info("Received request to get Bosch C2W standings.")
+        result = iron_cache_resource.get_cache("bosch_even_challenges_result", "c2w")
+        if result:
+            return jsonify(result), 200
+        else:
+            calculate_challenge_stats.consolidate_bosch_even_challenges_result()
+            result = iron_cache_resource.get_cache("bosch_even_challenges_result", "cw2")
+            if result:
+                return jsonify(result), 200
+            else:
+                return jsonify(''), 500
+
+
 @app.route("/challenges/bosch/even/result/6_km", methods=['GET'])
 @execution_time
 def get_challenges_bosch_even_result_6_km():

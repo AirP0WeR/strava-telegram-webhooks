@@ -3,6 +3,7 @@
 import logging
 import operator
 import traceback
+from math import radians, sin, cos, asin, sqrt
 
 import ujson
 from stravalib import unithelper
@@ -240,6 +241,27 @@ class CalculateChallengesStats(object):
         self.database_resource = DatabaseResource()
         self.iron_cache_resource = IronCacheResource()
 
+    @staticmethod
+    def is_lat_long_within_range(lat1, long1, lat2, long2, earth_radius=6372.8):
+        is_within_range = False
+        rad_lat = radians(lat2 - lat1)
+        rad_long = radians(long2 - long1)
+
+        lat1 = radians(lat1)
+        lat2 = radians(lat2)
+
+        a = sin(rad_lat / 2) ** 2 + \
+            cos(lat1) * cos(lat2) * \
+            sin(rad_long / 2) ** 2
+
+        c = 2 * asin(sqrt(a))
+        distance_km = earth_radius * c
+
+        if distance_km < 0.25:
+            is_within_range = True
+
+        return is_within_range
+
     def even_challenges(self, athlete_details):
         even_challenges_ride_calendar = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0, 11: 0,
                                          12: 0, 13: 0, 14: 0, 15: 0, 16: 0, 17: 0, 18: 0, 19: 0, 20: 0,
@@ -369,15 +391,43 @@ class CalculateChallengesStats(object):
                              21: 0, 22: 0, 23: 0, 24: 0, 25: 0, 26: 0, 27: 0, 28: 0, 29: 0,
                              30: 0, 31: 0}
 
+        cycle_to_work_calendar = {
+            1: {'to': False, 'from': False}, 2: {'to': False, 'from': False}, 3: {'to': False, 'from': False},
+            4: {'to': False, 'from': False}, 5: {'to': False, 'from': False}, 6: {'to': False, 'from': False},
+            7: {'to': False, 'from': False}, 8: {'to': False, 'from': False}, 9: {'to': False, 'from': False},
+            10: {'to': False, 'from': False}, 11: {'to': False, 'from': False}, 12: {'to': False, 'from': False},
+            13: {'to': False, 'from': False}, 14: {'to': False, 'from': False}, 15: {'to': False, 'from': False},
+            16: {'to': False, 'from': False}, 17: {'to': False, 'from': False}, 18: {'to': False, 'from': False},
+            19: {'to': False, 'from': False}, 20: {'to': False, 'from': False}, 21: {'to': False, 'from': False},
+            22: {'to': False, 'from': False}, 23: {'to': False, 'from': False}, 24: {'to': False, 'from': False},
+            25: {'to': False, 'from': False}, 26: {'to': False, 'from': False}, 27: {'to': False, 'from': False},
+            28: {'to': False, 'from': False}, 29: {'to': False, 'from': False}, 30: {'to': False, 'from': False},
+            31: {'to': False, 'from': False}
+        }
+
+        lat_long = {
+            'EC': [12.8873026, 77.6105575],
+            'KOR': [12.9356707, 77.612429]
+        }
+
+        challenges = athlete_details['bosch_even_challenges']
+
         for activity in self.strava_resource.get_strava_activities_after_date_before_date(
                 athlete_details['athlete_token'], self.app_variables.even_challenges_from_date,
                 self.app_variables.even_challenges_to_date):
+            try:
+                start_gps = [activity.start_latlng.lat, activity.start_latlng.lon]
+                end_gps = [activity.end_latlng.lat, activity.end_latlng.lon]
+            except AttributeError:
+                start_gps = None
+                end_gps = None
             logging.info(
-                "Type: {activity_type} | Month: {activity_month} | Year: {activity_year} | Day: {activity_day} | Distance: {activity_distance} | Time: {time}".format(
+                "Type: {activity_type} | Month: {activity_month} | Year: {activity_year} | Day: {activity_day} | Distance: {activity_distance} | Time: {time} | Start GPS: {start_gps} | End GPS: {end_gps}".format(
                     activity_type=activity.type, activity_month=activity.start_date_local.month,
                     activity_year=activity.start_date_local.year, activity_day=activity.start_date_local.day,
                     activity_distance=float(activity.distance),
-                    time=unithelper.timedelta_to_seconds(activity.moving_time)))
+                    time=unithelper.timedelta_to_seconds(activity.moving_time),
+                    start_gps=start_gps, end_gps=end_gps))
             if self.operations.supported_activities_for_challenges(activity) and not self.operations.is_indoor(
                     activity) and activity.start_date_local.month == self.app_variables.even_challenges_month and activity.start_date_local.year == self.app_variables.even_challenges_year:
                 if float(activity.distance) > six_km_ride_calendar[activity.start_date_local.day]:
@@ -386,17 +436,25 @@ class CalculateChallengesStats(object):
                     activity.start_date_local.day]:
                     thirty_mins_ride_calendar[activity.start_date_local.day] = unithelper.timedelta_to_seconds(
                         activity.moving_time)
+                if start_gps and end_gps and challenges['location'] in lat_long:
+                    work_lat = lat_long[challenges['location']][0]
+                    work_long = lat_long[challenges['location']][1]
+                    cycle_to_work_calendar[activity.start_date_local.day]['to'] = self.is_lat_long_within_range(
+                        work_lat, work_long, end_gps[0], end_gps[1])
+                    cycle_to_work_calendar[activity.start_date_local.day]['from'] = self.is_lat_long_within_range(
+                        work_lat, work_long, start_gps[0], start_gps[1])
                 distance_calendar[activity.start_date_local.day] += float(activity.distance)
 
         logging.info(
-            "Ride Calendar: {ride_calendar} | 6 km Calendar : {five_km_ride_calendar}| 30 min Calendar: {thirty_mins_ride_calendar}".format(
+            "Ride Calendar: {ride_calendar} | 6 km Calendar : {five_km_ride_calendar}| 30 min Calendar: {thirty_mins_ride_calendar}, Cycle to Work Calendar: {cycle_to_work_calendar}".format(
                 ride_calendar=distance_calendar,
                 five_km_ride_calendar=six_km_ride_calendar,
-                thirty_mins_ride_calendar=thirty_mins_ride_calendar))
-
-        challenges = athlete_details['bosch_even_challenges']
+                thirty_mins_ride_calendar=thirty_mins_ride_calendar,
+                cycle_to_work_calendar=cycle_to_work_calendar))
 
         challenges_stats = {
+            'c2w': 0,
+            'c2w_points': 0,
             '6x15': 0,
             '6x15_points': 0,
             '30x30': 0,
@@ -406,6 +464,17 @@ class CalculateChallengesStats(object):
             'athlete_id': athlete_details['athlete_id'],
             'location': challenges['location']
         }
+
+        for day in cycle_to_work_calendar:
+            if cycle_to_work_calendar[day]['to'] and cycle_to_work_calendar[day]['from']:
+                challenges_stats['c2w'] += 1
+                challenges_stats['c2w_points'] += 30
+        if challenges_stats['c2w'] >= 1:
+            challenges_stats['c2w_points'] += 50
+        if challenges_stats['c2w'] >= 2:
+            challenges_stats['c2w_points'] += 50
+        if challenges_stats['c2w'] >= 12:
+            challenges_stats['c2w_points'] += 100
 
         if challenges['id'] == '6x15':
             is_eligible_for_six_km_rides_bonus = False
@@ -456,6 +525,7 @@ class CalculateChallengesStats(object):
                 "Failed to update Bosch even challenges data for {name}".format(name=athlete_details['name']))
 
     def consolidate_bosch_even_challenges_result(self):
+        cycle_to_work = list()
         six_km_rides = list()
         thirty_mins_rides = list()
         distance = list()
@@ -467,6 +537,9 @@ class CalculateChallengesStats(object):
             challenges_data = result[2]
 
             if challenges:
+                cycle_to_work.append(
+                    {'name': name, 'value': challenges_data['c2w'], 'points': challenges_data['c2w_points'],
+                     'athlete_id': challenges_data['athlete_id'], 'location': challenges_data['location']})
                 if challenges['id'] == '6x15':
                     six_km_rides.append(
                         {'name': name, 'value': challenges_data['6x15'], 'points': challenges_data['6x15_points'],
@@ -481,10 +554,19 @@ class CalculateChallengesStats(object):
                          'points': challenges_data['distance_points'], 'athlete_id': challenges_data['athlete_id'],
                          'location': challenges_data['location']})
 
+        bosch_even_challenge_c2w_points_temp = sorted(cycle_to_work, key=operator.itemgetter('points'), reverse=True)
         bosch_even_challenge_six_km_temp = sorted(six_km_rides, key=operator.itemgetter('points'), reverse=True)
         bosch_even_challenge_30_mins_temp = sorted(thirty_mins_rides, key=operator.itemgetter('points'),
                                                    reverse=True)
         bosch_even_challenge_distance_temp = sorted(distance, key=operator.itemgetter('points'), reverse=True)
+
+        c2w_points_sorted = list()
+        rank = 1
+        for athlete in bosch_even_challenge_c2w_points_temp:
+            c2w_points_sorted.append(
+                {'rank': rank, 'name': athlete['name'], 'count': athlete['value'], 'points': athlete['points'],
+                 'athlete_id': athlete['athlete_id'], 'location': athlete['location']})
+            rank += 1
 
         six_km_rides_sorted = list()
         rank = 1
@@ -510,6 +592,8 @@ class CalculateChallengesStats(object):
                  'athlete_id': athlete['athlete_id'], 'location': athlete['location']})
             rank += 1
 
+        self.iron_cache_resource.put_cache("bosch_even_challenges_result", "c2w",
+                                           ujson.dumps(c2w_points_sorted))
         self.iron_cache_resource.put_cache("bosch_even_challenges_result", "6x15",
                                            ujson.dumps(six_km_rides_sorted))
         self.iron_cache_resource.put_cache("bosch_even_challenges_result", "30x30",
