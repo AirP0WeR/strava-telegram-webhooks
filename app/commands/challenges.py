@@ -439,10 +439,10 @@ class CalculateChallengesStats(object):
                 if start_gps and end_gps and challenges['location'] in lat_long:
                     work_lat = lat_long[challenges['location']][0]
                     work_long = lat_long[challenges['location']][1]
-                    cycle_to_work_calendar[activity.start_date_local.day]['to'] = self.is_lat_long_within_range(
-                        work_lat, work_long, end_gps[0], end_gps[1])
-                    cycle_to_work_calendar[activity.start_date_local.day]['from'] = self.is_lat_long_within_range(
-                        work_lat, work_long, start_gps[0], start_gps[1])
+                    if self.is_lat_long_within_range(work_lat, work_long, end_gps[0], end_gps[1]):
+                        cycle_to_work_calendar[activity.start_date_local.day]['to'] = True
+                    if self.is_lat_long_within_range(work_lat, work_long, start_gps[0], start_gps[1]):
+                        cycle_to_work_calendar[activity.start_date_local.day]['from'] = True
                 distance_calendar[activity.start_date_local.day] += float(activity.distance)
 
         logging.info(
