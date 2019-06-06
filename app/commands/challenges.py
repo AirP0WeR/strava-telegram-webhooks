@@ -240,8 +240,7 @@ class CalculateChallengesStats(object):
         self.database_resource = DatabaseResource()
         self.iron_cache_resource = IronCacheResource()
 
-    @staticmethod
-    def is_lat_long_within_range(lat1, long1, lat2, long2, earth_radius=6372.8):
+    def is_lat_long_within_range(self, lat1, long1, lat2, long2, earth_radius=6372.8):
         is_within_range = False
         rad_lat = radians(lat2 - lat1)
         rad_long = radians(long2 - long1)
@@ -256,7 +255,7 @@ class CalculateChallengesStats(object):
         c = 2 * asin(sqrt(a))
         distance_km = earth_radius * c
 
-        if distance_km < 0.25:
+        if distance_km < self.app_variables.location_threshold:
             is_within_range = True
 
         return is_within_range
