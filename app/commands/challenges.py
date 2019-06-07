@@ -2,6 +2,7 @@
 import logging
 import operator
 import traceback
+from collections import defaultdict
 from math import radians, sin, cos, asin, sqrt
 
 import ujson
@@ -89,7 +90,7 @@ class Challenges(object):
             self.calculate_challenges_stats.consolidate_odd_challenges_result()
             self.calculate_challenges_stats.consolidate_bosch_even_challenges_result()
 
-    def page_hits(self):
+    def api_hits(self):
         hits = self.iron_cache_resource.get_int_cache(cache="challenges_hits", key="hits")
         if hits:
             self.iron_cache_resource.put_cache(cache="challenges_hits", key="hits", value=hits + 1)
@@ -211,6 +212,37 @@ class Challenges(object):
         messages.append(total)
 
         return messages if messages != [] else False
+
+    @staticmethod
+    def dummy_function():
+        pass
+
+    def get_challenges_result(self, company, month, challenge):
+        challenges_result = False
+
+        companies = ['bosch']
+        months = ['even']
+        challenges = ['c2w', '6x15', '30x30', 'distance', 'leader_board']
+
+        if company in companies and month in months and challenge in challenges:
+
+            consolidate_results_options = defaultdict(lambda: self.dummy_function, {
+                'bosch_even': self.calculate_challenges_stats.consolidate_bosch_even_challenges_result,
+                '': self.dummy_function
+            })
+
+            cache_name = "{company}_{month}_challenges_result".format(company=company, month=month)
+            cache_result = self.iron_cache_resource.get_cache(cache_name, challenge)
+            if cache_result:
+                challenges_result = cache_result
+            else:
+                consolidate_results = "{company}_{month}".format(company=company, month=month)
+                consolidate_results_options[consolidate_results]()
+                cache_result = self.iron_cache_resource.get_cache(cache_name, challenge)
+                if cache_result:
+                    challenges_result = cache_result
+
+        return challenges_result
 
     def main(self, event):
         aspect_type = event['aspect_type']
@@ -406,47 +438,49 @@ class CalculateChallengesStats(object):
         for activity in self.strava_resource.get_strava_activities_after_date_before_date(
                 athlete_details['athlete_token'], self.app_variables.even_challenges_from_date,
                 self.app_variables.even_challenges_to_date):
+            activity_month = activity.start_date_local.month
+            activity_year = activity.start_date_local.year
+            activity_day = activity.start_date_local.day
+            activity_distance = float(activity.distance)
+            activity_time = unithelper.timedelta_to_seconds(activity.moving_time)
             try:
                 start_gps = [activity.start_latlng.lat, activity.start_latlng.lon]
                 end_gps = [activity.end_latlng.lat, activity.end_latlng.lon]
             except AttributeError:
                 start_gps = None
                 end_gps = None
+
             logging.info(
                 "Type: {activity_type} | Month: {activity_month} | Year: {activity_year} | Day: {activity_day} | Distance: {activity_distance} | Time: {time} | Start GPS: {start_gps} | End GPS: {end_gps}".format(
-                    activity_type=activity.type, activity_month=activity.start_date_local.month,
-                    activity_year=activity.start_date_local.year, activity_day=activity.start_date_local.day,
-                    activity_distance=float(activity.distance),
-                    time=unithelper.timedelta_to_seconds(activity.moving_time),
+                    activity_type=activity.type, activity_month=activity_month, activity_year=activity_year,
+                    activity_day=activity_day, activity_distance=activity_distance, time=activity_time,
                     start_gps=start_gps, end_gps=end_gps))
             if self.operations.supported_activities_for_challenges(activity) and not self.operations.is_indoor(
-                    activity) and activity.start_date_local.month == self.app_variables.even_challenges_month and activity.start_date_local.year == self.app_variables.even_challenges_year:
+                    activity) and activity_month == self.app_variables.even_challenges_month and activity_year == self.app_variables.even_challenges_year:
                 if start_gps and end_gps and challenges['location'] in lat_long:
                     work_lat = lat_long[challenges['location']][0]
                     work_long = lat_long[challenges['location']][1]
                     if self.is_lat_long_within_range(work_lat, work_long, end_gps[0], end_gps[1]):
-                        cycle_to_work_calendar[activity.start_date_local.day]['to'] = True
+                        cycle_to_work_calendar[activity_day]['to'] = True
                     if self.is_lat_long_within_range(work_lat, work_long, start_gps[0], start_gps[1]):
-                        cycle_to_work_calendar[activity.start_date_local.day]['from'] = True
-                if float(activity.distance) >= 6000.0:
+                        cycle_to_work_calendar[activity_day]['from'] = True
+                if activity_distance >= 6000.0:
                     six_km_rides += 1
                     six_km_points += 6
-                    if float(activity.distance) >= 25000.0:
+                    if activity_distance >= 25000.0:
                         is_eligible_for_six_km_rides_bonus = True
-                if unithelper.timedelta_to_seconds(activity.moving_time) >= 1800:
+                if activity_time >= 1800:
                     thirty_min_rides += 1
                     thirty_min_points += 6
-                    if unithelper.timedelta_to_seconds(activity.moving_time) >= 10800:
+                    if activity_time >= 10800:
                         is_eligible_for_thirty_mins_rides_bonus = True
-                total_distance += float(activity.distance)
-                if float(activity.distance) >= 150000.0:
+                total_distance += activity_distance
+                if activity_distance >= 150000.0:
                     is_eligible_for_distance_bonus = True
 
         logging.info(
             "Total distance: {total_distance} | 6 km rides : {six_km_rides}| 30 min rides: {thirty_min_rides}, Cycle to Work Calendar: {cycle_to_work_calendar}".format(
-                total_distance=total_distance,
-                six_km_rides=six_km_rides,
-                thirty_min_rides=thirty_min_rides,
+                total_distance=total_distance, six_km_rides=six_km_rides, thirty_min_rides=thirty_min_rides,
                 cycle_to_work_calendar=cycle_to_work_calendar))
 
         challenges_stats = {
