@@ -374,20 +374,16 @@ class CalculateChallengesStats(object):
                 "Failed to update odd challenges data for {name}".format(name=athlete_details['name']))
 
     def bosch_even_challenges(self, athlete_details):
-        six_km_ride_calendar = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0, 11: 0,
-                                12: 0, 13: 0, 14: 0, 15: 0, 16: 0, 17: 0, 18: 0, 19: 0, 20: 0,
-                                21: 0, 22: 0, 23: 0, 24: 0, 25: 0, 26: 0, 27: 0, 28: 0, 29: 0,
-                                30: 0, 31: 0}
+        six_km_rides = 0
+        six_km_points = 0
+        is_eligible_for_six_km_rides_bonus = False
 
-        thirty_mins_ride_calendar = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0, 11: 0,
-                                     12: 0, 13: 0, 14: 0, 15: 0, 16: 0, 17: 0, 18: 0, 19: 0, 20: 0,
-                                     21: 0, 22: 0, 23: 0, 24: 0, 25: 0, 26: 0, 27: 0, 28: 0, 29: 0,
-                                     30: 0, 31: 0}
+        thirty_min_rides = 0
+        thirty_min_points = 0
+        is_eligible_for_thirty_mins_rides_bonus = False
 
-        distance_calendar = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0, 11: 0,
-                             12: 0, 13: 0, 14: 0, 15: 0, 16: 0, 17: 0, 18: 0, 19: 0, 20: 0,
-                             21: 0, 22: 0, 23: 0, 24: 0, 25: 0, 26: 0, 27: 0, 28: 0, 29: 0,
-                             30: 0, 31: 0}
+        total_distance = 0.0
+        is_eligible_for_distance_bonus = False
 
         cycle_to_work_calendar = {
             1: {'to': False, 'from': False}, 2: {'to': False, 'from': False}, 3: {'to': False, 'from': False},
@@ -425,12 +421,6 @@ class CalculateChallengesStats(object):
                     start_gps=start_gps, end_gps=end_gps))
             if self.operations.supported_activities_for_challenges(activity) and not self.operations.is_indoor(
                     activity) and activity.start_date_local.month == self.app_variables.even_challenges_month and activity.start_date_local.year == self.app_variables.even_challenges_year:
-                if float(activity.distance) > six_km_ride_calendar[activity.start_date_local.day]:
-                    six_km_ride_calendar[activity.start_date_local.day] = float(activity.distance)
-                if unithelper.timedelta_to_seconds(activity.moving_time) > thirty_mins_ride_calendar[
-                    activity.start_date_local.day]:
-                    thirty_mins_ride_calendar[activity.start_date_local.day] = unithelper.timedelta_to_seconds(
-                        activity.moving_time)
                 if start_gps and end_gps and challenges['location'] in lat_long:
                     work_lat = lat_long[challenges['location']][0]
                     work_long = lat_long[challenges['location']][1]
@@ -438,13 +428,25 @@ class CalculateChallengesStats(object):
                         cycle_to_work_calendar[activity.start_date_local.day]['to'] = True
                     if self.is_lat_long_within_range(work_lat, work_long, start_gps[0], start_gps[1]):
                         cycle_to_work_calendar[activity.start_date_local.day]['from'] = True
-                distance_calendar[activity.start_date_local.day] += float(activity.distance)
+                if float(activity.distance) >= 6000.0:
+                    six_km_rides += 1
+                    six_km_points += 6
+                    if float(activity.distance) >= 25000.0:
+                        is_eligible_for_six_km_rides_bonus = True
+                if unithelper.timedelta_to_seconds(activity.moving_time) >= 1800:
+                    thirty_min_rides += 1
+                    thirty_min_points += 6
+                    if unithelper.timedelta_to_seconds(activity.moving_time) >= 10800:
+                        is_eligible_for_thirty_mins_rides_bonus = True
+                total_distance += float(activity.distance)
+                if float(activity.distance) >= 150000.0:
+                    is_eligible_for_distance_bonus = True
 
         logging.info(
-            "Ride Calendar: {ride_calendar} | 6 km Calendar : {five_km_ride_calendar}| 30 min Calendar: {thirty_mins_ride_calendar}, Cycle to Work Calendar: {cycle_to_work_calendar}".format(
-                ride_calendar=distance_calendar,
-                five_km_ride_calendar=six_km_ride_calendar,
-                thirty_mins_ride_calendar=thirty_mins_ride_calendar,
+            "Total distance: {total_distance} | 6 km rides : {six_km_rides}| 30 min rides: {thirty_min_rides}, Cycle to Work Calendar: {cycle_to_work_calendar}".format(
+                total_distance=total_distance,
+                six_km_rides=six_km_rides,
+                thirty_min_rides=thirty_min_rides,
                 cycle_to_work_calendar=cycle_to_work_calendar))
 
         challenges_stats = {
@@ -477,44 +479,29 @@ class CalculateChallengesStats(object):
             challenges_stats['c2w_points'] += 100
 
         if challenges['id'] == '6x15':
-            is_eligible_for_six_km_rides_bonus = False
-            for distance in six_km_ride_calendar:
-                if six_km_ride_calendar[distance] >= 6000.0:
-                    challenges_stats['6x15'] += 1
-                    challenges_stats['6x15_points'] += 6
-                    if six_km_ride_calendar[distance] >= 25000.0:
-                        is_eligible_for_six_km_rides_bonus = True
-            if challenges_stats['6x15'] >= 15:
+            challenges_stats['6x15'] += six_km_rides
+            challenges_stats['6x15_points'] += 180 if six_km_points >= 180 else six_km_points
+            if six_km_rides >= 15:
                 challenges_stats['6x15_points'] += 20
-            if is_eligible_for_six_km_rides_bonus:
-                challenges_stats['6x15_points'] += 50
+                if is_eligible_for_six_km_rides_bonus:
+                    challenges_stats['6x15_points'] += 50
 
         elif challenges['id'] == '30x30':
-            is_eligible_for_thirty_mins_rides_bonus = False
-            for mins in thirty_mins_ride_calendar:
-                if thirty_mins_ride_calendar[mins] >= 1800:
-                    challenges_stats['30x30'] += 1
-                    challenges_stats['30x30_points'] += 6
-                    if thirty_mins_ride_calendar[mins] >= 10800:
-                        is_eligible_for_thirty_mins_rides_bonus = True
-            if challenges_stats['30x30'] >= 30:
+            challenges_stats['30x30'] += thirty_min_rides
+            challenges_stats['30x30_points'] += 180 if thirty_min_points >= 180 else thirty_min_points
+            if thirty_min_rides >= 30:
                 challenges_stats['30x30_points'] += 20
-            if is_eligible_for_thirty_mins_rides_bonus:
-                challenges_stats['30x30_points'] += 50
+                if is_eligible_for_thirty_mins_rides_bonus:
+                    challenges_stats['30x30_points'] += 50
 
         elif challenges['id'] == 'distance':
-            is_eligible_for_distance_bonus = False
-            for each_distance in distance_calendar:
-                challenges_stats['distance'] += distance_calendar[each_distance]
-                if distance_calendar[each_distance] >= 150000.0:
-                    is_eligible_for_distance_bonus = True
-
-            points = (int((challenges_stats['distance'] / 1000.0) / 30.0)) * 6.0
-            challenges_stats['distance_points'] += points if points <= 180 else 180
-            if challenges_stats['distance'] >= 1000000.0:
+            challenges_stats['distance'] += total_distance
+            distance_points = (int((total_distance / 1000.0) / 30.0)) * 6.0
+            challenges_stats['distance_points'] += 180 if distance_points >= 180 else distance_points
+            if total_distance >= 1000000.0:
                 challenges_stats['distance_points'] += 20
-            if is_eligible_for_distance_bonus:
-                challenges_stats['distance_points'] += 50
+                if is_eligible_for_distance_bonus:
+                    challenges_stats['distance_points'] += 50
 
         if self.database_resource.write_operation(self.app_constants.QUERY_UPDATE_BOSCH_EVEN_CHALLENGES_DATA.format(
                 bosch_even_challenges_data=ujson.dumps(challenges_stats), athlete_id=athlete_details['athlete_id'])):
