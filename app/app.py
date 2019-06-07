@@ -366,7 +366,7 @@ def get_challenges_result(company, month, challenge):
         if result:
             return jsonify(result), 200
         else:
-            return jsonify(''), 500
+            return jsonify(''), 404
 
 
 @app.route("/challenges/even/athletes/list", methods=['GET'])

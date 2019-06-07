@@ -222,7 +222,7 @@ class Challenges(object):
 
         companies = ['bosch']
         months = ['even']
-        challenges = ['cw2', '6x15', '30x30', 'distance', 'leader_board']
+        challenges = ['c2w', '6x15', '30x30', 'distance', 'leader_board']
 
         if company in companies and month in months and challenge in challenges:
 
