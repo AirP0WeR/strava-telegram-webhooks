@@ -11,7 +11,7 @@ from app.common.constants_and_variables import AppVariables, AppConstants
 from app.common.execution_time import execution_time
 from app.processor import update_stats, handle_webhook, update_all_stats, telegram_shadow_message, \
     telegram_send_message, handle_challenges_webhook, update_challenges_stats, update_all_challenges_stats, \
-    challenges_page_hits
+    challenges_api_hits
 from app.resources.athlete import AthleteResource
 from app.resources.database import DatabaseResource
 from app.resources.iron_cache import IronCacheResource
@@ -354,90 +354,19 @@ def athlete_deactivate(athlete_id):
             return jsonify(''), 404
 
 
-@app.route("/challenges/bosch/even/result/c2w", methods=['GET'])
+@app.route("/challenges/<company>/<month>/result/<challenge>", methods=['GET'])
 @execution_time
-def get_challenges_bosch_even_result_c2w():
+def get_challenges_result(company, month, challenge):
     if request.method == 'GET':
-        logging.info("Received request to get Bosch C2W standings.")
-        result = iron_cache_resource.get_cache("bosch_even_challenges_result", "c2w")
+        logging.info(
+            "Received request to get challenges result. Company: {company} | Month: {month} | Challenge: {challenge}".format(
+                company=company, month=month, challenge=challenge))
+        challenges_api_hits.delay()
+        result = challenges.get_challenges_result(company, month, challenge)
         if result:
             return jsonify(result), 200
         else:
-            calculate_challenge_stats.consolidate_bosch_even_challenges_result()
-            result = iron_cache_resource.get_cache("bosch_even_challenges_result", "cw2")
-            if result:
-                return jsonify(result), 200
-            else:
-                return jsonify(''), 500
-
-
-@app.route("/challenges/bosch/even/result/6_km", methods=['GET'])
-@execution_time
-def get_challenges_bosch_even_result_6_km():
-    if request.method == 'GET':
-        logging.info("Received request to get Bosch 6 km standings.")
-        challenges_page_hits.delay()
-        result = iron_cache_resource.get_cache("bosch_even_challenges_result", "6x15")
-        if result:
-            return jsonify(result), 200
-        else:
-            calculate_challenge_stats.consolidate_bosch_even_challenges_result()
-            result = iron_cache_resource.get_cache("bosch_even_challenges_result", "6x15")
-            if result:
-                return jsonify(result), 200
-            else:
-                return jsonify(''), 500
-
-
-@app.route("/challenges/bosch/even/result/30_min", methods=['GET'])
-@execution_time
-def get_challenges_bosch_even_result_30_min():
-    if request.method == 'GET':
-        logging.info("Received request to get Bosch 30 min challenge standings.")
-        result = iron_cache_resource.get_cache("bosch_even_challenges_result", "30x30")
-        if result:
-            return jsonify(result), 200
-        else:
-            calculate_challenge_stats.consolidate_bosch_even_challenges_result()
-            result = iron_cache_resource.get_cache("bosch_even_challenges_result", "30x30")
-            if result:
-                return jsonify(result), 200
-            else:
-                return jsonify(''), 500
-
-
-@app.route("/challenges/bosch/even/result/distance", methods=['GET'])
-@execution_time
-def get_challenges_bosch_even_result_distance():
-    if request.method == 'GET':
-        logging.info("Received request to get Bosch distance challenge standings.")
-        result = iron_cache_resource.get_cache("bosch_even_challenges_result", "distance")
-        if result:
-            return jsonify(result), 200
-        else:
-            calculate_challenge_stats.consolidate_bosch_even_challenges_result()
-            result = iron_cache_resource.get_cache("bosch_even_challenges_result", "distance")
-            if result:
-                return jsonify(result), 200
-            else:
-                return jsonify(''), 500
-
-
-@app.route("/challenges/bosch/even/result/leader_board", methods=['GET'])
-@execution_time
-def get_challenges_bosch_even_result_leader_board():
-    if request.method == 'GET':
-        logging.info("Received request to get Bosch challenges leader board.")
-        result = iron_cache_resource.get_cache("bosch_even_challenges_result", "leader_board")
-        if result:
-            return jsonify(result), 200
-        else:
-            calculate_challenge_stats.consolidate_bosch_even_challenges_result()
-            result = iron_cache_resource.get_cache("bosch_even_challenges_result", "leader_board")
-            if result:
-                return jsonify(result), 200
-            else:
-                return jsonify(''), 500
+            return jsonify(''), 500
 
 
 @app.route("/challenges/even/athletes/list", methods=['GET'])

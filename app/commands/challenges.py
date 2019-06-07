@@ -2,6 +2,7 @@
 import logging
 import operator
 import traceback
+from collections import defaultdict
 from math import radians, sin, cos, asin, sqrt
 
 import ujson
@@ -89,7 +90,7 @@ class Challenges(object):
             self.calculate_challenges_stats.consolidate_odd_challenges_result()
             self.calculate_challenges_stats.consolidate_bosch_even_challenges_result()
 
-    def page_hits(self):
+    def api_hits(self):
         hits = self.iron_cache_resource.get_int_cache(cache="challenges_hits", key="hits")
         if hits:
             self.iron_cache_resource.put_cache(cache="challenges_hits", key="hits", value=hits + 1)
@@ -211,6 +212,37 @@ class Challenges(object):
         messages.append(total)
 
         return messages if messages != [] else False
+
+    @staticmethod
+    def dummy_function():
+        pass
+
+    def get_challenges_result(self, company, month, challenge):
+        challenges_result = False
+
+        companies = ['bosch']
+        months = ['even']
+        challenges = ['cw2', '6x15', '30x30', 'distance', 'leader_board']
+
+        if company in companies and month in months and challenge in challenges:
+
+            consolidate_results_options = defaultdict(lambda: self.dummy_function, {
+                'bosch_even': self.calculate_challenges_stats.consolidate_bosch_even_challenges_result,
+                '': self.dummy_function
+            })
+
+            cache_name = "{company}_{month}_challenges_result".format(company=company, month=month)
+            cache_result = self.iron_cache_resource.get_cache(cache_name, challenge)
+            if cache_result:
+                challenges_result = cache_result
+            else:
+                consolidate_results = "{company}_{month}".format(company=company, month=month)
+                consolidate_results_options[consolidate_results]()
+                cache_result = self.iron_cache_resource.get_cache(cache_name, challenge)
+                if cache_result:
+                    challenges_result = cache_result
+
+        return challenges_result
 
     def main(self, event):
         aspect_type = event['aspect_type']

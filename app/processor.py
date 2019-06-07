@@ -104,10 +104,10 @@ def update_all_challenges_stats():
 
 @app.task
 @execution_time
-def challenges_page_hits():
+def challenges_api_hits():
     try:
-        logging.info("Received request for challenges page hits.")
-        challenges.page_hits()
+        logging.info("Received request for challenges API hits.")
+        challenges.api_hits()
     except Exception:
         message = "Something went wrong. Exception: {exception}".format(exception=traceback.format_exc())
         logging.error(message)
