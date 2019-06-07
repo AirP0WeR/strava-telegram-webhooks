@@ -423,6 +423,23 @@ def get_challenges_bosch_even_result_distance():
                 return jsonify(''), 500
 
 
+@app.route("/challenges/bosch/even/result/leader_board", methods=['GET'])
+@execution_time
+def get_challenges_bosch_even_result_leader_board():
+    if request.method == 'GET':
+        logging.info("Received request to get Bosch challenges leader board.")
+        result = iron_cache_resource.get_cache("bosch_even_challenges_result", "leader_board")
+        if result:
+            return jsonify(result), 200
+        else:
+            calculate_challenge_stats.consolidate_bosch_even_challenges_result()
+            result = iron_cache_resource.get_cache("bosch_even_challenges_result", "leader_board")
+            if result:
+                return jsonify(result), 200
+            else:
+                return jsonify(''), 500
+
+
 @app.route("/challenges/even/athletes/list", methods=['GET'])
 @execution_time
 def get_challenges_even_athletes_list():

@@ -516,6 +516,7 @@ class CalculateChallengesStats(object):
         six_km_rides = list()
         thirty_mins_rides = list()
         distance = list()
+        leader_board = list()
 
         results = self.database_resource.read_all_operation(self.app_constants.QUERY_GET_BOSCH_EVEN_CHALLENGES_DATA)
         for result in results:
@@ -524,6 +525,10 @@ class CalculateChallengesStats(object):
             challenges_data = result[2]
 
             if challenges:
+                leader_board.append({"athlete_id": challenges_data['athlete_id'], "name": name,
+                                     "location": challenges_data['location'],
+                                     "points": challenges_data['c2w_points'] + challenges_data['6x15_points'] +
+                                               challenges_data['30x30_points'] + challenges_data['distance_points']})
                 cycle_to_work.append(
                     {'name': name, 'value': challenges_data['c2w'], 'points': challenges_data['c2w_points'],
                      'rides': challenges_data['c2w_rides'], 'athlete_id': challenges_data['athlete_id'],
@@ -547,6 +552,7 @@ class CalculateChallengesStats(object):
         bosch_even_challenge_30_mins_temp = sorted(thirty_mins_rides, key=operator.itemgetter('points'),
                                                    reverse=True)
         bosch_even_challenge_distance_temp = sorted(distance, key=operator.itemgetter('points'), reverse=True)
+        leader_board_temp = sorted(leader_board, key=operator.itemgetter('points'), reverse=True)
 
         c2w_points_sorted = list()
         rank = 1
@@ -580,6 +586,14 @@ class CalculateChallengesStats(object):
                  'athlete_id': athlete['athlete_id'], 'location': athlete['location']})
             rank += 1
 
+        leader_board_sorted = list()
+        rank = 1
+        for athlete in leader_board_temp:
+            leader_board_sorted.append(
+                {'rank': rank, 'name': athlete['name'], 'points': athlete['points'],
+                 'athlete_id': athlete['athlete_id'], 'location': athlete['location']})
+            rank += 1
+
         self.iron_cache_resource.put_cache("bosch_even_challenges_result", "c2w",
                                            ujson.dumps(c2w_points_sorted))
         self.iron_cache_resource.put_cache("bosch_even_challenges_result", "6x15",
@@ -588,6 +602,8 @@ class CalculateChallengesStats(object):
                                            ujson.dumps(thirty_mins_rides_sorted))
         self.iron_cache_resource.put_cache("bosch_even_challenges_result", "distance",
                                            ujson.dumps(distance_sorted))
+        self.iron_cache_resource.put_cache("bosch_even_challenges_result", "leader_board",
+                                           ujson.dumps(leader_board_sorted))
 
     def consolidate_even_challenges_result(self):
         even_challenge_twenty_twenty = list()
