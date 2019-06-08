@@ -36,7 +36,7 @@ class StravaResource(object):
             access_info['refresh_token'] = response['refresh_token']
             access_info['expires_at'] = response['expires_at']
 
-        logging.info("Result: {}".format(access_info))
+        logging.info("Result: %s", access_info)
         return access_info if access_info != [] else False
 
     def token_exchange_for_challenges(self, code):
@@ -59,7 +59,7 @@ class StravaResource(object):
             access_info['refresh_token'] = response['refresh_token']
             access_info['expires_at'] = response['expires_at']
 
-        logging.info("Result: {}".format(access_info))
+        logging.info("Result: %s", access_info)
         return access_info if access_info != [] else False
 
     def refresh_token(self, refresh_token):
@@ -79,7 +79,7 @@ class StravaResource(object):
             access_info['refresh_token'] = response['refresh_token']
             access_info['expires_at'] = response['expires_at']
 
-        logging.info("Result: {}".format(access_info))
+        logging.info("Result: %s", access_info)
         return access_info if access_info != [] else False
 
     def refresh_challenges_token(self, refresh_token):
@@ -99,36 +99,35 @@ class StravaResource(object):
             access_info['refresh_token'] = response['refresh_token']
             access_info['expires_at'] = response['expires_at']
 
-        logging.info("Result: {}".format(access_info))
+        logging.info("Result: %s", access_info)
         return access_info if access_info != [] else False
 
     def update_strava_activity(self, token, activity_id, name, gear_id):
         strava_client = self.strava_client.get_client(token)
         result = False
         try:
-            logging.info("Updating activity: Activity ID: {activity_id} | Name: {name} | Gear ID: {gear_id}".format(
-                activity_id=activity_id, name=name, gear_id=gear_id))
+            logging.info("Updating activity: Activity ID: %s | Name: %s | Gear ID: %s", activity_id, name, gear_id)
             strava_client.update_activity(activity_id=activity_id, name=name, gear_id=gear_id)
         except Exception:
             logging.error(traceback.format_exc())
         else:
             result = True
 
-        logging.info("Result: {result}".format(result=result))
+        logging.info("Result: %s", result)
         return result
 
     def get_gear_name(self, token, gear_id):
         strava_client = self.strava_client.get_client(token)
         gear_name = False
         try:
-            logging.info("Getting gear name for {gear_id}".format(gear_id=gear_id))
+            logging.info("Getting gear name for %s", gear_id)
             result = strava_client.get_gear(gear_id=gear_id)
         except Exception:
             logging.error(traceback.format_exc())
         else:
             gear_name = result.name
 
-        logging.info("Gear name: {gear_name}".format(gear_name=gear_name))
+        logging.info("Gear name: %s", gear_name)
         return gear_name
 
     def get_bikes_list(self, token):
@@ -146,7 +145,7 @@ class StravaResource(object):
         strava_client = self.strava_client.get_client(token)
         activity = False
         try:
-            logging.info("Getting activity {activity_id}..".format(activity_id=activity_id))
+            logging.info("Getting activity %s..", activity_id)
             result = strava_client.get_activity(activity_id)
         except Exception:
             logging.error(traceback.format_exc())
@@ -174,7 +173,7 @@ class StravaResource(object):
         strava_client = self.strava_client.get_client(token)
         activity = False
         try:
-            logging.info("Getting activities after {after_date}..".format(after_date=after_date))
+            logging.info("Getting activities after %s..", after_date)
             result = strava_client.get_activities(after=after_date)
         except Exception:
             logging.error(traceback.format_exc())
@@ -188,9 +187,7 @@ class StravaResource(object):
         strava_client = self.strava_client.get_client(token)
         activity = False
         try:
-            logging.info(
-                "Getting activities after {after_date} and before {before_date}..".format(after_date=after_date,
-                                                                                          before_date=before_date))
+            logging.info("Getting activities after %s and before %s..", after_date, before_date)
             result = strava_client.get_activities(after=after_date, before=before_date)
         except Exception:
             logging.error(traceback.format_exc())

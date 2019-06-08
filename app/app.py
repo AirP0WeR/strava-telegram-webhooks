@@ -104,7 +104,7 @@ def challenges_stats_for_all():
 @execution_time
 def token_exchange(code):
     if request.method == 'POST':
-        logging.info("Received request for token exchange with code: {code}".format(code=code))
+        logging.info("Received request for token exchange with code: %s", code)
         access_info = strava_resource.token_exchange(code)
         if access_info:
             return jsonify(access_info), 200
@@ -116,7 +116,7 @@ def token_exchange(code):
 @execution_time
 def token_exchange_challenges(code):
     if request.method == 'POST':
-        logging.info("Received request for challenges token exchange with code: {code}".format(code=code))
+        logging.info("Received request for challenges token exchange with code: %s", code)
         access_info = strava_resource.token_exchange_for_challenges(code)
         if access_info:
             return jsonify(access_info), 200
@@ -128,8 +128,7 @@ def token_exchange_challenges(code):
 @execution_time
 def athlete_exists(athlete_id):
     if request.method == 'GET':
-        logging.info("Received request to check if athlete https://www.strava.com/athletes/{athlete_id} exists.".format(
-            athlete_id=athlete_id))
+        logging.info("Received request to check if athlete https://www.strava.com/athletes/%s exists.", athlete_id)
         exists = athlete_resource.exists(athlete_id)
         if exists:
             return jsonify(''), 200
@@ -141,8 +140,7 @@ def athlete_exists(athlete_id):
 @execution_time
 def get_athlete(athlete_id):
     if request.method == 'GET':
-        logging.info("Received request to get athlete https://www.strava.com/athletes/{athlete_id}".format(
-            athlete_id=athlete_id))
+        logging.info("Received request to get athlete https://www.strava.com/athletes/%s", athlete_id)
         result = athlete_resource.get_athlete_details(athlete_id)
         if result:
             return jsonify(result), 200
@@ -155,8 +153,7 @@ def get_athlete(athlete_id):
 def get_athlete_from_challenges(athlete_id):
     if request.method == 'GET':
         logging.info(
-            "Received request to get athlete https://www.strava.com/athletes/{athlete_id} from challenges".format(
-                athlete_id=athlete_id))
+            "Received request to get athlete https://www.strava.com/athletes/%s from challenges", athlete_id)
         result = athlete_resource.get_athlete_details_in_challenges(athlete_id)
         if result:
             return jsonify(result), 200
@@ -168,8 +165,7 @@ def get_athlete_from_challenges(athlete_id):
 @execution_time
 def get_stats(telegram_username):
     if request.method == 'GET':
-        logging.info(
-            "Received request to get stats for {telegram_username}".format(telegram_username=telegram_username))
+        logging.info("Received request to get stats for %s", telegram_username)
         result = athlete_resource.get_stats(telegram_username)
         if result:
             return jsonify(result), 200
@@ -193,7 +189,7 @@ def get_bikes_list(token):
 @execution_time
 def get_gear_name(token, gear_id):
     if request.method == 'GET':
-        logging.info("Received request to get gear name. Gear ID {gear_id}".format(gear_id=gear_id))
+        logging.info("Received request to get gear name. Gear ID %s", gear_id)
         gear_name = strava_resource.get_gear_name(token, gear_id)
         if gear_name:
             return jsonify(gear_name), 200
@@ -205,8 +201,7 @@ def get_gear_name(token, gear_id):
 @execution_time
 def get_athlete_by_telegram_username(telegram_username):
     if request.method == 'GET':
-        logging.info("Received request to get athlete details for {telegram_username}".format(
-            telegram_username=telegram_username))
+        logging.info("Received request to get athlete details for %s", telegram_username)
         result = athlete_resource.get_athlete_details_by_telegram_username(telegram_username)
         if result:
             return jsonify(result), 200
@@ -219,7 +214,7 @@ def get_athlete_by_telegram_username(telegram_username):
 def get_athlete_id(telegram_username):
     if request.method == 'GET':
         logging.info(
-            "Received request to get Athlete ID for {telegram_username}.".format(telegram_username=telegram_username))
+            "Received request to get Athlete ID for %s.", telegram_username)
         athlete_id = athlete_resource.get_athlete_id(telegram_username)
         if athlete_id:
             return jsonify(athlete_id), 200
@@ -232,7 +227,7 @@ def get_athlete_id(telegram_username):
 def database_write():
     if request.method == 'POST' and request.json and "query" in request.json:
         query = request.json["query"]
-        logging.info("Received request to write to the database: {query}".format(query=query))
+        logging.info("Received request to write to the database: %s", query)
         result = database_resource.write_operation(query)
         if result:
             return jsonify(''), 200
@@ -245,7 +240,7 @@ def database_write():
 def database_read():
     if request.method == 'GET' and request.json and "query" in request.json:
         query = request.json["query"]
-        logging.info("Received request to fetch one from the database: {query}".format(query=query))
+        logging.info("Received request to fetch one from the database: %s", query)
         result = database_resource.read_operation(query)
         if result:
             return jsonify(result), 200
@@ -258,7 +253,7 @@ def database_read():
 def database_read_all():
     if request.method == 'GET' and request.json and "query" in request.json:
         query = request.json["query"]
-        logging.info("Received request to fetch all from the database: {query}".format(query=query))
+        logging.info("Received request to fetch all from the database: %s", query)
         result = database_resource.read_all_operation(query)
         if result:
             return jsonify(result), 200
@@ -288,8 +283,7 @@ def shadow_message():
 def athlete_enable_activity_summary(chat_id, athlete_id):
     if request.method == 'POST':
         logging.info(
-            "Received request to enable activity summary for Athlete: {athlete_id} with Chat ID: {chat_id}.".format(
-                athlete_id=athlete_id, chat_id=chat_id))
+            "Received request to enable activity summary for Athlete: %s with Chat ID: %s.", athlete_id, chat_id)
         if athlete_resource.enable_activity_summary(chat_id, athlete_id):
             return jsonify(''), 200
         else:
@@ -301,7 +295,7 @@ def athlete_enable_activity_summary(chat_id, athlete_id):
 def athlete_disable_activity_summary(athlete_id):
     if request.method == 'POST':
         logging.info(
-            "Received request to disable activity summary for Athlete: {athlete_id}.".format(athlete_id=athlete_id))
+            "Received request to disable activity summary for Athlete: %s.", athlete_id)
         if athlete_resource.disable_activity_summary(athlete_id):
             return jsonify(''), 200
         else:
@@ -312,8 +306,7 @@ def athlete_disable_activity_summary(athlete_id):
 @execution_time
 def athlete_disable_auto_update_indoor_ride(athlete_id):
     if request.method == 'POST':
-        logging.info("Received request to disable auto update indoor ride for Athlete: {athlete_id}.".format(
-            athlete_id=athlete_id))
+        logging.info("Received request to disable auto update indoor ride for Athlete: %s.", athlete_id)
         if athlete_resource.disable_auto_update_indoor_ride(athlete_id):
             return jsonify(''), 200
         else:
@@ -324,8 +317,7 @@ def athlete_disable_auto_update_indoor_ride(athlete_id):
 @execution_time
 def athlete_update_chat_id(chat_id, athlete_id):
     if request.method == 'POST':
-        logging.info("Received request to update chat id for Athlete: {athlete_id} with chat id: {chat_id}.".format(
-            athlete_id=athlete_id, chat_id=chat_id))
+        logging.info("Received request to update chat id for Athlete: %s with chat id: %s.", athlete_id, chat_id)
         if athlete_resource.update_chat_id(chat_id, athlete_id):
             return jsonify(''), 200
         else:
@@ -336,7 +328,7 @@ def athlete_update_chat_id(chat_id, athlete_id):
 @execution_time
 def athlete_activate(athlete_id):
     if request.method == 'POST':
-        logging.info("Received request to activate athlete: {athlete_id}.".format(athlete_id=athlete_id))
+        logging.info("Received request to activate athlete: %s.", athlete_id)
         if athlete_resource.activate_deactivate_flag_athlete(True, athlete_id):
             return jsonify(''), 200
         else:
@@ -347,7 +339,7 @@ def athlete_activate(athlete_id):
 @execution_time
 def athlete_deactivate(athlete_id):
     if request.method == 'POST':
-        logging.info("Received request to deactivate athlete: {athlete_id}.".format(athlete_id=athlete_id))
+        logging.info("Received request to deactivate athlete: %s.", athlete_id)
         if athlete_resource.activate_deactivate_flag_athlete(False, athlete_id):
             return jsonify(''), 200
         else:
@@ -359,8 +351,8 @@ def athlete_deactivate(athlete_id):
 def get_challenges_result(company, month, challenge):
     if request.method == 'GET':
         logging.info(
-            "Received request to get challenges result. Company: {company} | Month: {month} | Challenge: {challenge}".format(
-                company=company, month=month, challenge=challenge))
+            "Received request to get challenges result. Company: %s | Month: %s | Challenge: %s", company, month,
+            challenge)
         challenges_api_hits.delay()
         result = challenges.get_challenges_result(company, month, challenge)
         if result:

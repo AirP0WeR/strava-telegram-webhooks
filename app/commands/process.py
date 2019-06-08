@@ -2,6 +2,7 @@
 
 import logging
 import traceback
+
 import ujson
 
 from app.commands.activity_summary import ActivitySummary
@@ -42,8 +43,7 @@ class Process(object):
                                                                athlete_id=athlete_details['athlete_id']))
         self.iron_cache_resource.put_cache("stats", athlete_details['telegram_username'], calculated_stats)
         self.telegram_resource.shadow_message(self.bot_constants.MESSAGE_UPDATED_STATS.format(athlete_name=name))
-        logging.info("Updated stats for https://www.strava.com/athletes/{athlete_id}".format(
-            athlete_id=athlete_details['athlete_id']))
+        logging.info("Updated stats for https://www.strava.com/athletes/%s", athlete_details['athlete_id'])
 
     def process_update_stats(self, athlete_id):
         athlete_details = self.athlete_resource.get_athlete_details(athlete_id)
@@ -61,7 +61,7 @@ class Process(object):
         for athlete_id in athlete_ids:
             athlete_details = self.athlete_resource.get_athlete_details(athlete_id[0])
             if athlete_details:
-                logging.info("Updating stats for {athlete_id}".format(athlete_id=athlete_id[0]))
+                logging.info("Updating stats for %s", athlete_id[0])
                 self.calculate_stats(athlete_details)
         logging.info("Updated stats for all the athletes.")
 
@@ -126,4 +126,5 @@ class Process(object):
                     self.calculate_stats(athlete_details)
             else:
                 logging.info(
-                    self.bot_constants.MESSAGE_OLD_ATHLETE.format(athlete_id=athlete_id, activity_id=activity_id))
+                    "Old Athlete: [Athlete](https://www.strava.com/athletes/%s) | [Activity](https://www.strava.com/activities/%s)",
+                    athlete_id, activity_id)
