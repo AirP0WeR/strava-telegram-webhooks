@@ -18,7 +18,7 @@ from app.resources.strava import StravaResource
 from app.resources.telegram import TelegramResource
 
 
-class Process(object):
+class Process:
 
     def __init__(self):
         self.bot_constants = AppConstants()

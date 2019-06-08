@@ -7,7 +7,7 @@ from app.clients.database import DatabaseClient
 from app.common.constants_and_variables import AppVariables, AppConstants
 
 
-class DatabaseResource(object):
+class DatabaseResource:
 
     def __init__(self):
         self.app_variables = AppVariables()

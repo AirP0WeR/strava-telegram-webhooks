@@ -9,7 +9,7 @@ from app.resources.database import DatabaseResource
 from app.resources.strava import StravaResource
 
 
-class AthleteResource(object):
+class AthleteResource:
 
     def __init__(self):
         self.app_variables = AppVariables()

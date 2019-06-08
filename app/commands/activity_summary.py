@@ -10,7 +10,7 @@ from app.resources.strava import StravaResource
 from app.resources.telegram import TelegramResource
 
 
-class ActivitySummary(object):
+class ActivitySummary:
 
     def __init__(self):
         self.app_constants = AppConstants()

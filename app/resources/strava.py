@@ -9,7 +9,7 @@ from app.clients.strava import StravaClient
 from app.common.constants_and_variables import AppVariables, AppConstants
 
 
-class StravaResource(object):
+class StravaResource:
 
     def __init__(self):
         self.app_variables = AppVariables()

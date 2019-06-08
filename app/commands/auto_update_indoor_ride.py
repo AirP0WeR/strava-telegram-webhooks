@@ -8,7 +8,7 @@ from app.resources.strava import StravaResource
 from app.resources.telegram import TelegramResource
 
 
-class AutoUpdateIndoorRide(object):
+class AutoUpdateIndoorRide:
 
     def __init__(self):
         self.app_constants = AppConstants()

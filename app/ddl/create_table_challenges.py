@@ -5,7 +5,7 @@ import psycopg2
 from app.common.constants_and_variables import AppVariables, AppConstants
 
 
-class CreateTable(object):
+class CreateTable:
 
     def __init__(self):
         self.app_variables = AppVariables()
