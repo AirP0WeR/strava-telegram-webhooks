@@ -430,6 +430,8 @@ class CalculateChallengesStats(object):
             28: {'to': False, 'from': False}, 29: {'to': False, 'from': False}, 30: {'to': False, 'from': False},
             31: {'to': False, 'from': False}
         }
+        cycle_to_work_rides = 0
+        cycle_to_work_points = 0
 
         lat_long = self.app_variables.location_gps
 
@@ -462,8 +464,12 @@ class CalculateChallengesStats(object):
                     work_long = lat_long[challenges['location']][1]
                     if self.is_lat_long_within_range(work_lat, work_long, end_gps[0], end_gps[1]):
                         cycle_to_work_calendar[activity_day]['to'] = True
+                        cycle_to_work_rides += 1
+                        cycle_to_work_points += 30
                     if self.is_lat_long_within_range(work_lat, work_long, start_gps[0], start_gps[1]):
                         cycle_to_work_calendar[activity_day]['from'] = True
+                        cycle_to_work_rides += 1
+                        cycle_to_work_points += 30
                 if activity_distance >= 6000.0:
                     six_km_rides += 1
                     six_km_points += 6
@@ -500,16 +506,15 @@ class CalculateChallengesStats(object):
         for day in cycle_to_work_calendar:
             if cycle_to_work_calendar[day]['to'] and cycle_to_work_calendar[day]['from']:
                 challenges_stats['c2w'] += 1
-                challenges_stats['c2w_points'] += 30
-            if cycle_to_work_calendar[day]['to']:
-                challenges_stats['c2w_rides'] += 1
-            if cycle_to_work_calendar[day]['from']:
-                challenges_stats['c2w_rides'] += 1
-        if challenges_stats['c2w'] >= 1:
+
+        challenges_stats['c2w_rides'] += cycle_to_work_rides
+        challenges_stats['c2w_points'] += cycle_to_work_points
+        if cycle_to_work_rides >= 1:
             challenges_stats['c2w_points'] += 50
-        if challenges_stats['c2w'] >= 2:
+        if cycle_to_work_rides >= 2:
             challenges_stats['c2w_points'] += 50
-        if challenges_stats['c2w'] >= 12:
+        challenges_stats['c2w_points'] += 300 if cycle_to_work_points >= 180 else cycle_to_work_points
+        if cycle_to_work_rides >= 12:
             challenges_stats['c2w_points'] += 100
 
         if challenges['id'] == '6x15':
