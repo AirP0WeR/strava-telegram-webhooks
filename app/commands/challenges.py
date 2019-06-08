@@ -513,13 +513,13 @@ class CalculateChallengesStats(object):
             challenges_stats['c2w_points'] += 50
         if cycle_to_work_rides >= 2:
             challenges_stats['c2w_points'] += 50
-        challenges_stats['c2w_points'] += 300 if cycle_to_work_points >= 180 else cycle_to_work_points
+        challenges_stats['c2w_points'] = 300 if cycle_to_work_points >= 180 else cycle_to_work_points
         if cycle_to_work_rides >= 12:
             challenges_stats['c2w_points'] += 100
 
         if challenges['id'] == '6x15':
             challenges_stats['6x15'] += six_km_rides
-            challenges_stats['6x15_points'] += 180 if six_km_points >= 180 else six_km_points
+            challenges_stats['6x15_points'] = 180 if six_km_points >= 180 else six_km_points
             if six_km_rides >= 15:
                 challenges_stats['6x15_points'] += 20
                 if is_eligible_for_six_km_rides_bonus:
@@ -527,7 +527,7 @@ class CalculateChallengesStats(object):
 
         elif challenges['id'] == '30x30':
             challenges_stats['30x30'] += thirty_min_rides
-            challenges_stats['30x30_points'] += 180 if thirty_min_points >= 180 else thirty_min_points
+            challenges_stats['30x30_points'] = 180 if thirty_min_points >= 180 else thirty_min_points
             if thirty_min_rides >= 30:
                 challenges_stats['30x30_points'] += 20
                 if is_eligible_for_thirty_mins_rides_bonus:
@@ -536,7 +536,7 @@ class CalculateChallengesStats(object):
         elif challenges['id'] == 'distance':
             challenges_stats['distance'] += total_distance
             distance_points = (int((total_distance / 1000.0) / 30.0)) * 6.0
-            challenges_stats['distance_points'] += 180 if distance_points >= 180 else distance_points
+            challenges_stats['distance_points'] = 180 if distance_points >= 180 else distance_points
             if total_distance >= 1000000.0:
                 challenges_stats['distance_points'] += 20
                 if is_eligible_for_distance_bonus:
