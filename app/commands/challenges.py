@@ -311,12 +311,9 @@ class CalculateChallengesStats(object):
         for activity in self.strava_resource.get_strava_activities_after_date_before_date(
                 athlete_details['athlete_token'], self.app_variables.even_challenges_from_date,
                 self.app_variables.even_challenges_to_date):
-            logging.info(
-                "Type: {activity_type} | Month: {activity_month} | Year: {activity_year} | Day: {activity_day} | Distance: {activity_distance} | Total Elevation Gain: {total_elevation_gain}".format(
-                    activity_type=activity.type, activity_month=activity.start_date_local.month,
-                    activity_year=activity.start_date_local.year, activity_day=activity.start_date_local.day,
-                    activity_distance=float(activity.distance),
-                    total_elevation_gain=float(activity.total_elevation_gain)))
+            logging.info("Type: %s | Month: %s | Year: %s | Day: %s | Distance: %s | Total Elevation Gain: %s",
+                         activity.type, activity.start_date_local.month, activity.start_date_local.year,
+                         activity.start_date_local.day, float(activity.distance), float(activity.total_elevation_gain))
             if self.operations.supported_activities_for_challenges(
                     activity) and activity.start_date_local.month == self.app_variables.even_challenges_month and activity.start_date_local.year == self.app_variables.even_challenges_year:
                 if '20_20' in even_challenges:
@@ -328,11 +325,9 @@ class CalculateChallengesStats(object):
                         even_challenges_total_elevation += float(activity.total_elevation_gain)
 
         logging.info(
-            "Even Ride Calendar: {even_challenges_ride_calendar} | Even Rides Count : {even_challenges_rides_count}| Even Total Distance: {even_challenges_total_distance} | Even Total Elevation: {even_challenges_total_elevation}".format(
-                even_challenges_ride_calendar=even_challenges_ride_calendar,
-                even_challenges_rides_count=even_challenges_rides_count,
-                even_challenges_total_distance=even_challenges_total_distance,
-                even_challenges_total_elevation=even_challenges_total_elevation))
+            "Even Ride Calendar: %s | Even Rides Count : %s | Even Total Distance: %s | Even Total Elevation: %s",
+            even_challenges_ride_calendar, even_challenges_rides_count, even_challenges_total_distance,
+            even_challenges_total_elevation)
 
         if '20_20' in even_challenges:
             for distance in even_challenges_ride_calendar:
@@ -453,10 +448,9 @@ class CalculateChallengesStats(object):
                 end_gps = None
 
             logging.info(
-                "Type: {activity_type} | Month: {activity_month} | Year: {activity_year} | Day: {activity_day} | Distance: {activity_distance} | Time: {time} | Start GPS: {start_gps} | End GPS: {end_gps}".format(
-                    activity_type=activity.type, activity_month=activity_month, activity_year=activity_year,
-                    activity_day=activity_day, activity_distance=activity_distance, time=activity_time,
-                    start_gps=start_gps, end_gps=end_gps))
+                "Type: %s | Month: %s | Year: %s | Day: %s | Distance: %s | Time: %s | Start GPS: %s | End GPS: %s",
+                activity.type, activity_month, activity_year, activity_day, activity_distance, activity_time, start_gps,
+                end_gps)
             if self.operations.supported_activities_for_challenges(activity) and not self.operations.is_indoor(
                     activity) and activity_month == self.app_variables.even_challenges_month and activity_year == self.app_variables.even_challenges_year:
                 if start_gps and end_gps and challenges['location'] in lat_long:
@@ -484,10 +478,8 @@ class CalculateChallengesStats(object):
                 if activity_distance >= 150000.0:
                     is_eligible_for_distance_bonus = True
 
-        logging.info(
-            "Total distance: {total_distance} | 6 km rides : {six_km_rides}| 30 min rides: {thirty_min_rides}, Cycle to Work Calendar: {cycle_to_work_calendar}".format(
-                total_distance=total_distance, six_km_rides=six_km_rides, thirty_min_rides=thirty_min_rides,
-                cycle_to_work_calendar=cycle_to_work_calendar))
+        logging.info("Total distance: %s | 6 km rides : %s | 30 min rides: %s | Cycle to Work Calendar: %s",
+                     total_distance, six_km_rides, thirty_min_rides, cycle_to_work_calendar)
 
         challenges_stats = {
             'c2w': 0,

@@ -31,7 +31,7 @@ class AthleteResource(object):
             expires_at=access_info['expires_at'],
             athlete_id=athlete_id
         )
-        logging.info("Updating token details for {athlete_id}..".format(athlete_id=athlete_id))
+        logging.info("Updating token details for %s..", athlete_id)
         return self.database_resource.write_operation(query)
 
     def update_token_in_challenges(self, access_info, athlete_id):
@@ -41,13 +41,13 @@ class AthleteResource(object):
             expires_at=access_info['expires_at'],
             athlete_id=athlete_id
         )
-        logging.info("Updating token details for {athlete_id} in challenges..".format(athlete_id=athlete_id))
+        logging.info("Updating token details for %s in challenges..", athlete_id)
         return self.database_resource.write_operation(query)
 
     def get_athlete_details(self, athlete_id):
         athlete_details = dict()
         query = self.app_constants.QUERY_FETCH_ATHLETE_DETAILS.format(athlete_id=athlete_id)
-        logging.info("Getting athlete details for {athlete_id}".format(athlete_id=athlete_id))
+        logging.info("Getting athlete details for %s", athlete_id)
         result = self.database_resource.read_operation(query)
         if result:
             athlete_details['athlete_id'] = athlete_id
@@ -76,7 +76,7 @@ class AthleteResource(object):
         athlete_details = dict()
         query = self.app_constants.QUERY_FETCH_ATHLETE_DETAILS_BY_TELEGRAM_USERNAME.format(
             telegram_username=telegram_username)
-        logging.info("Getting athlete details for {telegram_username}".format(telegram_username=telegram_username))
+        logging.info("Getting athlete details for %s", telegram_username)
         result = self.database_resource.read_operation(query)
         if result:
             athlete_details['athlete_id'] = result[0]
@@ -104,7 +104,7 @@ class AthleteResource(object):
     def get_athlete_details_in_challenges(self, athlete_id):
         athlete_details = dict()
         query = self.app_constants.QUERY_FETCH_ATHLETE_DETAILS_IN_CHALLENGES.format(athlete_id=athlete_id)
-        logging.info("Getting athlete details for {athlete_id} in challenges".format(athlete_id=athlete_id))
+        logging.info("Getting athlete details for %s in challenges", athlete_id)
         result = self.database_resource.read_operation(query)
         if result:
             athlete_details['athlete_id'] = athlete_id
@@ -133,7 +133,7 @@ class AthleteResource(object):
 
     def get_athlete_id(self, telegram_username):
         athlete_id = False
-        logging.info("Getting Athlete ID for: {telegram_username}".format(telegram_username=telegram_username))
+        logging.info("Getting Athlete ID for: %s", telegram_username)
         result = self.database_resource.read_operation(
             self.app_constants.QUERY_GET_ATHLETE_ID.format(telegram_username=telegram_username))
         if result:
@@ -143,7 +143,7 @@ class AthleteResource(object):
 
     def get_stats(self, telegram_username):
         stats = False
-        logging.info("Getting stats for: {telegram_username}".format(telegram_username=telegram_username))
+        logging.info("Getting stats for: %s", telegram_username)
         result = self.database_resource.read_operation(
             self.app_constants.QUERY_GET_STRAVA_DATA.format(telegram_username=telegram_username))
         if result:
@@ -153,8 +153,7 @@ class AthleteResource(object):
 
     def enable_activity_summary(self, chat_id, athlete_id):
         enable = False
-        logging.info("Enabling activity summary for {athlete_id} with chat id: {chat_id}".format(chat_id=chat_id,
-                                                                                                 athlete_id=athlete_id))
+        logging.info("Enabling activity summary for %s with chat id: %s", athlete_id, chat_id)
         if self.database_resource.write_operation(
                 self.app_constants.QUERY_ACTIVITY_SUMMARY_ENABLE.format(chat_id=chat_id, athlete_id=athlete_id)):
             enable = True
@@ -163,7 +162,7 @@ class AthleteResource(object):
 
     def disable_activity_summary(self, athlete_id):
         success = False
-        logging.info("Disabling activity summary for: {athlete_id}".format(athlete_id=athlete_id))
+        logging.info("Disabling activity summary for: %s", athlete_id)
         if self.database_resource.write_operation(
                 self.app_constants.QUERY_ACTIVITY_SUMMARY_DISABLE.format(athlete_id=athlete_id)):
             success = True
@@ -172,7 +171,7 @@ class AthleteResource(object):
 
     def disable_auto_update_indoor_ride(self, athlete_id):
         success = False
-        logging.info("Disabling auto update indoor ride for: {athlete_id}".format(athlete_id=athlete_id))
+        logging.info("Disabling auto update indoor ride for: %s", athlete_id)
         if self.database_resource.write_operation(
                 self.app_constants.QUERY_UPDATE_INDOOR_RIDE_DISABLE.format(athlete_id=athlete_id)):
             success = True
@@ -181,8 +180,7 @@ class AthleteResource(object):
 
     def update_chat_id(self, chat_id, athlete_id):
         success = False
-        logging.info(
-            "Updating chat id for {athlete_id} | Chat ID: {chat_id}".format(chat_id=chat_id, athlete_id=athlete_id))
+        logging.info("Updating chat id for %s | Chat ID: %s", chat_id, athlete_id)
         if self.database_resource.write_operation(
                 self.app_constants.QUERY_UPDATE_CHAT_ID.format(chat_id=chat_id, athlete_id=athlete_id)):
             success = True
@@ -192,10 +190,10 @@ class AthleteResource(object):
     def activate_deactivate_flag_athlete(self, operation, athlete_id):
         success = False
         if operation:
-            logging.info("Activating athlete: {athlete_id}".format(athlete_id=athlete_id))
+            logging.info("Activating athlete: %s", athlete_id)
             query = self.app_constants.QUERY_ACTIVATE_ACTIVE_FLAG_ATHLETE.format(athlete_id=athlete_id)
         else:
-            logging.info("Deactivating athlete: {athlete_id}".format(athlete_id=athlete_id))
+            logging.info("Deactivating athlete: %s", athlete_id)
             query = self.app_constants.QUERY_DEACTIVATE_ACTIVE_FLAG_ATHLETE.format(athlete_id=athlete_id)
         if self.database_resource.write_operation(query):
             success = True
@@ -208,6 +206,6 @@ class AthleteResource(object):
         if self.strava_resource.deauthorise_athlete(athlete_details['athlete_token']):
             success = True
         else:
-            logging.error("Failed to deauthorise {athlete_id}".format(athlete_id=athlete_id))
+            logging.error("Failed to deauthorise %s", athlete_id)
 
         return success

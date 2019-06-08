@@ -19,7 +19,7 @@ class DatabaseResource(object):
         database_connection = self.database_client.get_connection()
         cursor = database_connection.cursor()
         try:
-            logging.info("Executing query with fetchone. Query: {query}".format(query=query))
+            logging.info("Executing query with fetchone. Query: %s", query)
             cursor.execute(query)
         except Exception:
             logging.error(traceback.format_exc())
@@ -28,7 +28,7 @@ class DatabaseResource(object):
         finally:
             cursor.close()
             database_connection.close()
-            logging.info("Result: {result}".format(result=result))
+            logging.info("Result: %s", result)
             return result if result != {} else False
 
     def read_all_operation(self, query):
@@ -36,7 +36,7 @@ class DatabaseResource(object):
         database_connection = self.database_client.get_connection()
         cursor = database_connection.cursor()
         try:
-            logging.info("Executing query with fetchall. Query: {query}".format(query=query))
+            logging.info("Executing query with fetchall. Query: %s", query)
             cursor.execute(query)
         except Exception:
             logging.error(traceback.format_exc())
@@ -45,7 +45,7 @@ class DatabaseResource(object):
         finally:
             cursor.close()
             database_connection.close()
-            logging.info("Result: {result}".format(result=result))
+            logging.info("Result: %s", result)
             return result if result != {} else False
 
     def write_operation(self, query):
@@ -53,7 +53,7 @@ class DatabaseResource(object):
         database_connection = self.database_client.get_connection()
         cursor = database_connection.cursor()
         try:
-            logging.info("Executing write operation. Query: {query}".format(query=query))
+            logging.info("Executing write operation. Query: %s", query)
             cursor.execute(query)
             database_connection.commit()
         except Exception:
@@ -63,5 +63,5 @@ class DatabaseResource(object):
         finally:
             cursor.close()
             database_connection.close()
-            logging.info("Result: {result}".format(result=result))
+            logging.info("Result: %s", result)
             return result

@@ -31,7 +31,7 @@ scout_apm.celery.install()
 @execution_time
 def handle_webhook(event):
     try:
-        logging.info("Webhook Event Received: {event}".format(event=event))
+        logging.info("Webhook Event Received: %s", event)
         process.process_webhook(event)
     except Exception:
         message = "Something went wrong. Exception: {exception}".format(exception=traceback.format_exc())
@@ -43,7 +43,7 @@ def handle_webhook(event):
 @execution_time
 def handle_challenges_webhook(event):
     try:
-        logging.info("Challenges Webhook Event Received: {event}".format(event=event))
+        logging.info("Challenges Webhook Event Received: %s", event)
         challenges.main(event)
     except Exception:
         message = "Something went wrong. Exception: {exception}".format(exception=traceback.format_exc())
@@ -55,8 +55,7 @@ def handle_challenges_webhook(event):
 @execution_time
 def update_stats(athlete_id):
     try:
-        logging.info("Received request to update stats for https://www.strava.com/athletes/{athlete_id}.".format(
-            athlete_id=athlete_id))
+        logging.info("Received request to update stats for https://www.strava.com/athletes/%s.", athlete_id)
         process.process_update_stats(athlete_id)
     except Exception:
         message = "Something went wrong. Exception: {exception}".format(exception=traceback.format_exc())
@@ -81,8 +80,7 @@ def update_all_stats():
 def update_challenges_stats(athlete_id):
     try:
         logging.info(
-            "Received request to update challenges stats for https://www.strava.com/athletes/{athlete_id}.".format(
-                athlete_id=athlete_id))
+            "Received request to update challenges stats for https://www.strava.com/athletes/%s.", athlete_id)
         challenges.update_challenges_stats(athlete_id)
     except Exception:
         message = "Something went wrong. Exception: {exception}".format(exception=traceback.format_exc())
@@ -118,13 +116,12 @@ def challenges_api_hits():
 @execution_time
 def telegram_send_message(chat_id, message):
     logging.info(
-        "Received request to send message to a user. Chat ID: {chat_id}, Message: {message}".format(chat_id=chat_id,
-                                                                                                    message=message))
+        "Received request to send message to a user. Chat ID: %s, Message: %s", chat_id, message)
     telegram_resource.send_message(chat_id, message)
 
 
 @app.task
 @execution_time
 def telegram_shadow_message(message):
-    logging.info("Received request to shadow message to the admin group. Message: {message}".format(message=message))
+    logging.info("Received request to shadow message to the admin group. Message: %s", message)
     telegram_resource.shadow_message(message)

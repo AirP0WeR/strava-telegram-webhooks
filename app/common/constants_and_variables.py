@@ -73,7 +73,6 @@ class AppConstants(object):
     MESSAGE_CHALLENGES_ACTIVITY_ALERT = "[{callback_type}](https://www.strava.com/activities/{activity_id}) by `{athlete_name}` who has registered for the Challenges."
     MESSAGE_UNSUPPORTED_ACTIVITY = "{activity_type} is not supported yet. Ignoring update stats."
     MESSAGE_CHALLENGES_UNSUPPORTED_ACTIVITY = "{activity_type} is not part of the Challenges. Ignoring.."
-    MESSAGE_OLD_ATHLETE = "Old Athlete: [Athlete](https://www.strava.com/athletes/{athlete_id}) | [Activity](https://www.strava.com/activities/{activity_id})"
     MESSAGE_UPDATED_INDOOR_RIDE = "Updated your Indoor Ride with the below configuration:\n"
     MESSAGE_UPDATED_STATS = "Updated stats for `{athlete_name}`."
     MESSAGE_DEAUTHORIZE_SUCCESS = "[{name}](https://www.strava.com/athletes/{athlete_id}) deauthorized Strava App."

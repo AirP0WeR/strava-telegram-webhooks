@@ -27,11 +27,11 @@ class TelegramResource(object):
             'reply_markup': reply_markup
         }
         try:
-            logging.info("Sending message: {message}".format(message=data))
+            logging.info("Sending message: %s", data)
             response = requests.post(self.api_send_message, data=data)
-            logging.info("Response status code: {status_code}".format(status_code=response.status_code))
+            logging.info("Response status code: %s", response.status_code)
         except Exception:
-            logging.error("Something went wrong. Exception: {exception}".format(exception=traceback.format_exc()))
+            logging.error("Something went wrong. Exception: %s", traceback.format_exc())
 
     def shadow_message(self, message, parse_mode='Markdown', disable_web_page_preview=True, disable_notification=False,
                        reply_markup=None):
@@ -45,10 +45,10 @@ class TelegramResource(object):
                 'reply_markup': reply_markup
             }
             try:
-                logging.info("Shadowing message: {message}".format(message=data))
+                logging.info("Shadowing message: %s", data)
                 response = requests.post(self.api_send_message, data=data)
-                logging.info("Response status code: {status_code}".format(status_code=response.status_code))
+                logging.info("Response status code: %s", response.status_code)
             except Exception:
-                logging.error("Something went wrong. Exception: {exception}".format(exception=traceback.format_exc()))
+                logging.error("Something went wrong. Exception: %s", traceback.format_exc())
         else:
             logging.info("Shadow mode is disabled.")
