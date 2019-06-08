@@ -17,7 +17,7 @@ from app.resources.strava import StravaResource
 from app.resources.telegram import TelegramResource
 
 
-class Challenges(object):
+class Challenges:
 
     def __init__(self):
         self.app_constants = AppConstants()
@@ -261,7 +261,7 @@ class Challenges(object):
                 logging.warning("Athlete does not exist in the database.")
 
 
-class CalculateChallengesStats(object):
+class CalculateChallengesStats:
 
     def __init__(self):
         self.app_constants = AppConstants()

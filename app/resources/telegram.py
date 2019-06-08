@@ -9,7 +9,7 @@ from app.clients.telegram import TelegramClient
 from app.common.constants_and_variables import AppVariables
 
 
-class TelegramResource(object):
+class TelegramResource:
 
     def __init__(self):
         self.telegram_client = TelegramClient()

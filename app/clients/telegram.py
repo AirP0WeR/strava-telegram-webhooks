@@ -4,7 +4,7 @@
 from app.common.constants_and_variables import AppConstants, AppVariables
 
 
-class TelegramClient(object):
+class TelegramClient:
 
     def __init__(self):
         self.bot_constants = AppConstants()

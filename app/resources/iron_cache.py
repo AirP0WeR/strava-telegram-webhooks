@@ -8,7 +8,7 @@ import ujson
 from app.clients.iron_cache import IronCacheClient
 
 
-class IronCacheResource(object):
+class IronCacheResource:
 
     def __init__(self):
         self.iron_cache_client = IronCacheClient().cache()

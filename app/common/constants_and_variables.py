@@ -3,7 +3,7 @@ import json
 import os
 
 
-class AppConstants(object):
+class AppConstants:
     QUERY_FETCH_ATHLETE_DETAILS = "select telegram_username, name, access_token, refresh_token, expires_at, strava_data, update_indoor_ride, update_indoor_ride_data, chat_id, enable_activity_summary from strava_telegram_bot where active=true and athlete_id={athlete_id}"
     QUERY_FETCH_ATHLETE_DETAILS_BY_TELEGRAM_USERNAME = "select athlete_id, name, access_token, refresh_token, expires_at, strava_data, update_indoor_ride, update_indoor_ride_data, chat_id, enable_activity_summary from strava_telegram_bot where active=true and LOWER(telegram_username)=LOWER('{telegram_username}')"
     QUERY_UPDATE_TOKEN = "UPDATE strava_telegram_bot SET access_token='{access_token}', refresh_token='{refresh_token}', expires_at={expires_at}, updated=now() where athlete_id={athlete_id}"
@@ -81,7 +81,7 @@ class AppConstants(object):
     MESSAGE_CHALLENGES_DEAUTHORIZE_FAILURE = "Failed to deactivate [{name}](https://www.strava.com/athletes/{athlete_id}) in Cadence90 Challenges."
 
 
-class AppVariables(object):
+class AppVariables:
     crypt_key_length = int(os.environ.get('CRYPT_KEY_LENGTH'))
     crypt_key = os.environ.get('CRYPT_KEY')
     client_id = os.environ.get('CLIENT_ID')

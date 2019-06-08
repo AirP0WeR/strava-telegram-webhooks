@@ -9,7 +9,7 @@ from app.common.operations import Operations
 from app.resources.strava import StravaResource
 
 
-class CalculateStats(object):
+class CalculateStats:
 
     def __init__(self, athlete_token):
         self.athlete_token = athlete_token
