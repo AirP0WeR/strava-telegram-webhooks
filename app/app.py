@@ -233,17 +233,14 @@ def database_read_all():
 @app.route("/telegram/send_message", methods=['POST'])
 def send_message():
     if request.json and "chat_id" in request.json and "message" in request.json:
-        chat_id = request.json["chat_id"]
-        message = request.json["message"]
-        telegram_send_message.delay(chat_id, message)
+        telegram_send_message.delay(request.json["chat_id"], request.json["message"])
         return jsonify('Accepted'), 200
 
 
 @app.route("/telegram/shadow_message", methods=['POST'])
 def shadow_message():
     if request.json and "message" in request.json:
-        message = request.json["message"]
-        telegram_shadow_message.delay(message)
+        telegram_shadow_message.delay(request.json["message"])
         return jsonify('Accepted'), 200
 
 
