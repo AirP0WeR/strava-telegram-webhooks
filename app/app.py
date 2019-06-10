@@ -58,14 +58,13 @@ def strava_challenges_webhook():
 
 
 @app.route("/stats/<athlete_id>", methods=['POST'])
-def stats(athlete_id):
-    update_stats.delay(athlete_id)
-    return jsonify('Accepted'), 200
+@app.route("/stats", defaults={'athlete_id': None}, methods=['POST'])
+def update_athlete_stats(athlete_id):
+    if athlete_id:
+        update_stats.delay(athlete_id)
+    else:
+        update_all_stats.delay()
 
-
-@app.route("/stats/all", methods=['POST'])
-def stats_for_all():
-    update_all_stats.delay()
     return jsonify('Accepted'), 200
 
 
