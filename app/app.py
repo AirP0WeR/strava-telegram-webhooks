@@ -195,9 +195,7 @@ def get_athlete_id(telegram_username):
 @execution_time
 def database_write():
     if request.json and "query" in request.json:
-        query = request.json["query"]
-        logging.info("Received request to write to the database: %s", query)
-        result = database_resource.write_operation(query)
+        result = database_resource.write_operation(request.json["query"])
         if result:
             return jsonify(''), 200
         else:
@@ -208,9 +206,7 @@ def database_write():
 @execution_time
 def database_read():
     if request.json and "query" in request.json:
-        query = request.json["query"]
-        logging.info("Received request to fetch one from the database: %s", query)
-        result = database_resource.read_operation(query)
+        result = database_resource.read_operation(request.json["query"])
         if result:
             return jsonify(result), 200
         else:
@@ -221,9 +217,7 @@ def database_read():
 @execution_time
 def database_read_all():
     if request.json and "query" in request.json:
-        query = request.json["query"]
-        logging.info("Received request to fetch all from the database: %s", query)
-        result = database_resource.read_all_operation(query)
+        result = database_resource.read_all_operation(request.json["query"])
         if result:
             return jsonify(result), 200
         else:
