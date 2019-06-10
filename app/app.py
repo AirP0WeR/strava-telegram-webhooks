@@ -69,14 +69,13 @@ def update_athlete_stats(athlete_id):
 
 
 @app.route("/challenges/stats/<athlete_id>", methods=['POST'])
-def challenges_stats(athlete_id):
-    update_challenges_stats.delay(athlete_id)
-    return jsonify('Accepted'), 200
+@app.route("/challenges/stats", defaults={'athlete_id': None}, methods=['POST'])
+def update_athlete_challenges_stats(athlete_id):
+    if athlete_id:
+        update_challenges_stats.delay(athlete_id)
+    else:
+        update_all_challenges_stats.delay()
 
-
-@app.route("/challenges/stats/all", methods=['POST'])
-def challenges_stats_for_all():
-    update_all_challenges_stats.delay()
     return jsonify('Accepted'), 200
 
 
