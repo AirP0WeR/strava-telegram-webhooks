@@ -9,7 +9,7 @@ from app.commands.challenges import CalculateChallengesStats, Challenges
 from app.common.constants_and_variables import AppVariables, AppConstants
 from app.common.execution_time import execution_time
 from app.processor import update_stats, handle_webhook, update_all_stats, telegram_shadow_message, \
-    telegram_send_message, handle_challenges_webhook, update_challenges_stats, update_all_challenges_stats, \
+    telegram_send_message, update_challenges_stats, update_all_challenges_stats, \
     challenges_api_hits
 from app.resources.athlete import AthleteResource
 from app.resources.database import DatabaseResource
@@ -39,19 +39,10 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 
 
-@app.route('/webhook', methods=['GET', 'POST'])
-def strava_webhook():
+@app.route('/webhook/<name>', methods=['GET', 'POST'])
+def strava_webhook(name):
     if request.method == 'POST':
-        handle_webhook.delay(request.json)
-        return jsonify(''), 200
-    elif request.method == 'GET':
-        return jsonify({'hub.challenge': request.args.get('hub.challenge')}), 200
-
-
-@app.route('/challenges/webhook', methods=['GET', 'POST'])
-def strava_challenges_webhook():
-    if request.method == 'POST':
-        handle_challenges_webhook.delay(request.json)
+        handle_webhook.delay(name, request.json)
         return jsonify(''), 200
     elif request.method == 'GET':
         return jsonify({'hub.challenge': request.args.get('hub.challenge')}), 200

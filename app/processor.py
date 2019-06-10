@@ -26,29 +26,17 @@ app.conf.SCOUT_KEY = app_variables.scout_key
 
 scout_apm.celery.install()
 
-
-@app.task
-@execution_time
-def handle_webhook(event):
-    try:
-        logging.info("Webhook Event Received: %s", event)
-        process.process_webhook(event)
-    except Exception:
-        message = "Something went wrong. Exception: {exception}".format(exception=traceback.format_exc())
-        logging.error(message)
-        telegram_resource.shadow_message(message)
+WEBHOOK_HANDLERS = {"bot": process.process_webhook, "challenges": challenges.main}
 
 
 @app.task
 @execution_time
-def handle_challenges_webhook(event):
-    try:
-        logging.info("Challenges Webhook Event Received: %s", event)
-        challenges.main(event)
-    except Exception:
-        message = "Something went wrong. Exception: {exception}".format(exception=traceback.format_exc())
-        logging.error(message)
-        telegram_resource.shadow_message(message)
+def handle_webhook(name, event):
+    logging.info("Webhook Event Received. Name: %s | Event: %s", name, event)
+    if name in WEBHOOK_HANDLERS:
+        WEBHOOK_HANDLERS[name](event)
+    else:
+        logging.error("Invalid webhook name")
 
 
 @app.task
