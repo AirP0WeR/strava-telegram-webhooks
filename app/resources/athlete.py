@@ -17,6 +17,14 @@ class AthleteResource:
         self.database_resource = DatabaseResource()
         self.aes_cipher = AESCipher(self.app_variables.crypt_key_length, self.app_variables.crypt_key)
         self.strava_resource = StravaResource()
+        self.app_categories = {
+            "bot": {
+                "update_token": self.app_constants.QUERY_UPDATE_TOKEN
+            },
+            "challenges": {
+                "update_token": self.app_constants.QUERY_UPDATE_TOKEN_IN_CHALLENGES
+            }
+        }
 
     def exists(self, athlete_id):
         query = self.app_constants.QUERY_ATHLETE_EXISTS.format(athlete_id=athlete_id)
@@ -24,24 +32,14 @@ class AthleteResource:
 
         return True if count[0] > 0 else False
 
-    def update_token(self, access_info, athlete_id):
-        query = self.app_constants.QUERY_UPDATE_TOKEN.format(
+    def update_token(self, category, access_info, athlete_id):
+        query = self.app_categories[category]["update_token"].format(
             access_token=self.aes_cipher.encrypt(access_info['access_token']),
             refresh_token=self.aes_cipher.encrypt(access_info['refresh_token']),
             expires_at=access_info['expires_at'],
             athlete_id=athlete_id
         )
-        logging.info("Updating token details for %s..", athlete_id)
-        return self.database_resource.write_operation(query)
-
-    def update_token_in_challenges(self, access_info, athlete_id):
-        query = self.app_constants.QUERY_UPDATE_TOKEN_IN_CHALLENGES.format(
-            access_token=self.aes_cipher.encrypt(access_info['access_token']),
-            refresh_token=self.aes_cipher.encrypt(access_info['refresh_token']),
-            expires_at=access_info['expires_at'],
-            athlete_id=athlete_id
-        )
-        logging.info("Updating token details for %s in challenges..", athlete_id)
+        logging.info("Updating token details for %s in %s..", athlete_id, category)
         return self.database_resource.write_operation(query)
 
     def get_athlete_details(self, athlete_id):
@@ -64,8 +62,8 @@ class AthleteResource:
 
             if int(time.time()) > athlete_details['expires_at']:
                 logging.info("Token has expired.")
-                access_info = self.strava_resource.refresh_token(athlete_details['refresh_token'])
-                self.update_token(access_info, athlete_id)
+                access_info = self.strava_resource.refresh_token("bot", athlete_details['refresh_token'])
+                self.update_token("bot", access_info, athlete_id)
                 athlete_details['athlete_token'] = access_info['access_token']
                 athlete_details['refresh_token'] = access_info['refresh_token']
                 athlete_details['expires_at'] = access_info['expires_at']
@@ -93,8 +91,8 @@ class AthleteResource:
 
             if int(time.time()) > athlete_details['expires_at']:
                 logging.info("Token has expired.")
-                access_info = self.strava_resource.refresh_token(athlete_details['refresh_token'])
-                self.update_token(access_info, athlete_details['athlete_id'])
+                access_info = self.strava_resource.refresh_token("bot", athlete_details['refresh_token'])
+                self.update_token("bot", access_info, athlete_details['athlete_id'])
                 athlete_details['athlete_token'] = access_info['access_token']
                 athlete_details['refresh_token'] = access_info['refresh_token']
                 athlete_details['expires_at'] = access_info['expires_at']
@@ -123,8 +121,8 @@ class AthleteResource:
 
             if int(time.time()) > athlete_details['expires_at']:
                 logging.info("Token has expired.")
-                access_info = self.strava_resource.refresh_challenges_token(athlete_details['refresh_token'])
-                self.update_token_in_challenges(access_info, athlete_id)
+                access_info = self.strava_resource.refresh_token("challenges", athlete_details['refresh_token'])
+                self.update_token("challenges", access_info, athlete_id)
                 athlete_details['athlete_token'] = access_info['access_token']
                 athlete_details['refresh_token'] = access_info['refresh_token']
                 athlete_details['expires_at'] = access_info['expires_at']

@@ -8,9 +8,7 @@ from scout_apm.flask import ScoutApm
 from app.commands.challenges import CalculateChallengesStats, Challenges
 from app.common.constants_and_variables import AppVariables, AppConstants
 from app.common.execution_time import execution_time
-from app.processor import update_stats, handle_webhook, update_all_stats, telegram_shadow_message, \
-    telegram_send_message, update_challenges_stats, update_all_challenges_stats, \
-    challenges_api_hits
+from app.processor import update_stats, handle_webhook, telegram_send_message, challenges_api_hits
 from app.resources.athlete import AthleteResource
 from app.resources.database import DatabaseResource
 from app.resources.iron_cache import IronCacheResource
@@ -39,53 +37,27 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 
 
-@app.route('/webhook/<name>', methods=['GET', 'POST'])
-def strava_webhook(name):
+@app.route('/webhook/<category>', methods=['GET', 'POST'])
+def strava_webhook(category):
     if request.method == 'POST':
-        handle_webhook.delay(name, request.json)
+        handle_webhook.delay(category, request.json)
         return jsonify(''), 200
     elif request.method == 'GET':
         return jsonify({'hub.challenge': request.args.get('hub.challenge')}), 200
 
 
-@app.route("/stats/<athlete_id>", methods=['POST'])
-@app.route("/stats", defaults={'athlete_id': None}, methods=['POST'])
-def update_athlete_stats(athlete_id):
-    if athlete_id:
-        update_stats.delay(athlete_id)
-    else:
-        update_all_stats.delay()
-
+@app.route("/stats/<category>/<athlete_id>", methods=['POST'])
+@app.route("/stats/<category>", defaults={'athlete_id': None}, methods=['POST'])
+def update_athlete_stats(category, athlete_id):
+    update_stats.delay(category, athlete_id)
     return jsonify('Accepted'), 200
 
 
-@app.route("/challenges/stats/<athlete_id>", methods=['POST'])
-@app.route("/challenges/stats", defaults={'athlete_id': None}, methods=['POST'])
-def update_athlete_challenges_stats(athlete_id):
-    if athlete_id:
-        update_challenges_stats.delay(athlete_id)
-    else:
-        update_all_challenges_stats.delay()
-
-    return jsonify('Accepted'), 200
-
-
-@app.route("/token/exchange/<code>", methods=['POST'])
+@app.route("/token/exchange/<category>/<code>", methods=['POST'])
 @execution_time
-def token_exchange(code):
-    logging.info("Received request for token exchange with code: %s", code)
-    access_info = strava_resource.token_exchange(code)
-    if access_info:
-        return jsonify(access_info), 200
-    else:
-        return jsonify(''), 500
-
-
-@app.route("/token/exchange/challenges/<code>", methods=['POST'])
-@execution_time
-def token_exchange_challenges(code):
-    logging.info("Received request for challenges token exchange with code: %s", code)
-    access_info = strava_resource.token_exchange_for_challenges(code)
+def token_exchange(category, code):
+    logging.info("Received request to exchange token for %s", category)
+    access_info = strava_resource.token_exchange(category, code)
     if access_info:
         return jsonify(access_info), 200
     else:
@@ -217,15 +189,9 @@ def database_read_all():
 
 @app.route("/telegram/send_message", methods=['POST'])
 def send_message():
-    if request.json and "chat_id" in request.json and "message" in request.json:
-        telegram_send_message.delay(request.json["chat_id"], request.json["message"])
-        return jsonify('Accepted'), 200
-
-
-@app.route("/telegram/shadow_message", methods=['POST'])
-def shadow_message():
     if request.json and "message" in request.json:
-        telegram_shadow_message.delay(request.json["message"])
+        telegram_send_message.delay(request.json["message"],
+                                    request.json["chat_id"] if "chat_id" in request.json else None)
         return jsonify('Accepted'), 200
 
 

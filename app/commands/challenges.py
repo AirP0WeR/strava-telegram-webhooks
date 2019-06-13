@@ -41,7 +41,7 @@ class Challenges:
                 message = self.app_constants.MESSAGE_CHALLENGES_DEAUTHORIZE_FAILURE.format(
                     name=athlete_details['name'],
                     athlete_id=athlete_id)
-            self.telegram_resource.shadow_message(message)
+            self.telegram_resource.send_message(message)
 
     def alert_webhook_event_of_athlete(self, event, athlete_details):
         event_type = "New Activity"
@@ -50,7 +50,7 @@ class Challenges:
         message = self.app_constants.MESSAGE_CHALLENGES_ACTIVITY_ALERT.format(callback_type=event_type,
                                                                               activity_id=event['object_id'],
                                                                               athlete_name=athlete_details['name'])
-        self.telegram_resource.shadow_message(message)
+        self.telegram_resource.send_message(message)
 
     def handle_aspect_type_create(self, event, athlete_details):
         activity_id = event['object_id']
@@ -61,12 +61,12 @@ class Challenges:
             else:
                 message = self.app_constants.MESSAGE_CHALLENGES_UNSUPPORTED_ACTIVITY.format(activity_type=activity.type)
                 logging.info(message)
-                self.telegram_resource.shadow_message(message)
+                self.telegram_resource.send_message(message)
         else:
             message = "Triggering update challenges stats as something went wrong. Exception: {exception}".format(
                 exception=traceback.format_exc())
             logging.error(message)
-            self.telegram_resource.shadow_message(message)
+            self.telegram_resource.send_message(message)
             self.calculate_challenges_stats.main(athlete_details)
 
     def update_challenges_stats(self, athlete_id):
@@ -99,7 +99,7 @@ class Challenges:
             self.iron_cache_resource.put_cache(cache="challenges_hits", key="hits", value=1)
             challenges_hits = 1
 
-        self.telegram_resource.shadow_message("Challenges API Hits: {hits}".format(hits=challenges_hits))
+        self.telegram_resource.send_message("Challenges API Hits: {hits}".format(hits=challenges_hits))
 
     def challenges_even_athletes_list(self):
         messages = list()
@@ -344,10 +344,10 @@ class CalculateChallengesStats:
                 self.app_constants.QUERY_UPDATE_EVEN_CHALLENGES_DATA.format(
                     even_challenges_data=ujson.dumps(even_challenges_stats),
                     athlete_id=athlete_details['athlete_id'])):
-            self.telegram_resource.shadow_message(
+            self.telegram_resource.send_message(
                 "Updated even challenges data for {name}.".format(name=athlete_details['name']))
         else:
-            self.telegram_resource.shadow_message(
+            self.telegram_resource.send_message(
                 "Failed to update even challenges data for {name}".format(name=athlete_details['name']))
 
     def odd_challenges(self, athlete_details):
@@ -394,10 +394,10 @@ class CalculateChallengesStats:
                 self.app_constants.QUERY_UPDATE_ODD_CHALLENGES_DATA.format(
                     odd_challenges_data=ujson.dumps(odd_challenges_stats),
                     athlete_id=athlete_details['athlete_id'])):
-            self.telegram_resource.shadow_message(
+            self.telegram_resource.send_message(
                 "Updated odd challenges data for {name}.".format(name=athlete_details['name']))
         else:
-            self.telegram_resource.shadow_message(
+            self.telegram_resource.send_message(
                 "Failed to update odd challenges data for {name}".format(name=athlete_details['name']))
 
     def bosch_even_challenges(self, athlete_details):
@@ -536,10 +536,10 @@ class CalculateChallengesStats:
 
         if self.database_resource.write_operation(self.app_constants.QUERY_UPDATE_BOSCH_EVEN_CHALLENGES_DATA.format(
                 bosch_even_challenges_data=ujson.dumps(challenges_stats), athlete_id=athlete_details['athlete_id'])):
-            self.telegram_resource.shadow_message(
+            self.telegram_resource.send_message(
                 "Updated Bosch even challenges data for {name}.".format(name=athlete_details['name']))
         else:
-            self.telegram_resource.shadow_message(
+            self.telegram_resource.send_message(
                 "Failed to update Bosch even challenges data for {name}".format(name=athlete_details['name']))
 
     def consolidate_bosch_even_challenges_result(self):
@@ -688,7 +688,7 @@ class CalculateChallengesStats:
                                            ujson.dumps(even_challenge_thousand_km_sorted))
         self.iron_cache_resource.put_cache("even_challenges_result", "10000_meters",
                                            ujson.dumps(even_challenge_ten_thousand_meters_sorted))
-        self.telegram_resource.shadow_message("Updated cache for even challenges.")
+        self.telegram_resource.send_message("Updated cache for even challenges.")
 
     def consolidate_odd_challenges_result(self):
         odd_challenge_twenty_twenty = list()
@@ -742,7 +742,7 @@ class CalculateChallengesStats:
                                            ujson.dumps(odd_challenge_thousand_km_sorted))
         self.iron_cache_resource.put_cache("odd_challenges_result", "10000_meters",
                                            ujson.dumps(odd_challenge_ten_thousand_meters_sorted))
-        self.telegram_resource.shadow_message("Updated cache for odd challenges.")
+        self.telegram_resource.send_message("Updated cache for odd challenges.")
 
     def main(self, athlete_details):
         if athlete_details['even_challenges']:

@@ -42,19 +42,20 @@ class Process:
             self.bot_constants.QUERY_UPDATE_STRAVA_DATA.format(name=name, strava_data=calculated_stats,
                                                                athlete_id=athlete_details['athlete_id']))
         self.iron_cache_resource.put_cache("stats", athlete_details['telegram_username'], calculated_stats)
-        self.telegram_resource.shadow_message(self.bot_constants.MESSAGE_UPDATED_STATS.format(athlete_name=name))
+        self.telegram_resource.send_message(self.bot_constants.MESSAGE_UPDATED_STATS.format(athlete_name=name))
         logging.info("Updated stats for https://www.strava.com/athletes/%s", athlete_details['athlete_id'])
 
     def process_update_stats(self, athlete_id):
         athlete_details = self.athlete_resource.get_athlete_details(athlete_id)
         if athlete_details:
             self.calculate_stats(athlete_details)
-            self.telegram_resource.send_message(athlete_details['chat_id'], "Updated stats. Click /stats to check.")
+            self.telegram_resource.send_message(chat_id=athlete_details['chat_id'],
+                                                message="Updated stats. Click /stats to check.", shadow=False)
         else:
             message = "Old athlete [Athlete](https://www.strava.com/athletes/{athlete_id}). Not registered anymore.".format(
                 athlete_id=athlete_id)
             logging.info(message)
-            self.telegram_resource.shadow_message(message)
+            self.telegram_resource.send_message(message)
 
     def process_update_all_stats(self):
         athlete_ids = self.database_resource.read_all_operation(self.bot_constants.QUERY_FETCH_ALL_ATHLETE_IDS)
@@ -72,7 +73,7 @@ class Process:
         message = self.bot_constants.MESSAGE_ACTIVITY_ALERT.format(callback_type=event_type,
                                                                    activity_id=event['object_id'],
                                                                    athlete_name=athlete_details['name'])
-        self.telegram_resource.shadow_message(message)
+        self.telegram_resource.send_message(message)
 
     def handle_aspect_type_update(self, event, athlete_details):
         athlete_id = event['owner_id']
@@ -85,7 +86,7 @@ class Process:
                 else:
                     message = self.bot_constants.MESSAGE_DEAUTHORIZE_FAILURE.format(name=athlete_details['name'],
                                                                                     athlete_id=athlete_id)
-                self.telegram_resource.shadow_message(message)
+                self.telegram_resource.send_message(message)
 
     def handle_aspect_type_create(self, event, athlete_details):
         activity_id = event['object_id']
@@ -101,12 +102,12 @@ class Process:
                 message = self.bot_constants.MESSAGE_UNSUPPORTED_ACTIVITY.format(
                     activity_type=activity.type)
                 logging.info(message)
-                self.telegram_resource.shadow_message(message)
+                self.telegram_resource.send_message(message)
         else:
             message = "Triggering update stats as something went wrong. Exception: {exception}".format(
                 exception=traceback.format_exc())
             logging.error(message)
-            self.telegram_resource.shadow_message(message)
+            self.telegram_resource.send_message(message)
             self.calculate_stats(athlete_details)
 
     def process_webhook(self, event):

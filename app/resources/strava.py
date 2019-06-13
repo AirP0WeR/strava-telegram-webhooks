@@ -15,80 +15,47 @@ class StravaResource:
         self.app_variables = AppVariables()
         self.app_constants = AppConstants()
         self.strava_client = StravaClient()
+        self.strava_configs = {
+            "bot": {
+                "client_id": self.app_variables.client_id,
+                "client_secret": self.app_variables.client_secret
+            },
+            "challenges": {
+                "client_id": self.app_variables.challenges_client_id,
+                "client_secret": self.app_variables.challenges_client_secret
+            }
+        }
 
-    def token_exchange(self, code):
+    def token_exchange(self, category, code):
         access_info = dict()
-        try:
-            logging.info("Exchanging token..")
-            response = requests.post(self.app_constants.API_TOKEN_EXCHANGE, data={
-                'client_id': int(self.app_variables.client_id),
-                'client_secret': self.app_variables.client_secret,
-                'code': code,
-                'grant_type': 'authorization_code'
-            }).json()
-        except Exception:
-            logging.error(traceback.format_exc())
-        else:
-            access_info['athlete_id'] = response['athlete']['id']
-            access_info['name'] = "{first_name} {last_name}".format(first_name=response['athlete']['firstname'],
-                                                                    last_name=response['athlete']['lastname'])
-            access_info['access_token'] = response['access_token']
-            access_info['refresh_token'] = response['refresh_token']
-            access_info['expires_at'] = response['expires_at']
+        if category in self.strava_configs:
+            try:
+                response = requests.post(self.app_constants.API_TOKEN_EXCHANGE, data={
+                    'client_id': self.strava_configs[category]["client_id"],
+                    'client_secret': self.strava_configs[category]["client_secret"],
+                    'code': code,
+                    'grant_type': 'authorization_code'
+                }).json()
+            except Exception:
+                logging.error(traceback.format_exc())
+            else:
+                logging.info("Success.")
+                access_info['athlete_id'] = response['athlete']['id']
+                access_info['name'] = "{first_name} {last_name}".format(first_name=response['athlete']['firstname'],
+                                                                        last_name=response['athlete']['lastname'])
+                access_info['access_token'] = response['access_token']
+                access_info['refresh_token'] = response['refresh_token']
+                access_info['expires_at'] = response['expires_at']
 
-        logging.info("Result: %s", access_info)
         return access_info if access_info != [] else False
 
-    def token_exchange_for_challenges(self, code):
+    def refresh_token(self, category, refresh_token):
         access_info = dict()
         try:
-            logging.info("Exchanging token..")
+            logging.info("Refreshing token for %s..", category)
             response = requests.post(self.app_constants.API_TOKEN_EXCHANGE, data={
-                'client_id': int(self.app_variables.challenges_client_id),
-                'client_secret': self.app_variables.challenges_client_secret,
-                'code': code,
-                'grant_type': 'authorization_code'
-            }).json()
-        except Exception:
-            logging.error(traceback.format_exc())
-        else:
-            access_info['athlete_id'] = response['athlete']['id']
-            access_info['name'] = "{first_name} {last_name}".format(first_name=response['athlete']['firstname'],
-                                                                    last_name=response['athlete']['lastname'])
-            access_info['access_token'] = response['access_token']
-            access_info['refresh_token'] = response['refresh_token']
-            access_info['expires_at'] = response['expires_at']
-
-        logging.info("Result: %s", access_info)
-        return access_info if access_info != [] else False
-
-    def refresh_token(self, refresh_token):
-        access_info = dict()
-        try:
-            logging.info("Refreshing token..")
-            response = requests.post(self.app_constants.API_TOKEN_EXCHANGE, data={
-                'client_id': int(self.app_variables.client_id),
-                'client_secret': self.app_variables.client_secret,
-                'grant_type': 'refresh_token',
-                'refresh_token': refresh_token,
-            }).json()
-        except Exception:
-            logging.error(traceback.format_exc())
-        else:
-            access_info['access_token'] = response['access_token']
-            access_info['refresh_token'] = response['refresh_token']
-            access_info['expires_at'] = response['expires_at']
-
-        logging.info("Result: %s", access_info)
-        return access_info if access_info != [] else False
-
-    def refresh_challenges_token(self, refresh_token):
-        access_info = dict()
-        try:
-            logging.info("Refreshing token..")
-            response = requests.post(self.app_constants.API_TOKEN_EXCHANGE, data={
-                'client_id': int(self.app_variables.challenges_client_id),
-                'client_secret': self.app_variables.challenges_client_secret,
+                'client_id': self.strava_configs[category]["client_id"],
+                'client_secret': self.strava_configs[category]["client_secret"],
                 'grant_type': 'refresh_token',
                 'refresh_token': refresh_token,
             }).json()
