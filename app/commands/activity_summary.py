@@ -76,6 +76,5 @@ class ActivitySummary:
         if athlete_details['enable_activity_summary']:
             activity_summary = self.generate_activity_summary_for_supported_activities(activity, athlete_details)
             self.telegram_resource.send_message(chat_id=athlete_details['chat_id'], message=activity_summary)
-            self.telegram_resource.shadow_message(activity_summary)
         else:
             logging.info("Activity Summary is not enabled.")

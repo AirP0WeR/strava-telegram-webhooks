@@ -8,9 +8,7 @@ from scout_apm.flask import ScoutApm
 from app.commands.challenges import CalculateChallengesStats, Challenges
 from app.common.constants_and_variables import AppVariables, AppConstants
 from app.common.execution_time import execution_time
-from app.processor import update_stats, handle_webhook, telegram_shadow_message, \
-    telegram_send_message, \
-    challenges_api_hits
+from app.processor import update_stats, handle_webhook, telegram_send_message, challenges_api_hits
 from app.resources.athlete import AthleteResource
 from app.resources.database import DatabaseResource
 from app.resources.iron_cache import IronCacheResource
@@ -191,15 +189,9 @@ def database_read_all():
 
 @app.route("/telegram/send_message", methods=['POST'])
 def send_message():
-    if request.json and "chat_id" in request.json and "message" in request.json:
-        telegram_send_message.delay(request.json["chat_id"], request.json["message"])
-        return jsonify('Accepted'), 200
-
-
-@app.route("/telegram/shadow_message", methods=['POST'])
-def shadow_message():
     if request.json and "message" in request.json:
-        telegram_shadow_message.delay(request.json["message"])
+        telegram_send_message.delay(request.json["message"],
+                                    request.json["chat_id"] if "chat_id" in request.json else None)
         return jsonify('Accepted'), 200
 
 

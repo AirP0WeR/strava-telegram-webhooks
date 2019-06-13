@@ -60,7 +60,6 @@ class AutoUpdateIndoorRide:
                         message = "Error auto updating indoor ride."
 
                     self.telegram_resource.send_message(chat_id=athlete_details['chat_id'], message=message)
-                    self.telegram_resource.shadow_message(message)
                 else:
                     logging.info("Auto update indoor ride is not enabled.")
             else:

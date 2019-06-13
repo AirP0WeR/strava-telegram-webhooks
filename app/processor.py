@@ -77,14 +77,6 @@ def challenges_api_hits():
 
 @app.task
 @execution_time
-def telegram_send_message(chat_id, message):
-    logging.info(
-        "Received request to send message to a user. Chat ID: %s, Message: %s", chat_id, message)
-    telegram_resource.send_message(chat_id, message)
-
-
-@app.task
-@execution_time
-def telegram_shadow_message(message):
-    logging.info("Received request to shadow message to the admin group. Message: %s", message)
-    telegram_resource.shadow_message(message)
+def telegram_send_message(message, chat_id=None):
+    logging.info("Received request to send message to a user. Chat ID: %s, Message: %s", chat_id, message)
+    telegram_resource.send_message(chat_id=chat_id, message=message)
