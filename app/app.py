@@ -55,22 +55,11 @@ def update_athlete_stats(category, athlete_id):
     return jsonify('Accepted'), 200
 
 
-@app.route("/token/exchange/<code>", methods=['POST'])
+@app.route("/token/exchange/<category>/<code>", methods=['POST'])
 @execution_time
-def token_exchange(code):
-    logging.info("Received request for token exchange with code: %s", code)
-    access_info = strava_resource.token_exchange(code)
-    if access_info:
-        return jsonify(access_info), 200
-    else:
-        return jsonify(''), 500
-
-
-@app.route("/token/exchange/challenges/<code>", methods=['POST'])
-@execution_time
-def token_exchange_challenges(code):
-    logging.info("Received request for challenges token exchange with code: %s", code)
-    access_info = strava_resource.token_exchange_for_challenges(code)
+def token_exchange(category, code):
+    logging.info("Received request to exchange token for %s", category)
+    access_info = strava_resource.token_exchange(category, code)
     if access_info:
         return jsonify(access_info), 200
     else:
