@@ -49,13 +49,13 @@ class StravaResource:
 
         return access_info if access_info != [] else False
 
-    def refresh_token(self, refresh_token):
+    def refresh_token(self, category, refresh_token):
         access_info = dict()
         try:
-            logging.info("Refreshing token..")
+            logging.info("Refreshing token for %s..", category)
             response = requests.post(self.app_constants.API_TOKEN_EXCHANGE, data={
-                'client_id': self.app_variables.client_id,
-                'client_secret': self.app_variables.client_secret,
+                'client_id': self.strava_configs[category]["client_id"],
+                'client_secret': self.strava_configs[category]["client_secret"],
                 'grant_type': 'refresh_token',
                 'refresh_token': refresh_token,
             }).json()
@@ -69,25 +69,6 @@ class StravaResource:
         logging.info("Result: %s", access_info)
         return access_info if access_info != [] else False
 
-    def refresh_challenges_token(self, refresh_token):
-        access_info = dict()
-        try:
-            logging.info("Refreshing token..")
-            response = requests.post(self.app_constants.API_TOKEN_EXCHANGE, data={
-                'client_id': self.app_variables.challenges_client_id,
-                'client_secret': self.app_variables.challenges_client_secret,
-                'grant_type': 'refresh_token',
-                'refresh_token': refresh_token,
-            }).json()
-        except Exception:
-            logging.error(traceback.format_exc())
-        else:
-            access_info['access_token'] = response['access_token']
-            access_info['refresh_token'] = response['refresh_token']
-            access_info['expires_at'] = response['expires_at']
-
-        logging.info("Result: %s", access_info)
-        return access_info if access_info != [] else False
 
     def update_strava_activity(self, token, activity_id, name, gear_id):
         strava_client = self.strava_client.get_client(token)

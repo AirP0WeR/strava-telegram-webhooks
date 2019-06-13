@@ -64,7 +64,7 @@ class AthleteResource:
 
             if int(time.time()) > athlete_details['expires_at']:
                 logging.info("Token has expired.")
-                access_info = self.strava_resource.refresh_token(athlete_details['refresh_token'])
+                access_info = self.strava_resource.refresh_token("bot", athlete_details['refresh_token'])
                 self.update_token(access_info, athlete_id)
                 athlete_details['athlete_token'] = access_info['access_token']
                 athlete_details['refresh_token'] = access_info['refresh_token']
@@ -93,7 +93,7 @@ class AthleteResource:
 
             if int(time.time()) > athlete_details['expires_at']:
                 logging.info("Token has expired.")
-                access_info = self.strava_resource.refresh_token(athlete_details['refresh_token'])
+                access_info = self.strava_resource.refresh_token("bot", athlete_details['refresh_token'])
                 self.update_token(access_info, athlete_details['athlete_id'])
                 athlete_details['athlete_token'] = access_info['access_token']
                 athlete_details['refresh_token'] = access_info['refresh_token']
@@ -123,7 +123,7 @@ class AthleteResource:
 
             if int(time.time()) > athlete_details['expires_at']:
                 logging.info("Token has expired.")
-                access_info = self.strava_resource.refresh_challenges_token(athlete_details['refresh_token'])
+                access_info = self.strava_resource.refresh_token("challenges", athlete_details['refresh_token'])
                 self.update_token_in_challenges(access_info, athlete_id)
                 athlete_details['athlete_token'] = access_info['access_token']
                 athlete_details['refresh_token'] = access_info['refresh_token']
