@@ -37,5 +37,6 @@ class TelegramResource:
 
         self.send(data)
 
-        if shadow and self.app_variables.shadow_mode:
+        if chat_id is not None and shadow and self.app_variables.shadow_mode:
+            data['chat_id'] = self.app_variables.shadow_mode_chat_id
             self.send(data)
