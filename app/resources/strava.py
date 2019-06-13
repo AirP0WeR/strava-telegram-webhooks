@@ -69,7 +69,6 @@ class StravaResource:
         logging.info("Result: %s", access_info)
         return access_info if access_info != [] else False
 
-
     def update_strava_activity(self, token, activity_id, name, gear_id):
         strava_client = self.strava_client.get_client(token)
         result = False
