@@ -95,6 +95,7 @@ class AppVariables:
     redis_url = os.environ.get('REDIS_URL')
     shadow_mode = os.environ.get('SHADOW_MODE')
     shadow_mode_chat_id = os.environ.get('SHADOW_MODE_CHAT_ID')
+    approval_group_chat_id = os.environ.get('APPROVAL_GROUP_CHAT_ID')
     telegram_bot_token = os.environ.get('TELEGRAM_BOT_TOKEN')
     iron_cache_project_id = os.environ.get('IRON_CACHE_PROJECT_ID')
     iron_cache_token = os.environ.get('IRON_CACHE_TOKEN')

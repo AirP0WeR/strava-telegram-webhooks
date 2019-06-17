@@ -8,7 +8,8 @@ from scout_apm.flask import ScoutApm
 from app.commands.challenges import CalculateChallengesStats, Challenges
 from app.common.constants_and_variables import AppVariables, AppConstants
 from app.common.execution_time import execution_time
-from app.processor import update_stats, handle_webhook, telegram_send_message, challenges_api_hits
+from app.processor import update_stats, handle_webhook, telegram_send_message, challenges_api_hits, \
+    telegram_send_approval_message
 from app.resources.athlete import AthleteResource
 from app.resources.database import DatabaseResource
 from app.resources.iron_cache import IronCacheResource
@@ -192,6 +193,13 @@ def send_message():
     if request.json and "message" in request.json:
         telegram_send_message.delay(request.json["message"],
                                     request.json["chat_id"] if "chat_id" in request.json else None)
+        return jsonify('Accepted'), 200
+
+
+@app.route("/telegram/payment_approval", methods=['POST'])
+def send_message_for_payment_approval():
+    if request.json and "message" in request.json and "callback_data" in request.json:
+        telegram_send_approval_message.delay(request.json["message"], request.json["callback_data"])
         return jsonify('Accepted'), 200
 
 

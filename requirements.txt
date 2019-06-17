@@ -9,3 +9,5 @@ iron-cache==0.3.2
 scout-apm==2.0.4
 pycryptodome==3.8.1
 ujson==1.35
+telegram==0.0.1
+python_telegram_bot==11.1.0
