@@ -1,5 +1,5 @@
 #  -*- encoding: utf-8 -*-
-
+import json
 import logging
 import time
 
@@ -141,7 +141,7 @@ class AthleteResource:
             challenges_data.update({'payment': True})
             query_update_challenges_data = self.app_constants.QUERY_APPROVE_PAYMENT_IN_CHALLENGES.format(
                 column_name=column_name,
-                challenge_details=challenges_data,
+                challenge_details=json.dumps(challenges_data),
                 athlete_id=athlete_id)
             logging.info("Approving athlete %s in %s", athlete_id, column_name)
             result = self.database_resource.write_operation(query_update_challenges_data)
