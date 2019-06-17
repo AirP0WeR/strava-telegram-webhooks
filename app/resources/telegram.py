@@ -21,7 +21,7 @@ class TelegramResource:
         try:
             logging.info("Sending message: %s", data)
             response = requests.post(self.api_send_message, data=data)
-            logging.info("Response status code: %s", response.status_code)
+            logging.info("Status code: %s | Response: %s", response.status_code, response.text)
         except Exception:
             logging.error("Something went wrong. Exception: %s", traceback.format_exc())
 
