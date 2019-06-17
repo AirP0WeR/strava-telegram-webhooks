@@ -129,6 +129,31 @@ class AthleteResource:
 
         return athlete_details if athlete_details != [] else False
 
+    def approve_payment_for_challenges(self, column_name, athlete_id):
+        success = False
+        query_challenges_data = self.app_constants.QUERY_GET_CHALLENGE_DETAILS_FROM_CHALLENGES.format(
+            column_name=column_name,
+            athlete_id=athlete_id)
+        logging.info("Getting athlete details for %s in %s", athlete_id, column_name)
+        result = self.database_resource.read_operation(query_challenges_data)
+        if result:
+            challenges_data = result[0]
+            challenges_data.update({'payment': True})
+            query_update_challenges_data = self.app_constants.QUERY_APPROVE_PAYMENT_IN_CHALLENGES.format(
+                column_name=column_name,
+                challenge_details=challenges_data,
+                athlete_id=athlete_id)
+            logging.info("Approving athlete %s in %s", athlete_id, column_name)
+            result = self.database_resource.write_operation(query_update_challenges_data)
+            if result:
+                success = True
+            else:
+                logging.error("Failed to approve %s in %s.", athlete_id, column_name)
+        else:
+            logging.error("Failed to fetch challenge data in %s for %s", column_name, athlete_id)
+
+        return success
+
     def get_athlete_id(self, telegram_username):
         athlete_id = False
         logging.info("Getting Athlete ID for: %s", telegram_username)

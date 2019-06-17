@@ -214,6 +214,16 @@ def athlete_enable_activity_summary(chat_id, athlete_id):
         return jsonify(''), 404
 
 
+@app.route("/challenges/payment/approve/<column_name>/<athlete_id>", methods=['POST'])
+@execution_time
+def approve_payment_in_challenge(column_name, athlete_id):
+    logging.info("Received request to approve payment for %s in %s", athlete_id, column_name)
+    if athlete_resource.approve_payment_for_challenges(column_name, athlete_id):
+        return jsonify(''), 200
+    else:
+        return jsonify(''), 404
+
+
 @app.route("/athlete/activity_summary/disable/<athlete_id>", methods=['POST'])
 @execution_time
 def athlete_disable_activity_summary(athlete_id):
