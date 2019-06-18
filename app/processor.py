@@ -18,8 +18,8 @@ telegram_resource = TelegramResource()
 challenges = Challenges()
 
 app = Celery()
-app.conf.BROKER_URL = app_variables.redis_url
-app.conf.BROKER_POOL_LIMIT = 0
+app.conf.broker_url = app_variables.redis_url
+app.conf.broker_pool_limit = 0
 app.conf.SCOUT_MONITOR = app_variables.scout_monitor
 app.conf.SCOUT_NAME = app_variables.scout_name
 app.conf.SCOUT_KEY = app_variables.scout_key
