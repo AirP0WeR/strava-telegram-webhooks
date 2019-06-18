@@ -228,6 +228,7 @@ class Challenges:
 
             consolidate_results_options = defaultdict(lambda: self.dummy_function, {
                 'bosch_even': self.calculate_challenges_stats.consolidate_bosch_even_challenges_result,
+                'cadence90_odd': self.calculate_challenges_stats.consolidate_odd_challenges_result,
                 '': self.dummy_function
             })
 
