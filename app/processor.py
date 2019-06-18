@@ -23,7 +23,14 @@ app.conf.BROKER_POOL_LIMIT = 0
 app.conf.SCOUT_MONITOR = app_variables.scout_monitor
 app.conf.SCOUT_NAME = app_variables.scout_name
 app.conf.SCOUT_KEY = app_variables.scout_key
-app.conf.CELERY_TIMEZONE = app_variables.timezone
+app.conf.timezone = app_variables.timezone
+app.conf.beat_schedule = {
+    'add-every-monday-morning': {
+        'task': 'tasks.update_stats',
+        'schedule': crontab(minute='*/3'),
+        'args': ('bot', None),
+    },
+}
 
 scout_apm.celery.install()
 
@@ -68,15 +75,6 @@ def update_stats(category, athlete_id):
             STATS_HANDLERS[category]["all"]()
         else:
             logging.error("Invalid category.")
-
-
-@app.on_after_configure.connect
-def setup_periodic_tasks(sender, **kwargs):
-    sender.add_periodic_task(
-        # crontab(hour=0, minute=5, day_of_month=1),
-        crontab(minute=1),
-        update_all_stats.s()
-    )
 
 
 @app.task
