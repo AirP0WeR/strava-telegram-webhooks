@@ -26,9 +26,9 @@ app.conf.SCOUT_NAME = app_variables.scout_name
 app.conf.SCOUT_KEY = app_variables.scout_key
 app.conf.timezone = app_variables.timezone
 app.conf.beat_schedule = {
-    'add-every-monday-morning': {
+    'refresh-stats': {
         'task': 'tasks.update_stats',
-        'schedule': crontab(minute='*/2'),
+        'schedule': crontab(minute='5', hour='0', day_of_month='1'),
         'args': ('bot', None),
     },
 }
