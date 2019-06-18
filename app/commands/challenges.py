@@ -657,7 +657,7 @@ class CalculateChallengesStats:
     def consolidate_odd_challenges_result(self):
         odd_challenge = list()
 
-        results = self.database_resource.read_all_operation(self.app_constants.QUERY_GET_EVEN_CHALLENGES_DATA)
+        results = self.database_resource.read_all_operation(self.app_constants.QUERY_GET_ODD_CHALLENGES_DATA)
         for result in results:
             name = result[0]
             challenges = result[1]
