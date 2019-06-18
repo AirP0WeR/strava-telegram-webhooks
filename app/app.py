@@ -8,7 +8,8 @@ from scout_apm.flask import ScoutApm
 from app.commands.challenges import CalculateChallengesStats, Challenges
 from app.common.constants_and_variables import AppVariables, AppConstants
 from app.common.execution_time import execution_time
-from app.processor import update_stats, handle_webhook, telegram_send_message, challenges_api_hits
+from app.processor import update_stats, handle_webhook, telegram_send_message, challenges_api_hits, \
+    telegram_send_approval_message
 from app.resources.athlete import AthleteResource
 from app.resources.database import DatabaseResource
 from app.resources.iron_cache import IronCacheResource
@@ -195,12 +196,29 @@ def send_message():
         return jsonify('Accepted'), 200
 
 
+@app.route("/telegram/payment_approval", methods=['POST'])
+def send_message_for_payment_approval():
+    if request.json and "message" in request.json and "callback_data" in request.json:
+        telegram_send_approval_message.delay(request.json["message"], request.json["callback_data"])
+        return jsonify('Accepted'), 200
+
+
 @app.route("/athlete/activity_summary/enable/<chat_id>/<athlete_id>", methods=['POST'])
 @execution_time
 def athlete_enable_activity_summary(chat_id, athlete_id):
     logging.info(
         "Received request to enable activity summary for Athlete: %s with Chat ID: %s.", athlete_id, chat_id)
     if athlete_resource.enable_activity_summary(chat_id, athlete_id):
+        return jsonify(''), 200
+    else:
+        return jsonify(''), 404
+
+
+@app.route("/challenges/payment/approve/<column_name>/<athlete_id>", methods=['POST'])
+@execution_time
+def approve_payment_in_challenge(column_name, athlete_id):
+    logging.info("Received request to approve payment for %s in %s", athlete_id, column_name)
+    if athlete_resource.approve_payment_for_challenges(column_name, athlete_id):
         return jsonify(''), 200
     else:
         return jsonify(''), 404

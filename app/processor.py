@@ -80,3 +80,11 @@ def challenges_api_hits():
 def telegram_send_message(message, chat_id=None):
     logging.info("Received request to send message to a user. Chat ID: %s, Message: %s", chat_id, message)
     telegram_resource.send_message(chat_id=chat_id, message=message)
+
+
+@app.task
+@execution_time
+def telegram_send_approval_message(message, callback_data):
+    logging.info("Received request to send approval message to the admin group. Message: %s | Callback Data: %s",
+                 message, callback_data)
+    telegram_resource.send_payment_approval_message(message=message, callback_data=callback_data)

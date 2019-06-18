@@ -1,9 +1,10 @@
 #  -*- encoding: utf-8 -*-
-
+import json
 import logging
 import traceback
 
 import requests
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
 from app.clients.telegram import TelegramClient
 from app.common.constants_and_variables import AppVariables
@@ -20,7 +21,7 @@ class TelegramResource:
         try:
             logging.info("Sending message: %s", data)
             response = requests.post(self.api_send_message, data=data)
-            logging.info("Response status code: %s", response.status_code)
+            logging.info("Status code: %s | Response: %s", response.status_code, response.text)
         except Exception:
             logging.error("Something went wrong. Exception: %s", traceback.format_exc())
 
@@ -40,3 +41,12 @@ class TelegramResource:
         if chat_id is not None and shadow and self.app_variables.shadow_mode:
             data['chat_id'] = self.app_variables.shadow_mode_chat_id
             self.send(data)
+
+    def send_payment_approval_message(self, message, callback_data):
+        reply_markup = InlineKeyboardMarkup([[InlineKeyboardButton("Approve", callback_data=callback_data)]])
+        data = {
+            'chat_id': self.app_variables.approval_group_chat_id,
+            'text': message,
+            'reply_markup': json.dumps(reply_markup.to_dict())
+        }
+        self.send(data)

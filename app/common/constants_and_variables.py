@@ -53,6 +53,8 @@ class AppConstants:
                 );'''
 
     QUERY_FETCH_ATHLETE_DETAILS_IN_CHALLENGES = "select name, access_token, refresh_token, expires_at, even_challenges, even_challenges_data, odd_challenges, odd_challenges_data, bosch_even_challenges, bosch_even_challenges_data, bosch_odd_challenges, bosch_odd_challenges_data from strava_challenges where athlete_id={athlete_id}"
+    QUERY_GET_CHALLENGE_DETAILS_FROM_CHALLENGES = "select {column_name} from strava_challenges where athlete_id={athlete_id}"
+    QUERY_APPROVE_PAYMENT_IN_CHALLENGES = "UPDATE strava_challenges SET {column_name}='{challenge_details}', updated=now() where athlete_id={athlete_id}"
     QUERY_UPDATE_TOKEN_IN_CHALLENGES = "UPDATE strava_challenges SET access_token='{access_token}', refresh_token='{refresh_token}', expires_at={expires_at}, updated=now() where athlete_id={athlete_id}"
     QUERY_DELETE_ATHLETE_FROM_CHALLENGES = "DELETE from strava_challenges WHERE athlete_id={athlete_id}"
     QUERY_UPDATE_EVEN_CHALLENGES_DATA = "UPDATE strava_challenges SET even_challenges_data='{even_challenges_data}', updated=now() where athlete_id={athlete_id}"
@@ -95,6 +97,7 @@ class AppVariables:
     redis_url = os.environ.get('REDIS_URL')
     shadow_mode = os.environ.get('SHADOW_MODE')
     shadow_mode_chat_id = os.environ.get('SHADOW_MODE_CHAT_ID')
+    approval_group_chat_id = os.environ.get('APPROVAL_GROUP_CHAT_ID')
     telegram_bot_token = os.environ.get('TELEGRAM_BOT_TOKEN')
     iron_cache_project_id = os.environ.get('IRON_CACHE_PROJECT_ID')
     iron_cache_token = os.environ.get('IRON_CACHE_TOKEN')
