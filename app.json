@@ -1,5 +1,5 @@
 {
-  "name": "Strava Telegram Auth",
+  "name": "Strava Telegram Webhooks",
   "description": "",
   "success_url": "/",
   "env": {},
@@ -11,6 +11,9 @@
   },
   "image": "heroku/python",
   "addons": [
+    {
+      "plan": "heroku-postgresql:hobby-dev"
+    },
     {
       "plan": "heroku-redis:hobby-dev"
     },

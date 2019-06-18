@@ -1,18 +1,21 @@
 #  -*- encoding: utf-8 -*-
 
 import logging
-import traceback
 
 import scout_apm.celery
 from celery import Celery
 from celery.schedules import crontab
 
+from app.commands.challenges import Challenges
 from app.commands.process import Process
 from app.common.constants_and_variables import AppVariables
-from app.common.shadow_mode import ShadowMode
+from app.common.execution_time import execution_time
+from app.resources.telegram import TelegramResource
 
 app_variables = AppVariables()
-shadow_mode = ShadowMode()
+process = Process()
+telegram_resource = TelegramResource()
+challenges = Challenges()
 
 app = Celery()
 app.conf.BROKER_URL = app_variables.redis_url
@@ -23,6 +26,48 @@ app.conf.SCOUT_KEY = app_variables.scout_key
 app.conf.CELERY_TIMEZONE = app_variables.timezone
 
 scout_apm.celery.install()
+
+WEBHOOK_HANDLERS = {"bot": process.process_webhook, "challenges": challenges.main}
+
+STATS_HANDLERS = {
+    "bot":
+        {
+            "athlete": process.process_update_stats,
+            "all": process.process_update_all_stats
+        },
+    "challenges":
+        {
+            "athlete": challenges.update_challenges_stats,
+            "all": challenges.update_all_challenges_stats
+        }
+}
+
+
+@app.task
+@execution_time
+def handle_webhook(category, event):
+    logging.info("Webhook Event Received | Category: %s | Event: %s", category, event)
+    if category in WEBHOOK_HANDLERS:
+        WEBHOOK_HANDLERS[category](event)
+    else:
+        logging.error("Invalid webhook category.")
+
+
+@app.task
+@execution_time
+def update_stats(category, athlete_id):
+    if athlete_id:
+        logging.info("Received request to update stats for %s in %s.", athlete_id, category)
+        if category in STATS_HANDLERS:
+            STATS_HANDLERS[category]["athlete"](athlete_id)
+        else:
+            logging.error("Invalid category.")
+    else:
+        logging.info("Received request to update stats for all the athletes in %s.", category)
+        if category in STATS_HANDLERS:
+            STATS_HANDLERS[category]["all"]()
+        else:
+            logging.error("Invalid category.")
 
 
 @app.on_after_configure.connect
@@ -35,38 +80,22 @@ def setup_periodic_tasks(sender, **kwargs):
 
 
 @app.task
-def handle_webhook(event):
-    try:
-        logging.info("Webhook Event Received: {event}".format(event=event))
-        process = Process()
-        process.process_webhook(event)
-    except Exception:
-        message = "Something went wrong. Exception: {exception}".format(exception=traceback.format_exc())
-        logging.error(message)
-        shadow_mode.send_message(message)
+@execution_time
+def challenges_api_hits():
+    logging.info("Received request for challenges API hits.")
+    challenges.api_hits()
 
 
 @app.task
-def update_stats(athlete_id):
-    try:
-        logging.info("Received callback to update stats for https://www.strava.com/athletes/{athlete_id}".format(
-            athlete_id=athlete_id))
-        process_stats = Process()
-        process_stats.process_update_stats(athlete_id)
-    except Exception:
-        message = "Something went wrong. Exception: {exception}".format(exception=traceback.format_exc())
-        logging.error(message)
-        shadow_mode.send_message(message)
+@execution_time
+def telegram_send_message(message, chat_id=None):
+    logging.info("Received request to send message to a user. Chat ID: %s, Message: %s", chat_id, message)
+    telegram_resource.send_message(chat_id=chat_id, message=message)
 
 
 @app.task
-def update_all_stats():
-    try:
-        logging.info("Received callback to update stats for all the athletes")
-        process_stats = Process()
-        process_stats.process_update_all_stats()
-        logging.info("Updated stats for all the athletes")
-    except Exception:
-        message = "Something went wrong. Exception: {exception}".format(exception=traceback.format_exc())
-        logging.error(message)
-        shadow_mode.send_message(message)
+@execution_time
+def telegram_send_approval_message(message, callback_data):
+    logging.info("Received request to send approval message to the admin group. Message: %s | Callback Data: %s",
+                 message, callback_data)
+    telegram_resource.send_payment_approval_message(message=message, callback_data=callback_data)

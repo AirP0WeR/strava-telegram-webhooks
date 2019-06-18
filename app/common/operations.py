@@ -4,7 +4,7 @@ import datetime
 from decimal import Decimal, ROUND_DOWN
 
 
-class Operations(object):
+class Operations:
 
     @staticmethod
     def meters_to_kilometers(distance):
@@ -48,5 +48,12 @@ class Operations(object):
 
     @staticmethod
     def supported_activities(activity):
-        return True if (
-                    activity.type == 'VirtualRide' or activity.type == 'VirtualRun' or activity.type == 'Ride' or activity.type == 'Run' or activity.type == 'Swim') else False
+        return True if (activity.type == 'VirtualRide'
+                        or activity.type == 'VirtualRun'
+                        or activity.type == 'Ride'
+                        or activity.type == 'Run'
+                        or activity.type == 'Swim') else False
+
+    @staticmethod
+    def supported_activities_for_challenges(activity):
+        return True if (activity.type == 'VirtualRide' or activity.type == 'Ride') else False

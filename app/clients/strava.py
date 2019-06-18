@@ -3,7 +3,7 @@
 from stravalib.client import Client
 
 
-class StravaClient(object):
+class StravaClient:
 
     @staticmethod
     def get_client(athlete_token):
