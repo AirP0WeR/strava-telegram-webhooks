@@ -675,6 +675,9 @@ class CalculateChallengesStats:
                 {'rank': rank, 'name': athlete['name'], 'value': athlete['value']})
             rank += 1
 
+        if len(odd_challenge_sorted) == 0:
+            odd_challenge_sorted.append({'rank': '', 'name': '', 'value': ''})
+
         self.iron_cache_resource.put_cache("cadence90_odd_challenges_result", "leaderboard",
                                            ujson.dumps(odd_challenge_sorted))
         self.telegram_resource.send_message("Updated cache for Cadence90 odd month challenges.")
