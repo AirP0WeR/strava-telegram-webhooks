@@ -351,54 +351,17 @@ class CalculateChallengesStats:
                 "Failed to update even challenges data for {name}".format(name=athlete_details['name']))
 
     def odd_challenges(self, athlete_details):
-        odd_challenges_ride_calendar = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0, 11: 0,
-                                        12: 0, 13: 0, 14: 0, 15: 0, 16: 0, 17: 0, 18: 0, 19: 0, 20: 0,
-                                        21: 0, 22: 0, 23: 0, 24: 0, 25: 0, 26: 0, 27: 0, 28: 0, 29: 0,
-                                        30: 0, 31: 0}
-        odd_challenges_rides_count = 0
-        odd_challenges_total_distance = 0.0
-        odd_challenges_total_elevation = 0
-
-        odd_challenges_stats = {
-            '20_20': 0,
-            '1000_km': 0.0,
-            '10000_meters': 0
-        }
-
-        odd_challenges = athlete_details['odd_challenges']
-        for activity in self.strava_resource.get_strava_activities_after_date_before_date(
-                athlete_details['athlete_token'], self.app_variables.odd_challenges_from_date,
-                self.app_variables.odd_challenges_to_date):
-            if self.operations.supported_activities_for_challenges(
-                    activity) and activity.start_date_local.month == self.app_variables.even_challenges_month and activity.start_date_local.year == self.app_variables.even_challenges_year:
-                if '20_20' in odd_challenges:
-                    odd_challenges_ride_calendar[activity.start_date_local.day] += float(activity.distance)
-                if '1000_km' in odd_challenges:
-                    odd_challenges_total_distance += float(activity.distance)
-                if '10000_meters' in odd_challenges:
-                    if not self.operations.is_indoor(activity):
-                        odd_challenges_total_elevation += float(activity.total_elevation_gain)
-
-        if '20_20' in odd_challenges:
-            for distance in odd_challenges_ride_calendar:
-                if odd_challenges_ride_calendar[distance] >= 20000.0:
-                    odd_challenges_rides_count += 1
-            odd_challenges_stats['20_20'] = odd_challenges_rides_count
-        if '1000_km' in odd_challenges:
-            odd_challenges_stats['1000_km'] = self.operations.meters_to_kilometers(odd_challenges_total_distance)
-        if '10000_meters' in odd_challenges:
-            odd_challenges_stats['10000_meters'] = self.operations.remove_decimal_point(
-                odd_challenges_total_elevation)
-
-        if self.database_resource.write_operation(
-                self.app_constants.QUERY_UPDATE_ODD_CHALLENGES_DATA.format(
-                    odd_challenges_data=ujson.dumps(odd_challenges_stats),
-                    athlete_id=athlete_details['athlete_id'])):
-            self.telegram_resource.send_message(
-                "Updated odd challenges data for {name}.".format(name=athlete_details['name']))
-        else:
-            self.telegram_resource.send_message(
-                "Failed to update odd challenges data for {name}".format(name=athlete_details['name']))
+        cadence90_even_challenges = athlete_details['even_challenges']
+        if cadence90_even_challenges and cadence90_even_challenges['payment']:
+            even_challenges_stats = {'points': 0}
+            if self.database_resource.write_operation(self.app_constants.QUERY_UPDATE_EVEN_CHALLENGES_DATA.format(
+                    even_challenges_data=ujson.dumps(even_challenges_stats), athlete_id=athlete_details['athlete_id'])):
+                self.telegram_resource.send_message(
+                    "Updated Cadence90 even month challenge data for {name}.".format(name=athlete_details['name']))
+            else:
+                self.telegram_resource.send_message(
+                    "Failed to update Cadence90 even month challenge data for {name}".format(
+                        name=athlete_details['name']))
 
     def bosch_even_challenges(self, athlete_details):
         six_km_rides = 0
@@ -691,58 +654,29 @@ class CalculateChallengesStats:
         self.telegram_resource.send_message("Updated cache for even challenges.")
 
     def consolidate_odd_challenges_result(self):
-        odd_challenge_twenty_twenty = list()
-        odd_challenge_thousand_km = list()
-        odd_challenge_ten_thousand_meters = list()
+        even_challenge = list()
 
-        results = self.database_resource.read_all_operation(self.app_constants.QUERY_GET_ODD_CHALLENGES_DATA)
+        results = self.database_resource.read_all_operation(self.app_constants.QUERY_GET_EVEN_CHALLENGES_DATA)
         for result in results:
             name = result[0]
             challenges = result[1]
             challenges_data = result[2]
 
-            if challenges:
-                if '20_20' in challenges:
-                    odd_challenge_twenty_twenty.append({'name': name, 'value': challenges_data['20_20']})
-                if '1000_km' in challenges:
-                    odd_challenge_thousand_km.append({'name': name, 'value': challenges_data['1000_km']})
-                if '10000_meters' in challenges:
-                    odd_challenge_ten_thousand_meters.append({'name': name, 'value': challenges_data['10000_meters']})
+            if challenges and challenges['payment']:
+                even_challenge.append({'name': name, 'value': challenges_data['points']})
 
-        odd_challenge_twenty_twenty_temp = sorted(odd_challenge_twenty_twenty, key=operator.itemgetter('value'),
-                                                  reverse=True)
-        odd_challenge_thousand_km_temp = sorted(odd_challenge_thousand_km, key=operator.itemgetter('value'),
-                                                reverse=True)
-        odd_challenge_ten_thousand_meters_temp = sorted(odd_challenge_ten_thousand_meters,
-                                                        key=operator.itemgetter('value'), reverse=True)
+        even_challenge_twenty_temp = sorted(even_challenge, key=operator.itemgetter('value'), reverse=True)
 
-        odd_challenge_twenty_twenty_sorted = list()
+        even_challenge_sorted = list()
         rank = 1
-        for athlete in odd_challenge_twenty_twenty_temp:
-            odd_challenge_twenty_twenty_sorted.append(
+        for athlete in even_challenge_twenty_temp:
+            even_challenge_sorted.append(
                 {'rank': rank, 'name': athlete['name'], 'value': athlete['value']})
             rank += 1
 
-        odd_challenge_thousand_km_sorted = list()
-        rank = 1
-        for athlete in odd_challenge_thousand_km_temp:
-            odd_challenge_thousand_km_sorted.append({'rank': rank, 'name': athlete['name'], 'value': athlete['value']})
-            rank += 1
-
-        odd_challenge_ten_thousand_meters_sorted = list()
-        rank = 1
-        for athlete in odd_challenge_ten_thousand_meters_temp:
-            odd_challenge_ten_thousand_meters_sorted.append(
-                {'rank': rank, 'name': athlete['name'], 'value': athlete['value']})
-            rank += 1
-
-        self.iron_cache_resource.put_cache("odd_challenges_result", "20_20",
-                                           ujson.dumps(odd_challenge_twenty_twenty_sorted))
-        self.iron_cache_resource.put_cache("odd_challenges_result", "1000_km",
-                                           ujson.dumps(odd_challenge_thousand_km_sorted))
-        self.iron_cache_resource.put_cache("odd_challenges_result", "10000_meters",
-                                           ujson.dumps(odd_challenge_ten_thousand_meters_sorted))
-        self.telegram_resource.send_message("Updated cache for odd challenges.")
+        self.iron_cache_resource.put_cache("even_challenges_result", "points",
+                                           ujson.dumps(even_challenge_sorted))
+        self.telegram_resource.send_message("Updated cache for Cadence90 even month challenges.")
 
     def main(self, athlete_details):
         if athlete_details['even_challenges']:
