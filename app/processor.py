@@ -2,6 +2,7 @@
 
 import logging
 
+import celery
 import scout_apm.celery
 from celery import Celery
 from celery.schedules import crontab
@@ -27,7 +28,7 @@ app.conf.timezone = app_variables.timezone
 app.conf.beat_schedule = {
     'add-every-monday-morning': {
         'task': 'tasks.update_stats',
-        'schedule': crontab(minute='*/3'),
+        'schedule': crontab(minute='*/2'),
         'args': ('bot', None),
     },
 }
@@ -61,6 +62,7 @@ def handle_webhook(category, event):
 
 
 @app.task
+@celery.task(name='tasks.update_stats')
 @execution_time
 def update_stats(category, athlete_id):
     if athlete_id:
