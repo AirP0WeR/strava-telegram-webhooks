@@ -351,16 +351,16 @@ class CalculateChallengesStats:
                 "Failed to update even challenges data for {name}".format(name=athlete_details['name']))
 
     def odd_challenges(self, athlete_details):
-        cadence90_even_challenges = athlete_details['even_challenges']
-        if cadence90_even_challenges and cadence90_even_challenges['payment']:
-            even_challenges_stats = {'points': 0}
-            if self.database_resource.write_operation(self.app_constants.QUERY_UPDATE_EVEN_CHALLENGES_DATA.format(
-                    even_challenges_data=ujson.dumps(even_challenges_stats), athlete_id=athlete_details['athlete_id'])):
+        cadence90_odd_challenges = athlete_details['odd_challenges']
+        if cadence90_odd_challenges and cadence90_odd_challenges['payment']:
+            odd_challenges_stats = {'points': 0}
+            if self.database_resource.write_operation(self.app_constants.QUERY_UPDATE_ODD_CHALLENGES_DATA.format(
+                    odd_challenges_data=ujson.dumps(odd_challenges_stats), athlete_id=athlete_details['athlete_id'])):
                 self.telegram_resource.send_message(
-                    "Updated Cadence90 even month challenge data for {name}.".format(name=athlete_details['name']))
+                    "Updated Cadence90 odd month challenge data for {name}.".format(name=athlete_details['name']))
             else:
                 self.telegram_resource.send_message(
-                    "Failed to update Cadence90 even month challenge data for {name}".format(
+                    "Failed to update Cadence90 odd month challenge data for {name}".format(
                         name=athlete_details['name']))
 
     def bosch_even_challenges(self, athlete_details):
@@ -654,7 +654,7 @@ class CalculateChallengesStats:
         self.telegram_resource.send_message("Updated cache for even challenges.")
 
     def consolidate_odd_challenges_result(self):
-        even_challenge = list()
+        odd_challenge = list()
 
         results = self.database_resource.read_all_operation(self.app_constants.QUERY_GET_EVEN_CHALLENGES_DATA)
         for result in results:
@@ -663,20 +663,20 @@ class CalculateChallengesStats:
             challenges_data = result[2]
 
             if challenges and challenges['payment']:
-                even_challenge.append({'name': name, 'value': challenges_data['points']})
+                odd_challenge.append({'name': name, 'value': challenges_data['points']})
 
-        even_challenge_twenty_temp = sorted(even_challenge, key=operator.itemgetter('value'), reverse=True)
+        odd_challenge_twenty_temp = sorted(odd_challenge, key=operator.itemgetter('value'), reverse=True)
 
-        even_challenge_sorted = list()
+        odd_challenge_sorted = list()
         rank = 1
-        for athlete in even_challenge_twenty_temp:
-            even_challenge_sorted.append(
+        for athlete in odd_challenge_twenty_temp:
+            odd_challenge_sorted.append(
                 {'rank': rank, 'name': athlete['name'], 'value': athlete['value']})
             rank += 1
 
-        self.iron_cache_resource.put_cache("even_challenges_result", "points",
-                                           ujson.dumps(even_challenge_sorted))
-        self.telegram_resource.send_message("Updated cache for Cadence90 even month challenges.")
+        self.iron_cache_resource.put_cache("odd_challenges_result", "points",
+                                           ujson.dumps(odd_challenge_sorted))
+        self.telegram_resource.send_message("Updated cache for Cadence90 odd month challenges.")
 
     def main(self, athlete_details):
         if athlete_details['even_challenges']:
