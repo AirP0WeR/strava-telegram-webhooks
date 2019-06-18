@@ -367,6 +367,20 @@ class CalculateChallengesStats:
                     "Failed to update Cadence90 odd month challenge data for {name}".format(
                         name=athlete_details['name']))
 
+    def is_c2w_eligible(self, start_gps, end_gps):
+        lat_long = self.app_variables.location_gps
+        is_eligible_to = False
+        is_eligible_from = False
+        for location in lat_long:
+            work_lat = lat_long[location][0]
+            work_long = lat_long[location][1]
+            if self.is_lat_long_within_range(work_lat, work_long, end_gps[0], end_gps[1]):
+                is_eligible_to = True
+            if self.is_lat_long_within_range(work_lat, work_long, start_gps[0], start_gps[1]):
+                is_eligible_from = True
+
+        return is_eligible_to, is_eligible_from
+
     def bosch_even_challenges(self, athlete_details):
         six_km_rides = 0
         six_km_points = 0
@@ -395,8 +409,6 @@ class CalculateChallengesStats:
         cycle_to_work_rides = 0
         cycle_to_work_points = 0
 
-        lat_long = self.app_variables.location_gps
-
         challenges = athlete_details['bosch_even_challenges']
 
         for activity in self.strava_resource.get_strava_activities_after_date_before_date(
@@ -420,14 +432,13 @@ class CalculateChallengesStats:
                 end_gps)
             if self.operations.supported_activities_for_challenges(activity) and not self.operations.is_indoor(
                     activity) and activity_month == self.app_variables.even_challenges_month and activity_year == self.app_variables.even_challenges_year:
-                if start_gps and end_gps and challenges['location'] in lat_long:
-                    work_lat = lat_long[challenges['location']][0]
-                    work_long = lat_long[challenges['location']][1]
-                    if self.is_lat_long_within_range(work_lat, work_long, end_gps[0], end_gps[1]):
+                if start_gps and end_gps:
+                    is_eligible_to, is_eligible_from = self.is_c2w_eligible(start_gps, end_gps)
+                    if is_eligible_to:
                         cycle_to_work_calendar[activity_day]['to'] = True
                         cycle_to_work_rides += 1
                         cycle_to_work_points += 30
-                    if self.is_lat_long_within_range(work_lat, work_long, start_gps[0], start_gps[1]):
+                    if is_eligible_from:
                         cycle_to_work_calendar[activity_day]['from'] = True
                         cycle_to_work_rides += 1
                         cycle_to_work_points += 30
