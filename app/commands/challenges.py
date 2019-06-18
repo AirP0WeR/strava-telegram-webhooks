@@ -41,6 +41,9 @@ class Challenges:
                 message = self.app_constants.MESSAGE_CHALLENGES_DEAUTHORIZE_FAILURE.format(
                     name=athlete_details['name'],
                     athlete_id=athlete_id)
+            self.calculate_challenges_stats.consolidate_even_challenges_result()
+            self.calculate_challenges_stats.consolidate_odd_challenges_result()
+            self.calculate_challenges_stats.consolidate_bosch_even_challenges_result()
             self.telegram_resource.send_message(message)
 
     def alert_webhook_event_of_athlete(self, event, athlete_details):
