@@ -222,7 +222,7 @@ class Challenges:
 
         companies = ['cadence90', 'bosch']
         months = ['odd', 'even']
-        challenges = ['points', 'c2w', '6_km', '30_min', 'distance', 'leader_board']
+        challenges = ['leaderboard', 'c2w', '6_km', '30_min', 'distance', 'leader_board']
 
         if company in companies and month in months and challenge in challenges:
 
@@ -674,7 +674,7 @@ class CalculateChallengesStats:
                 {'rank': rank, 'name': athlete['name'], 'value': athlete['value']})
             rank += 1
 
-        self.iron_cache_resource.put_cache("cadence90_odd_challenges_result", "points",
+        self.iron_cache_resource.put_cache("cadence90_odd_challenges_result", "leaderboard",
                                            ujson.dumps(odd_challenge_sorted))
         self.telegram_resource.send_message("Updated cache for Cadence90 odd month challenges.")
 
