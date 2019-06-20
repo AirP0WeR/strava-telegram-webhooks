@@ -66,6 +66,7 @@ class AppConstants:
     QUERY_GET_BOSCH_EVEN_CHALLENGES_DATA = "select name, bosch_even_challenges, bosch_even_challenges_data from strava_challenges"
     QUERY_GET_ATHLETES_EVEN_CHALLENGES = "select athlete_id, name, even_challenges from strava_challenges order by created"
     QUERY_GET_ATHLETES_EVEN_BOSCH_CHALLENGES = "select athlete_id, name, bosch_even_challenges from strava_challenges order by created"
+    QUERY_GET_ATHLETES_ODD_BOSCH_CHALLENGES = "select athlete_id, name, bosch_even_challenges from strava_challenges order by created"
     QUERY_GET_ATHLETES_ODD_CHALLENGES = "select athlete_id, name, odd_challenges from strava_challenges order by created"
 
     API_TOKEN_EXCHANGE = 'https://www.strava.com/oauth/token'
