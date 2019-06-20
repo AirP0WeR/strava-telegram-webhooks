@@ -174,7 +174,7 @@ class Challenges:
     def challenges_bosch_odd_athletes_list(self):
         messages = list()
 
-        results = self.database_resource.read_all_operation(self.app_constants.QUERY_GET_ATHLETES_ODD_CHALLENGES)
+        results = self.database_resource.read_all_operation(self.app_constants.QUERY_GET_ATHLETES_ODD_BOSCH_CHALLENGES)
         if results:
             for result in results:
                 athlete_id = result[0]
