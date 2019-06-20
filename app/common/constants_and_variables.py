@@ -115,3 +115,4 @@ class AppVariables:
     odd_challenges_to_date = os.environ.get('ODD_CHALLENGES_TO_DATE')
     location_gps = json.loads(os.environ.get('LOCATION_GPS'))
     location_threshold = float(os.environ.get('LOCATION_THRESHOLD'))
+    timezone = os.environ.get('TZ')

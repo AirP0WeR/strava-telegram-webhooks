@@ -312,6 +312,17 @@ def get_challenges_bosch_even_athletes_list():
         return jsonify(''), 500
 
 
+@app.route("/challenges/bosch/odd/athletes/list", methods=['GET'])
+@execution_time
+def get_challenges_bosch_odd_athletes_list():
+    logging.info("Received request to get registered athletes for Bosch odd challenges.")
+    result = challenges.challenges_bosch_odd_athletes_list()
+    if result:
+        return jsonify(result), 200
+    else:
+        return jsonify(''), 500
+
+
 @app.route("/challenges/odd/athletes/list", methods=['GET'])
 @execution_time
 def get_challenges_odd_athletes_list():

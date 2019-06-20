@@ -171,6 +171,30 @@ class Challenges:
 
         return messages if messages != [] else False
 
+    def challenges_bosch_odd_athletes_list(self):
+        messages = list()
+
+        results = self.database_resource.read_all_operation(self.app_constants.QUERY_GET_ATHLETES_ODD_CHALLENGES)
+        if results:
+            for result in results:
+                athlete_id = result[0]
+                name = result[1]
+                details = result[2]
+                messages.append({'name': name,
+                                 'location': details['location'],
+                                 'ntid': details['ntid'],
+                                 'email': details['email'],
+                                 'phone': details['phone'],
+                                 'athlete_id': athlete_id,
+                                 'strava': "https://www.strava.com/athletes/{}".format(athlete_id),
+                                 'CycleToWork Rides': True if 'c2w_rides' in details['id'] else False,
+                                 'CycleToWork Distance': True if 'c2w_distance' in details['id'] else False,
+                                 '2km x 30 (only for Woman riders)': True if '2x30' in details['id'] else False,
+                                 '40min x 30rides': True if '40x30' in details['id'] else False,
+                                 'How far can you go': True if 'distance' in details['id'] else False})
+
+        return messages if messages != [] else False
+
     def challenges_odd_athletes_list(self):
         messages = list()
 

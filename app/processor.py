@@ -2,8 +2,10 @@
 
 import logging
 
+import celery
 import scout_apm.celery
 from celery import Celery
+from celery.schedules import crontab
 
 from app.commands.challenges import Challenges
 from app.commands.process import Process
@@ -17,11 +19,19 @@ telegram_resource = TelegramResource()
 challenges = Challenges()
 
 app = Celery()
-app.conf.BROKER_URL = app_variables.redis_url
-app.conf.BROKER_POOL_LIMIT = 0
+app.conf.broker_url = app_variables.redis_url
+app.conf.broker_pool_limit = 0
 app.conf.SCOUT_MONITOR = app_variables.scout_monitor
 app.conf.SCOUT_NAME = app_variables.scout_name
 app.conf.SCOUT_KEY = app_variables.scout_key
+app.conf.timezone = app_variables.timezone
+app.conf.beat_schedule = {
+    'refresh-stats': {
+        'task': 'tasks.update_stats',
+        'schedule': crontab(minute='5', hour='0', day_of_month='1'),
+        'args': ('bot', None),
+    },
+}
 
 scout_apm.celery.install()
 
@@ -52,6 +62,7 @@ def handle_webhook(category, event):
 
 
 @app.task
+@celery.task(name='tasks.update_stats')
 @execution_time
 def update_stats(category, athlete_id):
     if athlete_id:
