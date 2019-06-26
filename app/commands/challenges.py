@@ -353,17 +353,49 @@ class CalculateChallengesStats:
                 "Failed to update even challenges data for {name}".format(name=athlete_details['name']))
 
     def odd_challenges(self, athlete_details):
-        cadence90_odd_challenges = athlete_details['odd_challenges']
-        if cadence90_odd_challenges and cadence90_odd_challenges['payment']:
-            odd_challenges_stats = {'points': 0}
-            if self.database_resource.write_operation(self.app_constants.QUERY_UPDATE_ODD_CHALLENGES_DATA.format(
-                    odd_challenges_data=ujson.dumps(odd_challenges_stats), athlete_id=athlete_details['athlete_id'])):
-                self.telegram_resource.send_message(
-                    "Updated Cadence90 odd month challenge data for {name}.".format(name=athlete_details['name']))
-            else:
-                self.telegram_resource.send_message(
-                    "Failed to update Cadence90 odd month challenge data for {name}".format(
-                        name=athlete_details['name']))
+        total_distance = 0.0
+        total_elevation = 0
+        total_activities = 0
+
+        for activity in self.strava_resource.get_strava_activities_after_date_before_date(
+                athlete_details['athlete_token'], self.app_variables.odd_challenges_from_date,
+                self.app_variables.odd_challenges_to_date):
+            activity_month = activity.start_date_local.month
+            activity_year = activity.start_date_local.year
+            activity_day = activity.start_date_local.day
+            activity_distance = float(activity.distance)
+            activity_elevation = float(activity.total_elevation_gain)
+            activity_time = unithelper.timedelta_to_seconds(activity.moving_time)
+            logging.info(
+                "Type: %s | Month: %s | Year: %s | Day: %s | Distance: %s | Time: %s | Elevation: %s",
+                activity.type, activity_month, activity_year, activity_day, activity_distance, activity_time,
+                activity_elevation)
+            if self.operations.supported_activities_for_challenges(
+                    activity) and activity_month == self.app_variables.odd_challenges_month and activity_year == self.app_variables.odd_challenges_year:
+                total_distance += activity_distance
+                total_elevation += activity_elevation
+                if activity_distance >= 10000.0 and activity_time >= 1800:
+                    total_activities += 1
+
+        total_distance = self.operations.meters_to_kilometers(total_distance)
+        total_elevation = self.operations.remove_decimal_point(total_elevation)
+
+        challenges_stats = {
+            'athlete_id': athlete_details['athlete_id'],
+            'points': 0
+        }
+
+        challenges_stats['points'] += int(total_distance / 10)
+        challenges_stats['points'] += int(total_elevation / 100)
+        challenges_stats['points'] += total_activities
+
+        if self.database_resource.write_operation(self.app_constants.QUERY_UPDATE_ODD_CHALLENGES_DATA.format(
+                challenges_data=ujson.dumps(challenges_stats), athlete_id=athlete_details['athlete_id'])):
+            self.telegram_resource.send_message(
+                "Updated Cadence90 odd challenges data for {name}.".format(name=athlete_details['name']))
+        else:
+            self.telegram_resource.send_message(
+                "Failed to update Cadence90 odd challenges data for {name}".format(name=athlete_details['name']))
 
     def is_c2w_eligible(self, start_gps, end_gps):
         lat_long = self.app_variables.location_gps
