@@ -62,11 +62,11 @@ class StravaResource:
         except Exception:
             logging.error(traceback.format_exc())
         else:
+            logging.info("Success.")
             access_info['access_token'] = response['access_token']
             access_info['refresh_token'] = response['refresh_token']
             access_info['expires_at'] = response['expires_at']
 
-        logging.info("Result: %s", access_info)
         return access_info if access_info != [] else False
 
     def update_strava_activity(self, token, activity_id, name, gear_id):
