@@ -815,10 +815,10 @@ class CalculateChallengesStats:
                 if activity_distance >= 150000.0:
                     is_eligible_for_distance_bonus = True
 
-        logging.info("Total distance: %s | 2 km rides : %s | 40 min rides: %s | Cycle to Work Calendar: %s",
-                     "Cycle to Work Distance Calendar: %s",
-                     total_distance, two_km_rides, forty_min_rides, cycle_to_work_calendar,
-                     cycle_to_work_distance_calendar)
+        logging.info(
+            "Total distance: %s | 2 km rides : %s | 40 min rides: %s | Cycle to Work Calendar: %s Cycle to Work Distance Calendar: %s",
+            total_distance, two_km_rides, forty_min_rides, cycle_to_work_calendar,
+            cycle_to_work_distance_calendar)
 
         challenges = athlete_details['bosch_odd_challenges']
 
