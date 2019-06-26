@@ -89,9 +89,12 @@ class Challenges:
                         self.calculate_challenges_stats.odd_challenges(athlete_details)
                     if athlete_details['bosch_even_challenges']:
                         self.calculate_challenges_stats.bosch_even_challenges(athlete_details)
+                    if athlete_details['bosch_odd_challenges']:
+                        self.calculate_challenges_stats.bosch_odd_challenges(athlete_details)
             self.calculate_challenges_stats.consolidate_even_challenges_result()
             self.calculate_challenges_stats.consolidate_odd_challenges_result()
             self.calculate_challenges_stats.consolidate_bosch_even_challenges_result()
+            self.calculate_challenges_stats.consolidate_bosch_odd_challenges_result()
 
     def api_hits(self):
         hits = self.iron_cache_resource.get_int_cache(cache="challenges_hits", key="hits")
