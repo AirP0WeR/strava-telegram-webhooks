@@ -725,7 +725,7 @@ class CalculateChallengesStats:
         self.telegram_resource.send_message("Updated cache for Cadence90 odd month challenges.")
 
     def bosch_odd_challenges(self, athlete_details):
-        cycle_to_work_calendar = {
+        cycle_to_work_rides_calendar = {
             1: {'to': False, 'from': False}, 2: {'to': False, 'from': False}, 3: {'to': False, 'from': False},
             4: {'to': False, 'from': False}, 5: {'to': False, 'from': False}, 6: {'to': False, 'from': False},
             7: {'to': False, 'from': False}, 8: {'to': False, 'from': False}, 9: {'to': False, 'from': False},
@@ -738,8 +738,8 @@ class CalculateChallengesStats:
             28: {'to': False, 'from': False}, 29: {'to': False, 'from': False}, 30: {'to': False, 'from': False},
             31: {'to': False, 'from': False}
         }
-        cycle_to_work_rides = 0
-        cycle_to_work_points = 0
+        cycle_to_work_rides_count = 0
+        cycle_to_work_rides_points = 0
 
         cycle_to_work_distance_calendar = {
             1: {'to': 0.0, 'from': 0.0}, 2: {'to': 0.0, 'from': 0.0}, 3: {'to': 0.0, 'from': 0.0},
@@ -754,7 +754,7 @@ class CalculateChallengesStats:
             28: {'to': 0.0, 'from': 0.0}, 29: {'to': 0.0, 'from': 0.0}, 30: {'to': 0.0, 'from': 0.0},
             31: {'to': 0.0, 'from': 0.0}
         }
-        cycle_to_work_distance_distance = 0
+        cycle_to_work_distance_count = 0
         cycle_to_work_distance_points = 0
 
         two_km_rides = 0
@@ -791,18 +791,18 @@ class CalculateChallengesStats:
                 if start_gps and end_gps:
                     is_eligible_to, is_eligible_from = self.is_c2w_eligible(start_gps, end_gps)
                     if is_eligible_to:
-                        cycle_to_work_calendar[activity_day]['to'] = True
-                        cycle_to_work_rides += 1
-                        cycle_to_work_points += 20
-                        cycle_to_work_distance_calendar[activity_day]['to'] = activity_distance
-                        cycle_to_work_distance_distance += activity_distance
+                        cycle_to_work_rides_calendar[activity_day]['to'] = True
+                        cycle_to_work_rides_count += 1
+                        cycle_to_work_rides_points += 20
+                        cycle_to_work_distance_calendar[activity_day]['to'] = activity_distance / 1000.0
+                        cycle_to_work_distance_count += activity_distance / 1000.0
                         cycle_to_work_distance_points += int(activity_distance / 1000)
                     if is_eligible_from:
-                        cycle_to_work_calendar[activity_day]['from'] = True
-                        cycle_to_work_rides += 1
-                        cycle_to_work_points += 20
-                        cycle_to_work_distance_calendar[activity_day]['from'] = activity_distance
-                        cycle_to_work_distance_distance += activity_distance
+                        cycle_to_work_rides_calendar[activity_day]['from'] = True
+                        cycle_to_work_rides_count += 1
+                        cycle_to_work_rides_points += 20
+                        cycle_to_work_distance_calendar[activity_day]['from'] = activity_distance / 1000.0
+                        cycle_to_work_distance_count += activity_distance / 1000.0
                         cycle_to_work_distance_points += int(activity_distance / 1000)
                 if activity_distance >= 2000.0:
                     two_km_rides += 1
@@ -818,7 +818,7 @@ class CalculateChallengesStats:
 
         logging.info(
             "Total distance: %s | 2 km rides : %s | 40 min rides: %s | Cycle to Work Calendar: %s Cycle to Work Distance Calendar: %s",
-            total_distance, two_km_rides, forty_min_rides, cycle_to_work_calendar,
+            total_distance, two_km_rides, forty_min_rides, cycle_to_work_rides_calendar,
             cycle_to_work_distance_calendar)
 
         challenges = athlete_details['bosch_odd_challenges']
@@ -841,16 +841,17 @@ class CalculateChallengesStats:
         }
 
         if "c2w_rides" in challenges['id']:
-            for day in cycle_to_work_calendar:
-                if cycle_to_work_calendar[day]['to'] and cycle_to_work_calendar[day]['from']:
+            for day in cycle_to_work_rides_calendar:
+                if cycle_to_work_rides_calendar[day]['to'] and cycle_to_work_rides_calendar[day]['from']:
                     challenges_stats['c2w_days'] += 1
 
-            challenges_stats['c2w_rides'] += cycle_to_work_rides
-            challenges_stats['c2w_rides_points'] += cycle_to_work_points
-            challenges_stats['c2w_rides_points'] = 500 if cycle_to_work_points > 500 else cycle_to_work_points
-            if cycle_to_work_rides >= 1:
+            challenges_stats['c2w_rides'] += cycle_to_work_rides_count
+            challenges_stats['c2w_rides_points'] += cycle_to_work_rides_points
+            challenges_stats[
+                'c2w_rides_points'] = 500 if cycle_to_work_rides_points > 500 else cycle_to_work_rides_points
+            if cycle_to_work_rides_count >= 1:
                 challenges_stats['c2w_rides_points'] += 50
-            if cycle_to_work_rides >= 2:
+            if cycle_to_work_rides_count >= 2:
                 challenges_stats['c2w_rides_points'] += 50
             if challenges_stats['c2w_days'] >= 15:
                 challenges_stats['c2w_rides_points'] += 100
@@ -861,13 +862,13 @@ class CalculateChallengesStats:
                     'from'] > 0.0:
                     challenges_stats['c2w_distance_days'] += 1
 
-            challenges_stats['c2w_distance'] += cycle_to_work_distance_distance
+            challenges_stats['c2w_distance'] += cycle_to_work_distance_count
             challenges_stats['c2w_distance_points'] += cycle_to_work_distance_points
             challenges_stats[
                 'c2w_distance_points'] = 500 if cycle_to_work_distance_points > 500 else cycle_to_work_distance_points
-            if cycle_to_work_rides >= 1:
+            if cycle_to_work_rides_count >= 1:
                 challenges_stats['c2w_distance_points'] += 50
-            if cycle_to_work_rides >= 2:
+            if cycle_to_work_rides_count >= 2:
                 challenges_stats['c2w_distance_points'] += 50
             if challenges_stats['c2w_distance_points'] >= 500:
                 challenges_stats['c2w_distance_points'] += 100
@@ -876,9 +877,9 @@ class CalculateChallengesStats:
             challenges_stats['2x30'] += two_km_rides
             challenges_stats['2x30_points'] = two_km_points
             challenges_stats['2x30_points'] = 450 if two_km_points > 450 else two_km_points
-            if cycle_to_work_rides >= 1:
+            if cycle_to_work_rides_count >= 1:
                 challenges_stats['2x30_points'] += 50
-            if cycle_to_work_rides >= 2:
+            if cycle_to_work_rides_count >= 2:
                 challenges_stats['2x30_points'] += 50
             if two_km_rides >= 30:
                 challenges_stats['2x30_points'] += 50
@@ -933,14 +934,14 @@ class CalculateChallengesStats:
                                                    '40x30_points'] + challenges_data['distance_points']})
                 if "c2w_rides" in challenges['id']:
                     cycle_to_work_rides.append(
-                        {'name': name, 'value': challenges_data['c2w_distance_days'],
-                         'points': challenges_data['c2w_distance_points'],
+                        {'name': name, 'value': challenges_data['c2w_days'],
+                         'points': challenges_data['c2w_rides_points'],
                          'rides': challenges_data['c2w_rides'], 'athlete_id': challenges_data['athlete_id'],
                          'location': challenges_data['location']})
                 elif "c2w_distance" in challenges['id']:
                     cycle_to_work_distance.append(
-                        {'name': name, 'value': challenges_data['c2w_days'],
-                         'points': challenges_data['c2w_rides_points'],
+                        {'name': name, 'value': challenges_data['c2w_distance_days'],
+                         'points': challenges_data['c2w_distance_points'],
                          'rides': challenges_data['c2w_distance'], 'athlete_id': challenges_data['athlete_id'],
                          'location': challenges_data['location']})
                 if "2x30" in challenges['id']:
