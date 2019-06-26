@@ -1015,9 +1015,9 @@ class CalculateChallengesStats:
                                            ujson.dumps(c2w_rides_points_sorted))
         self.iron_cache_resource.put_cache("bosch_odd_challenges_result", "c2w_distance",
                                            ujson.dumps(c2w_distance_points_sorted))
-        self.iron_cache_resource.put_cache("bosch_odd_challenges_result", "6_km",
+        self.iron_cache_resource.put_cache("bosch_odd_challenges_result", "2x30",
                                            ujson.dumps(two_km_rides_sorted))
-        self.iron_cache_resource.put_cache("bosch_odd_challenges_result", "30_min",
+        self.iron_cache_resource.put_cache("bosch_odd_challenges_result", "30x40",
                                            ujson.dumps(forty_mins_rides_sorted))
         self.iron_cache_resource.put_cache("bosch_odd_challenges_result", "distance",
                                            ujson.dumps(distance_sorted))
