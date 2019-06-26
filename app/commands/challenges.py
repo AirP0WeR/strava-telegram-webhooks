@@ -252,7 +252,8 @@ class Challenges:
 
         companies = ['cadence90', 'bosch']
         months = ['odd', 'even']
-        challenges = ['leaderboard', 'c2w', '6_km', '30_min', 'distance', 'leader_board']
+        challenges = ['leaderboard', 'c2w', '6_km', '30_min', 'distance', 'leader_board', 'c2w_rides', 'c2w_distance',
+                      '2x30', '30x40']
 
         if company in companies and month in months and challenge in challenges:
 
@@ -1015,9 +1016,9 @@ class CalculateChallengesStats:
                                            ujson.dumps(c2w_rides_points_sorted))
         self.iron_cache_resource.put_cache("bosch_odd_challenges_result", "c2w_distance",
                                            ujson.dumps(c2w_distance_points_sorted))
-        self.iron_cache_resource.put_cache("bosch_odd_challenges_result", "6_km",
+        self.iron_cache_resource.put_cache("bosch_odd_challenges_result", "2x30",
                                            ujson.dumps(two_km_rides_sorted))
-        self.iron_cache_resource.put_cache("bosch_odd_challenges_result", "30_min",
+        self.iron_cache_resource.put_cache("bosch_odd_challenges_result", "30x40",
                                            ujson.dumps(forty_mins_rides_sorted))
         self.iron_cache_resource.put_cache("bosch_odd_challenges_result", "distance",
                                            ujson.dumps(distance_sorted))
