@@ -755,7 +755,6 @@ class CalculateChallengesStats:
 
         two_km_rides = 0
         two_km_points = 0
-        is_eligible_for_two_km_rides_bonus = False
 
         forty_min_rides = 0
         forty_min_points = 0
