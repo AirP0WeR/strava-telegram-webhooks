@@ -208,6 +208,9 @@ class Challenges:
                 registered_athletes.append({'rank': sl_no, 'name': result[1], 'value': 0})
                 sl_no += 1
 
+        if len(registered_athletes) == 0:
+            registered_athletes.append({'rank': '', 'name': '', 'value': ''})
+
         return registered_athletes
 
     @staticmethod
