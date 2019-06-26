@@ -252,7 +252,8 @@ class Challenges:
 
         companies = ['cadence90', 'bosch']
         months = ['odd', 'even']
-        challenges = ['leaderboard', 'c2w', '6_km', '30_min', 'distance', 'leader_board']
+        challenges = ['leaderboard', 'c2w', '6_km', '30_min', 'distance', 'leader_board', 'c2w_rides', 'c2w_distance',
+                      '2x30', '30x40']
 
         if company in companies and month in months and challenge in challenges:
 
