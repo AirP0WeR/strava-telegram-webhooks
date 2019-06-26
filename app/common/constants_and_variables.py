@@ -69,7 +69,7 @@ class AppConstants:
     QUERY_GET_ATHLETES_EVEN_CHALLENGES = "select athlete_id, name, even_challenges from strava_challenges order by created"
     QUERY_GET_ATHLETES_EVEN_BOSCH_CHALLENGES = "select athlete_id, name, bosch_even_challenges from strava_challenges where bosch_even_challenges is not null order by created"
     QUERY_GET_ATHLETES_ODD_BOSCH_CHALLENGES = "select athlete_id, name, bosch_odd_challenges from strava_challenges where bosch_odd_challenges is not null order by created"
-    QUERY_GET_ATHLETES_ODD_CHALLENGES = "select athlete_id, name, odd_challenges from strava_challenges order by created"
+    QUERY_GET_ATHLETES_ODD_CHALLENGES = "select athlete_id, name, odd_challenges from strava_challenges where odd_challenges is not null order by created"
 
     API_TOKEN_EXCHANGE = 'https://www.strava.com/oauth/token'
     API_TELEGRAM_SEND_MESSAGE = "https://api.telegram.org/bot{bot_token}/sendMessage"
