@@ -354,7 +354,7 @@ class CalculateChallengesStats:
 
     def odd_challenges(self, athlete_details):
         total_distance = 0.0
-        total_elevation = 0
+        total_elevation = 0.0
         total_activities = 0
 
         for activity in self.strava_resource.get_strava_activities_after_date_before_date(
@@ -372,8 +372,8 @@ class CalculateChallengesStats:
                 activity_elevation)
             if self.operations.supported_activities_for_challenges(
                     activity) and activity_month == self.app_variables.odd_challenges_month and activity_year == self.app_variables.odd_challenges_year:
-                total_distance += activity_distance
-                total_elevation += activity_elevation
+                total_distance += activity_distance if activity_distance <= 100000.0 else 100000.0
+                total_elevation += activity_elevation if activity_elevation <= 1500.0 else 1500.0
                 if activity_distance >= 10000.0 and activity_time >= 1800:
                     total_activities += 1
 
