@@ -720,6 +720,308 @@ class CalculateChallengesStats:
                                            ujson.dumps(odd_challenge_sorted))
         self.telegram_resource.send_message("Updated cache for Cadence90 odd month challenges.")
 
+    def bosch_odd_challenges(self, athlete_details):
+        cycle_to_work_calendar = {
+            1: {'to': False, 'from': False}, 2: {'to': False, 'from': False}, 3: {'to': False, 'from': False},
+            4: {'to': False, 'from': False}, 5: {'to': False, 'from': False}, 6: {'to': False, 'from': False},
+            7: {'to': False, 'from': False}, 8: {'to': False, 'from': False}, 9: {'to': False, 'from': False},
+            10: {'to': False, 'from': False}, 11: {'to': False, 'from': False}, 12: {'to': False, 'from': False},
+            13: {'to': False, 'from': False}, 14: {'to': False, 'from': False}, 15: {'to': False, 'from': False},
+            16: {'to': False, 'from': False}, 17: {'to': False, 'from': False}, 18: {'to': False, 'from': False},
+            19: {'to': False, 'from': False}, 20: {'to': False, 'from': False}, 21: {'to': False, 'from': False},
+            22: {'to': False, 'from': False}, 23: {'to': False, 'from': False}, 24: {'to': False, 'from': False},
+            25: {'to': False, 'from': False}, 26: {'to': False, 'from': False}, 27: {'to': False, 'from': False},
+            28: {'to': False, 'from': False}, 29: {'to': False, 'from': False}, 30: {'to': False, 'from': False},
+            31: {'to': False, 'from': False}
+        }
+        cycle_to_work_rides = 0
+        cycle_to_work_points = 0
+
+        cycle_to_work_distance_calendar = {
+            1: {'to': 0.0, 'from': 0.0}, 2: {'to': 0.0, 'from': 0.0}, 3: {'to': 0.0, 'from': 0.0},
+            4: {'to': 0.0, 'from': 0.0}, 5: {'to': 0.0, 'from': 0.0}, 6: {'to': 0.0, 'from': 0.0},
+            7: {'to': 0.0, 'from': 0.0}, 8: {'to': 0.0, 'from': 0.0}, 9: {'to': 0.0, 'from': 0.0},
+            10: {'to': 0.0, 'from': 0.0}, 11: {'to': 0.0, 'from': 0.0}, 12: {'to': 0.0, 'from': 0.0},
+            13: {'to': 0.0, 'from': 0.0}, 14: {'to': 0.0, 'from': 0.0}, 15: {'to': 0.0, 'from': 0.0},
+            16: {'to': 0.0, 'from': 0.0}, 17: {'to': 0.0, 'from': 0.0}, 18: {'to': 0.0, 'from': 0.0},
+            19: {'to': 0.0, 'from': 0.0}, 20: {'to': 0.0, 'from': 0.0}, 21: {'to': 0.0, 'from': 0.0},
+            22: {'to': 0.0, 'from': 0.0}, 23: {'to': 0.0, 'from': 0.0}, 24: {'to': 0.0, 'from': 0.0},
+            25: {'to': 0.0, 'from': 0.0}, 26: {'to': 0.0, 'from': 0.0}, 27: {'to': 0.0, 'from': 0.0},
+            28: {'to': 0.0, 'from': 0.0}, 29: {'to': 0.0, 'from': 0.0}, 30: {'to': 0.0, 'from': 0.0},
+            31: {'to': 0.0, 'from': 0.0}
+        }
+        cycle_to_work_distance_distance = 0
+        cycle_to_work_distance_points = 0
+
+        two_km_rides = 0
+        two_km_points = 0
+        is_eligible_for_two_km_rides_bonus = False
+
+        forty_min_rides = 0
+        forty_min_points = 0
+        is_eligible_for_forty_mins_rides_bonus = False
+
+        total_distance = 0.0
+        is_eligible_for_distance_bonus = False
+
+        for activity in self.strava_resource.get_strava_activities_after_date_before_date(
+                athlete_details['athlete_token'], self.app_variables.odd_challenges_from_date,
+                self.app_variables.odd_challenges_to_date):
+            activity_month = activity.start_date_local.month
+            activity_year = activity.start_date_local.year
+            activity_day = activity.start_date_local.day
+            activity_distance = float(activity.distance)
+            activity_time = unithelper.timedelta_to_seconds(activity.moving_time)
+            try:
+                start_gps = [activity.start_latlng.lat, activity.start_latlng.lon]
+                end_gps = [activity.end_latlng.lat, activity.end_latlng.lon]
+            except AttributeError:
+                start_gps = None
+                end_gps = None
+
+            logging.info(
+                "Type: %s | Month: %s | Year: %s | Day: %s | Distance: %s | Time: %s | Start GPS: %s | End GPS: %s",
+                activity.type, activity_month, activity_year, activity_day, activity_distance, activity_time, start_gps,
+                end_gps)
+            if self.operations.supported_activities_for_challenges(activity) and not self.operations.is_indoor(
+                    activity) and activity_month == self.app_variables.odd_challenges_month and activity_year == self.app_variables.odd_challenges_year:
+                if start_gps and end_gps:
+                    is_eligible_to, is_eligible_from = self.is_c2w_eligible(start_gps, end_gps)
+                    if is_eligible_to:
+                        cycle_to_work_calendar[activity_day]['to'] = True
+                        cycle_to_work_rides += 1
+                        cycle_to_work_points += 20
+                        cycle_to_work_distance_calendar[activity_day]['to'] = activity_distance
+                        cycle_to_work_distance_distance += activity_distance
+                        cycle_to_work_distance_points += int(activity_distance / 1000)
+                    if is_eligible_from:
+                        cycle_to_work_calendar[activity_day]['from'] = True
+                        cycle_to_work_rides += 1
+                        cycle_to_work_points += 20
+                        cycle_to_work_distance_calendar[activity_day]['from'] = activity_distance
+                        cycle_to_work_distance_distance += activity_distance
+                        cycle_to_work_distance_points += int(activity_distance / 1000)
+                if activity_distance >= 2000.0:
+                    two_km_rides += 1
+                    two_km_points += 15
+                if activity_time >= 2400:
+                    forty_min_rides += 1
+                    forty_min_points += 20
+                    if activity_distance >= 50000:
+                        is_eligible_for_forty_mins_rides_bonus = True
+                total_distance += activity_distance
+                if activity_distance >= 150000.0:
+                    is_eligible_for_distance_bonus = True
+
+        logging.info("Total distance: %s | 2 km rides : %s | 40 min rides: %s | Cycle to Work Calendar: %s",
+                     "Cycle to Work Distance Calendar: %s",
+                     total_distance, two_km_rides, forty_min_rides, cycle_to_work_calendar,
+                     cycle_to_work_distance_calendar)
+
+        challenges = athlete_details['bosch_odd_challenges']
+
+        challenges_stats = {
+            'c2w_days': 0,
+            'c2w_rides': 0,
+            'c2w_rides_points': 0,
+            'c2w_distance_days': 0,
+            'c2w_distance': 0,
+            'c2w_distance_points': 0,
+            '2x30': 0,
+            '2x30_points': 0,
+            '40x30': 0,
+            '40x30_points': 0,
+            'distance': 0.0,
+            'distance_points': 0,
+            'athlete_id': athlete_details['athlete_id'],
+            'location': challenges['location']
+        }
+
+        if "c2w_rides" in challenges['id']:
+            for day in cycle_to_work_calendar:
+                if cycle_to_work_calendar[day]['to'] and cycle_to_work_calendar[day]['from']:
+                    challenges_stats['c2w_days'] += 1
+
+            challenges_stats['c2w_rides'] += cycle_to_work_rides
+            challenges_stats['c2w_rides_points'] += cycle_to_work_points
+            challenges_stats['c2w_rides_points'] = 500 if cycle_to_work_points > 500 else cycle_to_work_points
+            if cycle_to_work_rides >= 1:
+                challenges_stats['c2w_rides_points'] += 50
+            if cycle_to_work_rides >= 2:
+                challenges_stats['c2w_rides_points'] += 50
+            if challenges_stats['c2w_days'] >= 15:
+                challenges_stats['c2w_rides_points'] += 100
+
+        elif "c2w_distance" in challenges['id']:
+            for day in cycle_to_work_distance_calendar:
+                if cycle_to_work_distance_calendar[day]['to'] > 0.0 and cycle_to_work_distance_calendar[day][
+                    'from'] > 0.0:
+                    challenges_stats['c2w_distance_days'] += 1
+
+            challenges_stats['c2w_distance'] += cycle_to_work_distance_distance
+            challenges_stats['c2w_distance_points'] += cycle_to_work_distance_points
+            challenges_stats[
+                'c2w_distance_points'] = 500 if cycle_to_work_distance_points > 500 else cycle_to_work_distance_points
+            if cycle_to_work_rides >= 1:
+                challenges_stats['c2w_distance_points'] += 50
+            if cycle_to_work_rides >= 2:
+                challenges_stats['c2w_distance_points'] += 50
+            if challenges_stats['c2w_distance_points'] >= 500:
+                challenges_stats['c2w_distance_points'] += 100
+
+        if "2x30" in challenges['id']:
+            challenges_stats['2x30'] += two_km_rides
+            challenges_stats['2x30_points'] = two_km_points
+            challenges_stats['2x30_points'] = 450 if two_km_points > 450 else two_km_points
+            if cycle_to_work_rides >= 1:
+                challenges_stats['2x30_points'] += 50
+            if cycle_to_work_rides >= 2:
+                challenges_stats['2x30_points'] += 50
+            if two_km_rides >= 30:
+                challenges_stats['2x30_points'] += 50
+            if two_km_rides >= 35:
+                challenges_stats['2x30_points'] += 50
+
+        elif "40x30" in challenges['id']:
+            challenges_stats['40x30'] += forty_min_rides
+            challenges_stats['40x30_points'] = forty_min_points
+            challenges_stats['40x30_points'] = 600 if forty_min_points > 600 else forty_min_points
+            if forty_min_rides >= 30:
+                challenges_stats['40x30_points'] += 20
+                if is_eligible_for_forty_mins_rides_bonus:
+                    challenges_stats['40x30_points'] += 50
+
+        elif "distance" in challenges['id']:
+            challenges_stats['distance'] += total_distance
+            distance_points = int(total_distance / 1000)
+            challenges_stats['distance_points'] = 600 if distance_points > 600 else distance_points
+            if total_distance >= 1000000.0:
+                challenges_stats['distance_points'] += 50
+                if is_eligible_for_distance_bonus:
+                    challenges_stats['distance_points'] += 50
+
+        if self.database_resource.write_operation(self.app_constants.QUERY_UPDATE_BOSCH_ODD_CHALLENGES_DATA.format(
+                bosch_odd_challenges_data=ujson.dumps(challenges_stats), athlete_id=athlete_details['athlete_id'])):
+            self.telegram_resource.send_message(
+                "Updated Bosch odd challenges data for {name}.".format(name=athlete_details['name']))
+        else:
+            self.telegram_resource.send_message(
+                "Failed to update Bosch odd challenges data for {name}".format(name=athlete_details['name']))
+
+    def consolidate_bosch_odd_challenges_result(self):
+        cycle_to_work_rides = list()
+        cycle_to_work_distance = list()
+        two_km_rides = list()
+        forty_mins_rides = list()
+        distance = list()
+        leader_board = list()
+
+        results = self.database_resource.read_all_operation(self.app_constants.QUERY_GET_BOSCH_ODD_CHALLENGES_DATA)
+        for result in results:
+            name = result[0]
+            challenges = result[1]
+            challenges_data = result[2]
+
+            if challenges:
+                leader_board.append({"athlete_id": challenges_data['athlete_id'], "name": name,
+                                     "location": challenges_data['location'],
+                                     "points": challenges_data['c2w_rides_points'] + challenges_data[
+                                         'c2w_distance_points'] + challenges_data['2x30_points'] + challenges_data[
+                                                   '40x30_points'] + challenges_data['distance_points']})
+                if "c2w_rides" in challenges['id']:
+                    cycle_to_work_rides.append(
+                        {'name': name, 'value': challenges_data['c2w_distance_days'],
+                         'points': challenges_data['c2w_distance_points'],
+                         'rides': challenges_data['c2w_rides'], 'athlete_id': challenges_data['athlete_id'],
+                         'location': challenges_data['location']})
+                elif "c2w_distance" in challenges['id']:
+                    cycle_to_work_distance.append(
+                        {'name': name, 'value': challenges_data['c2w_days'],
+                         'points': challenges_data['c2w_rides_points'],
+                         'rides': challenges_data['c2w_distance'], 'athlete_id': challenges_data['athlete_id'],
+                         'location': challenges_data['location']})
+                if "2x30" in challenges['id']:
+                    two_km_rides.append(
+                        {'name': name, 'value': challenges_data['2x30'], 'points': challenges_data['2x30_points'],
+                         'athlete_id': challenges_data['athlete_id'], 'location': challenges_data['location']})
+                elif "40x30" in challenges['id']:
+                    forty_mins_rides.append(
+                        {'name': name, 'value': challenges_data['40x30'], 'points': challenges_data['40x30_points'],
+                         'athlete_id': challenges_data['athlete_id'], 'location': challenges_data['location']})
+                elif "distance" in challenges['id']:
+                    distance.append(
+                        {'name': name, 'value': self.operations.meters_to_kilometers(challenges_data['distance']),
+                         'points': challenges_data['distance_points'], 'athlete_id': challenges_data['athlete_id'],
+                         'location': challenges_data['location']})
+
+        c2w_rides_points_temp = sorted(cycle_to_work_rides, key=operator.itemgetter('points'), reverse=True)
+        c2w_rides_distance_temp = sorted(cycle_to_work_distance, key=operator.itemgetter('points'), reverse=True)
+        two_km_temp = sorted(two_km_rides, key=operator.itemgetter('points'), reverse=True)
+        forty_mins_temp = sorted(forty_mins_rides, key=operator.itemgetter('points'), reverse=True)
+        distance_temp = sorted(distance, key=operator.itemgetter('points'), reverse=True)
+        leader_board_temp = sorted(leader_board, key=operator.itemgetter('points'), reverse=True)
+
+        c2w_rides_points_sorted = list()
+        rank = 1
+        for athlete in c2w_rides_points_temp:
+            c2w_rides_points_sorted.append(
+                {'rank': rank, 'name': athlete['name'], 'count': athlete['value'], 'points': athlete['points'],
+                 'rides': athlete['rides'], 'athlete_id': athlete['athlete_id'], 'location': athlete['location']})
+            rank += 1
+
+        c2w_distance_points_sorted = list()
+        rank = 1
+        for athlete in c2w_rides_distance_temp:
+            c2w_distance_points_sorted.append(
+                {'rank': rank, 'name': athlete['name'], 'count': athlete['value'], 'points': athlete['points'],
+                 'rides': athlete['rides'], 'athlete_id': athlete['athlete_id'], 'location': athlete['location']})
+            rank += 1
+
+        two_km_rides_sorted = list()
+        rank = 1
+        for athlete in two_km_temp:
+            two_km_rides_sorted.append(
+                {'rank': rank, 'name': athlete['name'], 'count': athlete['value'], 'points': athlete['points'],
+                 'athlete_id': athlete['athlete_id'], 'location': athlete['location']})
+            rank += 1
+
+        forty_mins_rides_sorted = list()
+        rank = 1
+        for athlete in forty_mins_temp:
+            forty_mins_rides_sorted.append(
+                {'rank': rank, 'name': athlete['name'], 'count': athlete['value'], 'points': athlete['points'],
+                 'athlete_id': athlete['athlete_id'], 'location': athlete['location']})
+            rank += 1
+
+        distance_sorted = list()
+        rank = 1
+        for athlete in distance_temp:
+            distance_sorted.append(
+                {'rank': rank, 'name': athlete['name'], 'distance': athlete['value'], 'points': athlete['points'],
+                 'athlete_id': athlete['athlete_id'], 'location': athlete['location']})
+            rank += 1
+
+        leader_board_sorted = list()
+        rank = 1
+        for athlete in leader_board_temp:
+            leader_board_sorted.append(
+                {'rank': rank, 'name': athlete['name'], 'points': athlete['points'],
+                 'athlete_id': athlete['athlete_id'], 'location': athlete['location']})
+            rank += 1
+
+        self.iron_cache_resource.put_cache("bosch_odd_challenges_result", "c2w_rides",
+                                           ujson.dumps(c2w_rides_points_sorted))
+        self.iron_cache_resource.put_cache("bosch_odd_challenges_result", "c2w_distance",
+                                           ujson.dumps(c2w_distance_points_sorted))
+        self.iron_cache_resource.put_cache("bosch_odd_challenges_result", "6_km",
+                                           ujson.dumps(two_km_rides_sorted))
+        self.iron_cache_resource.put_cache("bosch_odd_challenges_result", "30_min",
+                                           ujson.dumps(forty_mins_rides_sorted))
+        self.iron_cache_resource.put_cache("bosch_odd_challenges_result", "distance",
+                                           ujson.dumps(distance_sorted))
+        self.iron_cache_resource.put_cache("bosch_odd_challenges_result", "leader_board",
+                                           ujson.dumps(leader_board_sorted))
+
     def main(self, athlete_details):
         if athlete_details['even_challenges']:
             self.even_challenges(athlete_details)
@@ -730,3 +1032,6 @@ class CalculateChallengesStats:
         if athlete_details['bosch_even_challenges']:
             self.bosch_even_challenges(athlete_details)
             self.consolidate_bosch_even_challenges_result()
+        if athlete_details['bosch_odd_challenges']:
+            self.bosch_odd_challenges(athlete_details)
+            self.consolidate_bosch_odd_challenges_result()
