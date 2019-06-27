@@ -416,6 +416,7 @@ class CalculateChallengesStats:
 
                 # Rides on first and last day of the month will fetch you 2x points
                 if activity_day in ['1', '31']:
+                    logging.info("2x points. Date: %s", activity_day)
                     total_distance += activity_distance if activity_distance <= 100.0 else 100.0
                     total_elevation += activity_elevation if activity_elevation <= 1500 else 1500
                     if activity_time >= 1800 or activity_distance >= 10.0:
