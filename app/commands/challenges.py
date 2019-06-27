@@ -506,6 +506,11 @@ class CalculateChallengesStats:
                 total_points += 100
                 twenties_streak = 0
 
+        logging.info("total_distance: %s | total_elevation: %s, total_activities: %s | total_points: %s | "
+                     "total_hundreds: %s | total_fifties: %s | total_twenties: %s | ride_calendar: %s", total_distance,
+                     total_elevation, total_activities, total_points, total_hundreds, total_fifties, total_twenties,
+                     ride_calendar)
+
         if self.database_resource.write_operation(self.app_constants.QUERY_UPDATE_ODD_CHALLENGES_DATA.format(
                 challenges_data=ujson.dumps({'athlete_id': athlete_details['athlete_id'], 'points': total_points}),
                 athlete_id=athlete_details['athlete_id'])):
