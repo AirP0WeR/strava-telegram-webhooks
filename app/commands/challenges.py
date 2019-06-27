@@ -354,8 +354,16 @@ class CalculateChallengesStats:
 
     def odd_challenges(self, athlete_details):
         total_distance = 0.0
-        total_elevation = 0.0
+        total_elevation = 0
         total_activities = 0
+        total_points = 0
+        total_hundreds = 0
+        total_fifties = 0
+        total_twenties = 0
+        ride_calendar = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0, 11: 0,
+                         12: 0, 13: 0, 14: 0, 15: 0, 16: 0, 17: 0, 18: 0, 19: 0, 20: 0,
+                         21: 0, 22: 0, 23: 0, 24: 0, 25: 0, 26: 0, 27: 0, 28: 0, 29: 0,
+                         30: 0, 31: 0}
 
         for activity in self.strava_resource.get_strava_activities_after_date_before_date(
                 athlete_details['athlete_token'], self.app_variables.odd_challenges_from_date,
@@ -363,8 +371,8 @@ class CalculateChallengesStats:
             activity_month = activity.start_date_local.month
             activity_year = activity.start_date_local.year
             activity_day = activity.start_date_local.day
-            activity_distance = float(activity.distance)
-            activity_elevation = float(activity.total_elevation_gain)
+            activity_distance = self.operations.meters_to_kilometers(float(activity.distance))
+            activity_elevation = self.operations.remove_decimal_point(float(activity.total_elevation_gain))
             activity_time = unithelper.timedelta_to_seconds(activity.moving_time)
             logging.info(
                 "Type: %s | Month: %s | Year: %s | Day: %s | Distance: %s | Time: %s | Elevation: %s",
@@ -372,25 +380,135 @@ class CalculateChallengesStats:
                 activity_elevation)
             if self.operations.supported_activities_for_challenges(
                     activity) and activity_month == self.app_variables.odd_challenges_month and activity_year == self.app_variables.odd_challenges_year:
-                total_distance += activity_distance if activity_distance <= 100000.0 else 100000.0
-                total_elevation += activity_elevation if activity_elevation <= 1500.0 else 1500.0
-                if activity_distance >= 10000.0 and activity_time >= 1800:
+
+                # A cap of 100 kms(single ride) is set for base points.
+                total_distance += activity_distance if activity_distance <= 100.0 else 100.0
+                # A cap of 1500 meters(single ride) of elevation gain is set for base points.
+                total_elevation += activity_elevation if activity_elevation <= 1500 else 1500
+                # Minimum 30 mins or 10 kms for 1 activity
+                if activity_time >= 1800 or activity_distance >= 10.0:
                     total_activities += 1
 
-        total_distance = self.operations.meters_to_kilometers(total_distance)
-        total_elevation = self.operations.remove_decimal_point(total_elevation)
+                # 1000 meters of elevation gain in a single ride = 25 points
+                if activity_elevation >= 1000:
+                    total_points += 25
+                # 500 meters of elevation gain in a single ride = 10 points
+                elif activity_elevation >= 500:
+                    total_points += 10
 
-        challenges_stats = {
-            'athlete_id': athlete_details['athlete_id'],
-            'points': 0
-        }
+                # 100 km in a single ride on a weekend = 20 points
+                if activity_distance >= 100.0:
+                    if activity.start_date_local.weekday() in [5, 6]:  # Saturday & Sunday
+                        total_points += 20
+                    else:
+                        # 100 km in a single ride on a weekday = 30 points
+                        total_points += 30
+                # 50 km in a single ride on a weekend = 10 points
+                elif activity_distance >= 50.0:
+                    if activity.start_date_local.weekday() in [5, 6]:  # Saturday & Sunday
+                        total_points += 10
+                    else:
+                        # 50 km in a single ride on a weekday = 15 points
+                        total_points += 15
+                # 20 km in a single ride = 5 points
+                elif activity_distance >= 20.0:
+                    total_points += 5
 
-        challenges_stats['points'] += int(total_distance / 10)
-        challenges_stats['points'] += int(total_elevation / 100)
-        challenges_stats['points'] += total_activities
+                # Rides on first and last day of the month will fetch you 2x points
+                if activity_day in ['1', '31']:
+                    total_distance += activity_distance if activity_distance <= 100.0 else 100.0
+                    total_elevation += activity_elevation if activity_elevation <= 1500 else 1500
+                    if activity_time >= 1800 or activity_distance >= 10.0:
+                        total_activities += 1
+                    if activity_elevation >= 1000:
+                        total_points += 25
+                    elif activity_elevation >= 500:
+                        total_points += 10
+                    if activity_distance >= 100.0:
+                        if activity.start_date_local.weekday() in [5, 6]:
+                            total_points += 20
+                        else:
+                            total_points += 30
+                    elif activity_distance >= 50.0:
+                        if activity.start_date_local.weekday() in [5, 6]:
+                            total_points += 10
+                        else:
+                            total_points += 15
+                    elif activity_distance >= 20.0:
+                        total_points += 5
+
+                if activity_distance >= 100.0:
+                    ride_calendar[activity_day] = 100
+                    total_hundreds += 1
+                elif activity_distance >= 50.0:
+                    ride_calendar[activity_day] = 50
+                    total_fifties += 1
+                elif activity_distance >= 20.0:
+                    ride_calendar[activity_day] = 20
+                    total_twenties += 1
+
+        # 10 km = 1 point
+        total_points += int(total_distance / 10)
+        # 100 meters = 1 point (Elevation gain)
+        total_points += int(total_elevation / 100)
+        # 1 activity = 1 point
+        total_points += total_activities
+        # 1000 kms in a month = 150 points
+        if total_distance >= 1000.0:
+            total_points += 150
+        # 10000 meters of elevation gain in a month = 150 points
+        if total_elevation >= 10000:
+            total_points += 150
+
+        # 100 km rides for 10 days in a month = 200
+        if total_hundreds >= 10:
+            total_points += 200
+        # 50 km rides for 10 days in a month = 100 points**
+        elif total_fifties >= 10:
+            total_points += 100
+        # 20 km on all days of the month = 250 points
+        elif total_twenties >= 31:
+            total_points += 250
+        # 20 km for 20 days in a month = 150 points
+        elif total_twenties >= 20:
+            total_points += 150
+
+        # 20 km for 5 successive days = 75 points
+        # 50 km for 5 successive days = 100 points*
+        # 100 km for 3 successive days = 100 points
+        hundreds_streak = 0
+        fifties_streak = 0
+        twenties_streak = 0
+        for ride in ride_calendar:
+            distance = ride_calendar[ride]
+            if distance == 100:
+                hundreds_streak += 1
+                fifties_streak = 0
+                twenties_streak = 0
+            else:
+                hundreds_streak = 0
+                if distance == 50:
+                    fifties_streak += 1
+                    twenties_streak = 0
+                else:
+                    fifties_streak = 0
+                    if distance == 20:
+                        twenties_streak += 1
+                    else:
+                        twenties_streak = 0
+            if hundreds_streak == 3:
+                total_points += 100
+                hundreds_streak = 0
+            elif fifties_streak == 5:
+                total_points += 100
+                fifties_streak = 0
+            elif twenties_streak == 5:
+                total_points += 100
+                twenties_streak = 0
 
         if self.database_resource.write_operation(self.app_constants.QUERY_UPDATE_ODD_CHALLENGES_DATA.format(
-                challenges_data=ujson.dumps(challenges_stats), athlete_id=athlete_details['athlete_id'])):
+                challenges_data=ujson.dumps({'athlete_id': athlete_details['athlete_id'], 'points': total_points}),
+                athlete_id=athlete_details['athlete_id'])):
             self.telegram_resource.send_message(
                 "Updated Cadence90 odd challenges data for {name}.".format(name=athlete_details['name']))
         else:

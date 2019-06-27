@@ -107,3 +107,4 @@ venv.bak/
 /app/common/deauth_athletes.py
 /app/common/export_to_csv.py
 /app/common/.DS_Store
+/app/local.py
