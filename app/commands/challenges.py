@@ -828,11 +828,11 @@ class CalculateChallengesStats:
             if challenges and challenges['payment']:
                 odd_challenge.append({'name': name, 'value': challenges_data['points']})
 
-        odd_challenge_twenty_temp = sorted(odd_challenge, key=operator.itemgetter('value'), reverse=True)
+        odd_challenge_temp = sorted(odd_challenge, key=operator.itemgetter('value'), reverse=True)
 
         odd_challenge_sorted = list()
         rank = 1
-        for athlete in odd_challenge_twenty_temp:
+        for athlete in odd_challenge_temp:
             odd_challenge_sorted.append(
                 {'rank': rank, 'name': athlete['name'], 'value': athlete['value']})
             rank += 1
