@@ -995,7 +995,7 @@ class CalculateChallengesStats:
                 challenges_stats['c2w_distance_points'] += 50
             if cycle_to_work_rides_count >= 2:
                 challenges_stats['c2w_distance_points'] += 50
-            if challenges_stats['c2w_distance_points'] >= 500:
+            if challenges_stats['c2w_distance_points'] >= 550:
                 challenges_stats['c2w_distance_points'] += 100
 
         if "2x30" in challenges['id']:
