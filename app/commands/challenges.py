@@ -709,9 +709,10 @@ class CalculateChallengesStats:
                          'points': challenges_data['distance_points'], 'athlete_id': challenges_data['athlete_id'],
                          'location': challenges_data['location']})
 
-        bosch_even_challenge_c2w_points_temp = sorted(cycle_to_work, key=operator.itemgetter('points'), reverse=True)
+        bosch_even_challenge_c2w_points_temp = sorted(cycle_to_work, key=operator.itemgetter('points', 'rides'),
+                                                      reverse=True)
         bosch_even_challenge_six_km_temp = sorted(six_km_rides, key=operator.itemgetter('points'), reverse=True)
-        bosch_even_challenge_30_mins_temp = sorted(thirty_mins_rides, key=operator.itemgetter('points'),
+        bosch_even_challenge_30_mins_temp = sorted(thirty_mins_rides, key=operator.itemgetter('points', 'value'),
                                                    reverse=True)
         bosch_even_challenge_distance_temp = sorted(distance, key=operator.itemgetter('points'), reverse=True)
         leader_board_temp = sorted(leader_board, key=operator.itemgetter('points'), reverse=True)
@@ -995,7 +996,7 @@ class CalculateChallengesStats:
                 challenges_stats['c2w_distance_points'] += 50
             if cycle_to_work_rides_count >= 2:
                 challenges_stats['c2w_distance_points'] += 50
-            if challenges_stats['c2w_distance_points'] >= 500:
+            if challenges_stats['c2w_distance_points'] >= 550:
                 challenges_stats['c2w_distance_points'] += 100
 
         if "2x30" in challenges['id']:
