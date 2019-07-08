@@ -531,13 +531,13 @@ class CalculateChallengesStats:
             distance = ride_calendar[day]["bonus_distance_sot"]
             if distance == 100:
                 hundreds_streak += 1
-                fifties_streak = 0
-                twenties_streak = 0
+                fifties_streak += 1
+                twenties_streak += 1
             else:
                 hundreds_streak = 0
                 if distance == 50:
                     fifties_streak += 1
-                    twenties_streak = 0
+                    twenties_streak += 1
                 else:
                     fifties_streak = 0
                     if distance == 20:
@@ -547,17 +547,24 @@ class CalculateChallengesStats:
             if hundreds_streak == 3:
                 total_points += 100
                 hundreds_streak = 0
+                fifties_streak = 0
+                twenties_streak = 0
             elif fifties_streak == 5:
                 total_points += 100
+                hundreds_streak = 0
                 fifties_streak = 0
+                twenties_streak = 0
             elif twenties_streak == 5:
                 total_points += 100
+                hundreds_streak = 0
+                fifties_streak = 0
                 twenties_streak = 0
 
         logging.info("total_distance: %s | total_elevation: %s, total_activities: %s | total_points: %s | "
-                     "total_hundreds: %s | total_fifties: %s | total_twenties: %s | ride_calendar: %s", total_distance,
-                     total_elevation, total_activities, total_points, total_hundreds, total_fifties, total_twenties,
-                     ride_calendar)
+                     "total_hundreds: %s | total_fifties: %s | total_twenties: %s | ride_calendar: %s | "
+                     "hundreds_streak: %s | fifties_streak: %s | twenties_streak: %s",
+                     total_distance, total_elevation, total_activities, total_points, total_hundreds, total_fifties,
+                     total_twenties, ride_calendar, hundreds_streak, fifties_streak, twenties_streak)
 
         if self.database_resource.write_operation(self.app_constants.QUERY_UPDATE_ODD_CHALLENGES_DATA.format(
                 challenges_data=ujson.dumps({'athlete_id': athlete_details['athlete_id'], 'points': total_points}),
