@@ -108,3 +108,4 @@ venv.bak/
 /app/common/export_to_csv.py
 /app/common/.DS_Store
 /app/local.py
+/app/commands/challenges_local.py

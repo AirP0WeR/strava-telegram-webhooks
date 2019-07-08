@@ -353,17 +353,39 @@ class CalculateChallengesStats:
                 "Failed to update even challenges data for {name}".format(name=athlete_details['name']))
 
     def odd_challenges(self, athlete_details):
-        total_distance = 0.0
-        total_elevation = 0
-        total_activities = 0
-        total_points = 0
-        total_hundreds = 0
-        total_fifties = 0
-        total_twenties = 0
-        ride_calendar = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0, 11: 0,
-                         12: 0, 13: 0, 14: 0, 15: 0, 16: 0, 17: 0, 18: 0, 19: 0, 20: 0,
-                         21: 0, 22: 0, 23: 0, 24: 0, 25: 0, 26: 0, 27: 0, 28: 0, 29: 0,
-                         30: 0, 31: 0}
+        ride_calendar = {
+            1: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            2: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            3: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            4: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            5: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            6: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            7: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            8: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            9: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            10: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            11: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            12: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            13: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            14: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            15: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            16: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            17: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            18: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            19: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            20: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            21: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            22: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            23: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            24: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            25: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            26: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            27: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            28: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            29: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            30: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            31: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0}
+        }
 
         for activity in self.strava_resource.get_strava_activities_after_date_before_date(
                 athlete_details['athlete_token'], self.app_variables.odd_challenges_from_date,
@@ -381,71 +403,97 @@ class CalculateChallengesStats:
             if self.operations.supported_activities_for_challenges(
                     activity) and activity_month == self.app_variables.odd_challenges_month and activity_year == self.app_variables.odd_challenges_year:
 
-                # A cap of 100 kms(single ride) is set for base points.
-                total_distance += activity_distance if activity_distance <= 100.0 else 100.0
-                # A cap of 1500 meters(single ride) of elevation gain is set for base points.
-                total_elevation += activity_elevation if activity_elevation <= 1500 else 1500
+                ride_calendar[activity_day]["distance"] += activity_distance
+                ride_calendar[activity_day]["elevation"] += activity_elevation
                 # Minimum 30 mins or 10 kms for 1 activity
                 if activity_time >= 1800 or activity_distance >= 10.0:
-                    total_activities += 1
+                    ride_calendar[activity_day]["activities"] += 1
 
-                # 1000 meters of elevation gain in a single ride = 25 points
+                if activity_distance >= 100.0:
+                    ride_calendar[activity_day]["bonus_distance_sot"] = 100
+                elif activity_distance >= 50.0:
+                    ride_calendar[activity_day]["bonus_distance_sot"] = 50 if ride_calendar[activity_day][
+                                                                                  "bonus_distance_sot"] < 50 else \
+                    ride_calendar[activity_day]["bonus_distance_sot"]
+                elif activity_distance >= 20.0:
+                    ride_calendar[activity_day]["bonus_distance_sot"] = 20 if ride_calendar[activity_day][
+                                                                                  "bonus_distance_sot"] < 20 else \
+                    ride_calendar[activity_day]["bonus_distance_sot"]
+
                 if activity_elevation >= 1000:
-                    total_points += 25
-                # 500 meters of elevation gain in a single ride = 10 points
+                    ride_calendar[activity_day]["bonus_elevation_sot"] = 1000
                 elif activity_elevation >= 500:
-                    total_points += 10
+                    ride_calendar[activity_day]["bonus_elevation_sot"] = 500 if ride_calendar[activity_day][
+                                                                                    "bonus_elevation_sot"] < 500 else \
+                    ride_calendar[activity_day]["bonus_elevation_sot"]
 
-                # 100 km in a single ride on a weekend = 20 points
-                if activity_distance >= 100.0:
-                    if activity.start_date_local.weekday() in [5, 6]:  # Saturday & Sunday
-                        total_points += 20
-                    else:
-                        # 100 km in a single ride on a weekday = 30 points
-                        total_points += 30
-                # 50 km in a single ride on a weekend = 10 points
-                elif activity_distance >= 50.0:
-                    if activity.start_date_local.weekday() in [5, 6]:  # Saturday & Sunday
-                        total_points += 10
-                    else:
-                        # 50 km in a single ride on a weekday = 15 points
-                        total_points += 15
-                # 20 km in a single ride = 5 points
-                elif activity_distance >= 20.0:
+        logging.info("Ride Calendar: %s", ride_calendar)
+
+        for day in ride_calendar:
+            # A cap of 100 kms(single ride) is set for base points.
+            ride_calendar[day]["distance"] = ride_calendar[day]["distance"] if ride_calendar[day][
+                                                                                   "distance"] <= 100.0 else 100.0
+            # A cap of 1500 meters(single ride) of elevation gain is set for base points.
+            ride_calendar[day]["elevation"] = ride_calendar[day]["elevation"] if ride_calendar[day][
+                                                                                     "elevation"] <= 1500 else 1500
+
+        logging.info("Ride Calendar: %s", ride_calendar)
+
+        total_distance = 0.0
+        total_elevation = 0
+        total_activities = 0
+        total_hundreds = 0
+        total_fifties = 0
+        total_twenties = 0
+
+        for day in ride_calendar:
+            total_distance += ride_calendar[day]["distance"]
+            total_elevation += ride_calendar[day]["elevation"]
+            total_activities += ride_calendar[day]["activities"]
+            if ride_calendar[day]["bonus_distance_sot"] == 100:
+                total_hundreds += 1
+            elif ride_calendar[day]["bonus_distance_sot"] == 50:
+                total_fifties += 1
+            elif ride_calendar[day]["bonus_distance_sot"] == 20:
+                total_twenties += 1
+
+            if day in [1, 31]:
+                total_distance += ride_calendar[day]["distance"]
+                total_elevation += ride_calendar[day]["elevation"]
+                total_activities += ride_calendar[day]["activities"]
+
+        total_points = 0
+        weekend = [6, 7, 13, 14, 20, 21, 27, 28]
+
+        for day in ride_calendar:
+            # 100 km in a single ride on a weekend = 20 points and on a weekday = 30 points
+            if ride_calendar[day]["bonus_distance_sot"] >= 100.0:
+                total_points += 20 if day in weekend else 30
+            # 50 km in a single ride on a weekend = 10 points and on a weekday = 15 points
+            elif ride_calendar[day]["bonus_distance_sot"] >= 50.0:
+                total_points += 10 if day in weekend else 15
+            # 20 km in a single ride = 5 points
+            elif ride_calendar[day]["bonus_distance_sot"] >= 20.0:
+                total_points += 5
+
+            # 1000 meters of elevation gain in a single ride = 25 points
+            if ride_calendar[day]["bonus_elevation_sot"] >= 1000:
+                total_points += 25
+            # 500 meters of elevation gain in a single ride = 10 points
+            elif ride_calendar[day]["bonus_elevation_sot"] >= 500:
+                total_points += 10
+
+            if day in [1, 31]:
+                if ride_calendar[day]["bonus_distance_sot"] >= 100.0:
+                    total_points += 20 if day in weekend else 30
+                elif ride_calendar[day]["bonus_distance_sot"] >= 50.0:
+                    total_points += 10 if day in weekend else 15
+                elif ride_calendar[day]["bonus_distance_sot"] >= 20.0:
                     total_points += 5
-
-                # Rides on first and last day of the month will fetch you 2x points
-                if activity_day in [1, 31]:
-                    total_distance += activity_distance if activity_distance <= 100.0 else 100.0
-                    total_elevation += activity_elevation if activity_elevation <= 1500 else 1500
-                    if activity_time >= 1800 or activity_distance >= 10.0:
-                        total_activities += 1
-                    if activity_elevation >= 1000:
-                        total_points += 25
-                    elif activity_elevation >= 500:
-                        total_points += 10
-                    if activity_distance >= 100.0:
-                        if activity.start_date_local.weekday() in [5, 6]:
-                            total_points += 20
-                        else:
-                            total_points += 30
-                    elif activity_distance >= 50.0:
-                        if activity.start_date_local.weekday() in [5, 6]:
-                            total_points += 10
-                        else:
-                            total_points += 15
-                    elif activity_distance >= 20.0:
-                        total_points += 5
-
-                if activity_distance >= 100.0:
-                    ride_calendar[activity_day] = 100
-                    total_hundreds += 1
-                elif activity_distance >= 50.0:
-                    ride_calendar[activity_day] = 50
-                    total_fifties += 1
-                elif activity_distance >= 20.0:
-                    ride_calendar[activity_day] = 20
-                    total_twenties += 1
+                if ride_calendar[day]["bonus_elevation_sot"] >= 1000:
+                    total_points += 25
+                elif ride_calendar[day]["bonus_elevation_sot"] >= 500:
+                    total_points += 10
 
         # 10 km = 1 point
         total_points += int(total_distance / 10)
@@ -464,10 +512,10 @@ class CalculateChallengesStats:
         if total_hundreds >= 10:
             total_points += 200
         # 50 km rides for 10 days in a month = 100 points**
-        elif total_fifties >= 10:
+        if total_fifties >= 10:
             total_points += 100
         # 20 km on all days of the month = 250 points
-        elif total_twenties >= 31:
+        if total_twenties == 31:
             total_points += 250
         # 20 km for 20 days in a month = 150 points
         elif total_twenties >= 20:
@@ -479,8 +527,8 @@ class CalculateChallengesStats:
         hundreds_streak = 0
         fifties_streak = 0
         twenties_streak = 0
-        for ride in ride_calendar:
-            distance = ride_calendar[ride]
+        for day in ride_calendar:
+            distance = ride_calendar[day]["bonus_distance_sot"]
             if distance == 100:
                 hundreds_streak += 1
                 fifties_streak = 0
