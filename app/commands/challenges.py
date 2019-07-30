@@ -800,8 +800,8 @@ class CalculateChallengesStats:
         is_eligible_for_distance_bonus = False
 
         for activity in self.strava_resource.get_strava_activities_after_date_before_date(
-                athlete_details['athlete_token'], self.app_variables.odd_challenges_from_date,
-                self.app_variables.odd_challenges_to_date):
+                athlete_details['athlete_token'], self.app_variables.even_challenges_from_date,
+                self.app_variables.even_challenges_to_date):
             activity_month = activity.start_date_local.month
             activity_year = activity.start_date_local.year
             activity_day = activity.start_date_local.day
@@ -819,7 +819,7 @@ class CalculateChallengesStats:
                 activity.type, activity_month, activity_year, activity_day, activity_distance, activity_time, start_gps,
                 end_gps)
             if self.operations.supported_activities_for_challenges(activity) and not self.operations.is_indoor(
-                    activity) and activity_month == self.app_variables.odd_challenges_month and activity_year == self.app_variables.odd_challenges_year:
+                    activity) and activity_month == self.app_variables.even_challenges_month and activity_year == self.app_variables.even_challenges_year:
                 if start_gps and end_gps:
                     is_eligible_to, is_eligible_from = self.is_c2w_eligible(start_gps, end_gps)
                     if is_eligible_to:
@@ -853,7 +853,7 @@ class CalculateChallengesStats:
             total_distance, two_km_rides, forty_min_rides, cycle_to_work_rides_calendar,
             cycle_to_work_distance_calendar)
 
-        challenges = athlete_details['bosch_odd_challenges']
+        challenges = athlete_details['bosch_even_challenges']
 
         challenges_stats = {
             'c2w_days': 0,
@@ -936,13 +936,13 @@ class CalculateChallengesStats:
                 if is_eligible_for_distance_bonus:
                     challenges_stats['distance_points'] += 50
 
-        if self.database_resource.write_operation(self.app_constants.QUERY_UPDATE_BOSCH_ODD_CHALLENGES_DATA.format(
-                bosch_odd_challenges_data=ujson.dumps(challenges_stats), athlete_id=athlete_details['athlete_id'])):
+        if self.database_resource.write_operation(self.app_constants.QUERY_UPDATE_BOSCH_EVEN_CHALLENGES_DATA.format(
+                bosch_even_challenges_data=ujson.dumps(challenges_stats), athlete_id=athlete_details['athlete_id'])):
             self.telegram_resource.send_message(
-                "Updated Bosch odd challenges data for {name}.".format(name=athlete_details['name']))
+                "Updated Bosch even challenges data for {name}.".format(name=athlete_details['name']))
         else:
             self.telegram_resource.send_message(
-                "Failed to update Bosch odd challenges data for {name}".format(name=athlete_details['name']))
+                "Failed to update Bosch even challenges data for {name}".format(name=athlete_details['name']))
 
     def consolidate_bosch_even_challenges_result(self):
         cycle_to_work_rides = list()
@@ -952,7 +952,7 @@ class CalculateChallengesStats:
         distance = list()
         leader_board = list()
 
-        results = self.database_resource.read_all_operation(self.app_constants.QUERY_GET_BOSCH_ODD_CHALLENGES_DATA)
+        results = self.database_resource.read_all_operation(self.app_constants.QUERY_GET_BOSCH_EVEN_CHALLENGES_DATA)
         for result in results:
             name = result[0]
             challenges = result[1]
@@ -1045,17 +1045,17 @@ class CalculateChallengesStats:
                  'athlete_id': athlete['athlete_id'], 'location': athlete['location']})
             rank += 1
 
-        self.iron_cache_resource.put_cache("bosch_odd_challenges_result", "c2w_rides",
+        self.iron_cache_resource.put_cache("bosch_even_challenges_result", "c2w_rides",
                                            ujson.dumps(c2w_rides_points_sorted))
-        self.iron_cache_resource.put_cache("bosch_odd_challenges_result", "c2w_distance",
+        self.iron_cache_resource.put_cache("bosch_even_challenges_result", "c2w_distance",
                                            ujson.dumps(c2w_distance_points_sorted))
-        self.iron_cache_resource.put_cache("bosch_odd_challenges_result", "2x30",
+        self.iron_cache_resource.put_cache("bosch_even_challenges_result", "2x30",
                                            ujson.dumps(two_km_rides_sorted))
-        self.iron_cache_resource.put_cache("bosch_odd_challenges_result", "30x40",
+        self.iron_cache_resource.put_cache("bosch_even_challenges_result", "30x40",
                                            ujson.dumps(forty_mins_rides_sorted))
-        self.iron_cache_resource.put_cache("bosch_odd_challenges_result", "distance",
+        self.iron_cache_resource.put_cache("bosch_even_challenges_result", "distance",
                                            ujson.dumps(distance_sorted))
-        self.iron_cache_resource.put_cache("bosch_odd_challenges_result", "leader_board",
+        self.iron_cache_resource.put_cache("bosch_even_challenges_result", "leader_board",
                                            ujson.dumps(leader_board_sorted))
 
     def consolidate_even_challenges_result(self):
