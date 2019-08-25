@@ -990,11 +990,12 @@ class CalculateChallengesStats:
                          'points': challenges_data['distance_points'], 'athlete_id': challenges_data['athlete_id'],
                          'location': challenges_data['location']})
 
-        c2w_rides_points_temp = sorted(cycle_to_work_rides, key=operator.itemgetter('points'), reverse=True)
-        c2w_rides_distance_temp = sorted(cycle_to_work_distance, key=operator.itemgetter('points'), reverse=True)
-        two_km_temp = sorted(two_km_rides, key=operator.itemgetter('points'), reverse=True)
-        forty_mins_temp = sorted(forty_mins_rides, key=operator.itemgetter('points'), reverse=True)
-        distance_temp = sorted(distance, key=operator.itemgetter('points'), reverse=True)
+        c2w_rides_points_temp = sorted(cycle_to_work_rides, key=operator.itemgetter('points', 'value'), reverse=True)
+        c2w_rides_distance_temp = sorted(cycle_to_work_distance, key=operator.itemgetter('points', 'value'),
+                                         reverse=True)
+        two_km_temp = sorted(two_km_rides, key=operator.itemgetter('points', 'value'), reverse=True)
+        forty_mins_temp = sorted(forty_mins_rides, key=operator.itemgetter('points', 'value'), reverse=True)
+        distance_temp = sorted(distance, key=operator.itemgetter('points', 'value'), reverse=True)
         leader_board_temp = sorted(leader_board, key=operator.itemgetter('points'), reverse=True)
 
         c2w_rides_points_sorted = list()
