@@ -799,54 +799,61 @@ class CalculateChallengesStats:
         total_distance = 0.0
         is_eligible_for_distance_bonus = False
 
-        for activity in self.strava_resource.get_strava_activities_after_date_before_date(
-                athlete_details['athlete_token'], self.app_variables.even_challenges_from_date,
-                self.app_variables.even_challenges_to_date):
-            activity_month = activity.start_date_local.month
-            activity_year = activity.start_date_local.year
-            activity_day = activity.start_date_local.day
-            activity_distance = float(activity.distance)
-            activity_time = unithelper.timedelta_to_seconds(activity.moving_time)
-            try:
-                start_gps = [activity.start_latlng.lat, activity.start_latlng.lon]
-                end_gps = [activity.end_latlng.lat, activity.end_latlng.lon]
-            except AttributeError:
-                start_gps = None
-                end_gps = None
+        try:
+            for activity in self.strava_resource.get_strava_activities_after_date_before_date(
+                    athlete_details['athlete_token'], self.app_variables.even_challenges_from_date,
+                    self.app_variables.even_challenges_to_date):
+                activity_month = activity.start_date_local.month
+                activity_year = activity.start_date_local.year
+                activity_day = activity.start_date_local.day
+                activity_distance = float(activity.distance)
+                activity_time = unithelper.timedelta_to_seconds(activity.moving_time)
+                try:
+                    start_gps = [activity.start_latlng.lat, activity.start_latlng.lon]
+                    end_gps = [activity.end_latlng.lat, activity.end_latlng.lon]
+                except AttributeError:
+                    start_gps = None
+                    end_gps = None
 
-            logging.info(
-                "Type: %s | Month: %s | Year: %s | Day: %s | Distance: %s | Time: %s | Start GPS: %s | End GPS: %s",
-                activity.type, activity_month, activity_year, activity_day, activity_distance, activity_time, start_gps,
-                end_gps)
-            if self.operations.supported_activities_for_challenges(activity) and not self.operations.is_indoor(
-                    activity) and activity_month == self.app_variables.even_challenges_month and activity_year == self.app_variables.even_challenges_year:
-                if start_gps and end_gps:
-                    is_eligible_to, is_eligible_from = self.is_c2w_eligible(start_gps, end_gps)
-                    if is_eligible_to:
-                        cycle_to_work_rides_calendar[activity_day]['to'] = True
-                        cycle_to_work_rides_count += 1
-                        cycle_to_work_rides_points += 20
-                        cycle_to_work_distance_calendar[activity_day]['to'] = activity_distance / 1000.0
-                        cycle_to_work_distance_count += activity_distance / 1000.0
-                        cycle_to_work_distance_points += int(activity_distance / 1000)
-                    if is_eligible_from:
-                        cycle_to_work_rides_calendar[activity_day]['from'] = True
-                        cycle_to_work_rides_count += 1
-                        cycle_to_work_rides_points += 20
-                        cycle_to_work_distance_calendar[activity_day]['from'] = activity_distance / 1000.0
-                        cycle_to_work_distance_count += activity_distance / 1000.0
-                        cycle_to_work_distance_points += int(activity_distance / 1000)
-                if activity_distance >= 2000.0:
-                    two_km_rides += 1
-                    two_km_points += 15
-                if activity_time >= 2400:
-                    forty_min_rides += 1
-                    forty_min_points += 20
-                    if activity_distance >= 50000:
-                        is_eligible_for_forty_mins_rides_bonus = True
-                total_distance += activity_distance
-                if activity_distance >= 150000.0:
-                    is_eligible_for_distance_bonus = True
+                logging.info(
+                    "Type: %s | Month: %s | Year: %s | Day: %s | Distance: %s | Time: %s | Start GPS: %s | End GPS: %s",
+                    activity.type, activity_month, activity_year, activity_day, activity_distance, activity_time,
+                    start_gps,
+                    end_gps)
+                if self.operations.supported_activities_for_challenges(activity) and not self.operations.is_indoor(
+                        activity) and activity_month == self.app_variables.even_challenges_month and activity_year == self.app_variables.even_challenges_year:
+                    if start_gps and end_gps:
+                        is_eligible_to, is_eligible_from = self.is_c2w_eligible(start_gps, end_gps)
+                        if is_eligible_to:
+                            cycle_to_work_rides_calendar[activity_day]['to'] = True
+                            cycle_to_work_rides_count += 1
+                            cycle_to_work_rides_points += 20
+                            cycle_to_work_distance_calendar[activity_day]['to'] = activity_distance / 1000.0
+                            cycle_to_work_distance_count += activity_distance / 1000.0
+                            cycle_to_work_distance_points += int(activity_distance / 1000)
+                        if is_eligible_from:
+                            cycle_to_work_rides_calendar[activity_day]['from'] = True
+                            cycle_to_work_rides_count += 1
+                            cycle_to_work_rides_points += 20
+                            cycle_to_work_distance_calendar[activity_day]['from'] = activity_distance / 1000.0
+                            cycle_to_work_distance_count += activity_distance / 1000.0
+                            cycle_to_work_distance_points += int(activity_distance / 1000)
+                    if activity_distance >= 2000.0:
+                        two_km_rides += 1
+                        two_km_points += 15
+                    if activity_time >= 2400:
+                        forty_min_rides += 1
+                        forty_min_points += 20
+                        if activity_distance >= 50000:
+                            is_eligible_for_forty_mins_rides_bonus = True
+                    total_distance += activity_distance
+                    if activity_distance >= 150000.0:
+                        is_eligible_for_distance_bonus = True
+        except Exception:
+            logging.error(traceback.format_exc())
+            self.telegram_resource.send_message("Could not get stats for %s.\nException: %s",
+                                                athlete_details["athlete_id"], traceback.format_exc())
+            pass
 
         logging.info(
             "Total distance: %s | 2 km rides : %s | 40 min rides: %s | Cycle to Work Calendar: %s Cycle to Work Distance Calendar: %s",
