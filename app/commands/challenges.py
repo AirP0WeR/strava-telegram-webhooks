@@ -851,8 +851,9 @@ class CalculateChallengesStats:
                         is_eligible_for_distance_bonus = True
         except Exception:
             logging.error(traceback.format_exc())
-            self.telegram_resource.send_message("Could not get stats for %s.\nException: %s",
-                                                athlete_details["athlete_id"], traceback.format_exc())
+            self.telegram_resource.send_message(
+                "Could not get stats for {}.\nException: {}".format(athlete_details["athlete_id"],
+                                                                    traceback.format_exc()))
             pass
 
         logging.info(
