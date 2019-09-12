@@ -799,7 +799,7 @@ class CalculateChallengesStats:
                     activity.type, activity_month, activity_year, activity_day, activity_distance, activity_time,
                     activity_elevation)
                 if self.operations.supported_activities_for_challenges(
-                        activity) and activity_month == self.app_variables.odd_challenges_month and activity_year == self.app_variables.odd_challenges_year:
+                        activity) and activity_month in self.app_variables.tok_odd_challenges_month and activity_year in self.app_variables.tok_odd_challenges_year:
 
                     ride_calendar[activity_day]["distance"] += activity_distance
                     ride_calendar[activity_day]["elevation"] += activity_elevation
