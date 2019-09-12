@@ -109,3 +109,4 @@ venv.bak/
 /app/common/.DS_Store
 /app/local.py
 /app/commands/challenges_local.py
+/app/resources/strava_local.py
