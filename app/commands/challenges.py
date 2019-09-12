@@ -749,6 +749,7 @@ class CalculateChallengesStats:
                 "Failed to update Cadence90 odd challenges data for {name}".format(name=athlete_details['name']))
 
     def tok_odd_challenges(self, athlete_details):
+        logging.info("Calculating ToK odd challenges..")
         ride_calendar = {
             1: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
             2: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
