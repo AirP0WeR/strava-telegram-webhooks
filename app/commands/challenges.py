@@ -44,6 +44,8 @@ class Challenges:
             self.calculate_challenges_stats.consolidate_even_challenges_result()
             self.calculate_challenges_stats.consolidate_odd_challenges_result()
             self.calculate_challenges_stats.consolidate_bosch_even_challenges_result()
+            self.calculate_challenges_stats.consolidate_bosch_odd_challenges_result()
+            self.calculate_challenges_stats.consolidate_tok_odd_challenges_result()
             self.telegram_resource.send_message(message)
 
     def alert_webhook_event_of_athlete(self, event, athlete_details):
@@ -91,10 +93,13 @@ class Challenges:
                         self.calculate_challenges_stats.bosch_even_challenges(athlete_details)
                     if athlete_details['bosch_odd_challenges']:
                         self.calculate_challenges_stats.bosch_odd_challenges(athlete_details)
+                    if athlete_details['tok_odd_challenges']:
+                        self.calculate_challenges_stats.tok_odd_challenges(athlete_details)
             self.calculate_challenges_stats.consolidate_even_challenges_result()
             self.calculate_challenges_stats.consolidate_odd_challenges_result()
             self.calculate_challenges_stats.consolidate_bosch_even_challenges_result()
             self.calculate_challenges_stats.consolidate_bosch_odd_challenges_result()
+            self.calculate_challenges_stats.consolidate_tok_odd_challenges_result()
 
     def api_hits(self):
         hits = self.iron_cache_resource.get_int_cache(cache="challenges_hits", key="hits")
@@ -222,7 +227,7 @@ class Challenges:
     def get_challenges_result(self, company, month, challenge):
         challenges_result = False
 
-        companies = ['cadence90', 'bosch']
+        companies = ['cadence90', 'bosch', 'tok']
         months = ['odd', 'even']
         challenges = ['leaderboard', 'c2w', '6_km', '30_min', 'distance', 'leader_board', 'c2w_rides', 'c2w_distance',
                       '2x30', '30x40']
@@ -232,6 +237,7 @@ class Challenges:
             consolidate_results_options = defaultdict(lambda: self.dummy_function, {
                 'bosch_even': self.calculate_challenges_stats.consolidate_bosch_even_challenges_result,
                 'cadence90_odd': self.calculate_challenges_stats.consolidate_odd_challenges_result,
+                'tok_odd': self.calculate_challenges_stats.consolidate_tok_odd_challenges_result,
                 '': self.dummy_function
             })
 
@@ -742,6 +748,239 @@ class CalculateChallengesStats:
             self.telegram_resource.send_message(
                 "Failed to update Cadence90 odd challenges data for {name}".format(name=athlete_details['name']))
 
+    def tok_odd_challenges(self, athlete_details):
+        logging.info("Calculating ToK odd challenges..")
+        ride_calendar = {
+            1: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            2: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            3: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            4: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            5: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            6: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            7: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            8: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            9: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            10: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            11: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            12: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            13: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            14: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            15: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            16: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            17: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            18: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            19: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            20: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            21: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            22: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            23: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            24: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            25: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            26: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            27: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            28: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            29: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            30: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            31: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0}
+        }
+
+        try:
+            for activity in self.strava_resource.get_strava_activities_after_date_before_date(
+                    athlete_details['athlete_token'], self.app_variables.odd_challenges_from_date,
+                    self.app_variables.odd_challenges_to_date):
+                activity_month = activity.start_date_local.month
+                activity_year = activity.start_date_local.year
+                activity_day = activity.start_date_local.day
+                activity_distance = self.operations.meters_to_kilometers(float(activity.distance))
+                activity_elevation = self.operations.remove_decimal_point(float(activity.total_elevation_gain))
+                activity_time = unithelper.timedelta_to_seconds(activity.moving_time)
+                logging.info(
+                    "Type: %s | Month: %s | Year: %s | Day: %s | Distance: %s | Time: %s | Elevation: %s",
+                    activity.type, activity_month, activity_year, activity_day, activity_distance, activity_time,
+                    activity_elevation)
+                if self.operations.supported_activities_for_challenges(
+                        activity) and activity_month in self.app_variables.tok_odd_challenges_month and activity_year in self.app_variables.tok_odd_challenges_year:
+
+                    ride_calendar[activity_day]["distance"] += activity_distance
+                    ride_calendar[activity_day]["elevation"] += activity_elevation
+                    # Minimum 30 mins or 10 kms for 1 activity
+                    if activity_time >= 1800 or activity_distance >= 10.0:
+                        ride_calendar[activity_day]["activities"] += 1
+
+                    if activity_distance >= 100.0:
+                        ride_calendar[activity_day]["bonus_distance_sot"] = 100
+                    elif activity_distance >= 50.0:
+                        ride_calendar[activity_day]["bonus_distance_sot"] = 50 if ride_calendar[activity_day][
+                                                                                      "bonus_distance_sot"] < 50 else \
+                            ride_calendar[activity_day]["bonus_distance_sot"]
+                    elif activity_distance >= 20.0:
+                        ride_calendar[activity_day]["bonus_distance_sot"] = 20 if ride_calendar[activity_day][
+                                                                                      "bonus_distance_sot"] < 20 else \
+                            ride_calendar[activity_day]["bonus_distance_sot"]
+
+                    if activity_elevation >= 1000:
+                        ride_calendar[activity_day]["bonus_elevation_sot"] = 1000
+                    elif activity_elevation >= 500:
+                        ride_calendar[activity_day]["bonus_elevation_sot"] = 500 if ride_calendar[activity_day][
+                                                                                        "bonus_elevation_sot"] < 500 else \
+                            ride_calendar[activity_day]["bonus_elevation_sot"]
+
+        except ValueError as exception_message:
+            if str(exception_message) == "day is out of range for month":
+                logging.info("Future date")
+            else:
+                logging.info(exception_message)
+        except Exception:
+            logging.info(traceback.format_exc())
+
+        logging.info("Ride Calendar: %s", ride_calendar)
+
+        for day in ride_calendar:
+            # A cap of 100 kms(single ride) is set for base points.
+            ride_calendar[day]["distance"] = ride_calendar[day]["distance"] if ride_calendar[day][
+                                                                                   "distance"] <= 100.0 else 100.0
+            # A cap of 1500 meters(single ride) of elevation gain is set for base points.
+            ride_calendar[day]["elevation"] = ride_calendar[day]["elevation"] if ride_calendar[day][
+                                                                                     "elevation"] <= 1500 else 1500
+
+        logging.info("Ride Calendar: %s", ride_calendar)
+
+        total_distance = 0.0
+        total_elevation = 0
+        total_activities = 0
+        total_hundreds = 0
+        total_fifties = 0
+        total_twenties = 0
+
+        for day in ride_calendar:
+            total_distance += ride_calendar[day]["distance"]
+            total_elevation += ride_calendar[day]["elevation"]
+            total_activities += ride_calendar[day]["activities"]
+            if ride_calendar[day]["bonus_distance_sot"] == 100:
+                total_hundreds += 1
+            elif ride_calendar[day]["bonus_distance_sot"] == 50:
+                total_fifties += 1
+            elif ride_calendar[day]["bonus_distance_sot"] == 20:
+                total_twenties += 1
+
+            if day in [1, 31]:
+                total_distance += ride_calendar[day]["distance"]
+                total_elevation += ride_calendar[day]["elevation"]
+                total_activities += ride_calendar[day]["activities"]
+
+        total_points = 0
+        weekend = [6, 7, 13, 14, 20, 21, 27, 28]
+
+        for day in ride_calendar:
+            # 100 km in a single ride on a weekend = 20 points and on a weekday = 30 points
+            if ride_calendar[day]["bonus_distance_sot"] >= 100.0:
+                total_points += 20 if day in weekend else 30
+            # 50 km in a single ride on a weekend = 10 points and on a weekday = 15 points
+            elif ride_calendar[day]["bonus_distance_sot"] >= 50.0:
+                total_points += 10 if day in weekend else 15
+            # 20 km in a single ride = 5 points
+            elif ride_calendar[day]["bonus_distance_sot"] >= 20.0:
+                total_points += 5
+
+            # 1000 meters of elevation gain in a single ride = 25 points
+            if ride_calendar[day]["bonus_elevation_sot"] >= 1000:
+                total_points += 25
+            # 500 meters of elevation gain in a single ride = 10 points
+            elif ride_calendar[day]["bonus_elevation_sot"] >= 500:
+                total_points += 10
+
+            if day in [1, 31]:
+                if ride_calendar[day]["bonus_distance_sot"] >= 100.0:
+                    total_points += 20 if day in weekend else 30
+                elif ride_calendar[day]["bonus_distance_sot"] >= 50.0:
+                    total_points += 10 if day in weekend else 15
+                elif ride_calendar[day]["bonus_distance_sot"] >= 20.0:
+                    total_points += 5
+                if ride_calendar[day]["bonus_elevation_sot"] >= 1000:
+                    total_points += 25
+                elif ride_calendar[day]["bonus_elevation_sot"] >= 500:
+                    total_points += 10
+
+        # 10 km = 1 point
+        total_points += int(total_distance / 10)
+        # 100 meters = 1 point (Elevation gain)
+        total_points += int(total_elevation / 100)
+        # 1 activity = 1 point
+        total_points += total_activities
+        # 1000 kms in a month = 150 points
+        if total_distance >= 1000.0:
+            total_points += 150
+        # 10000 meters of elevation gain in a month = 150 points
+        if total_elevation >= 10000:
+            total_points += 150
+
+        # 100 km rides for 10 days in a month = 200
+        if total_hundreds >= 10:
+            total_points += 200
+        # 50 km rides for 10 days in a month = 100 points**
+        if total_fifties >= 10:
+            total_points += 100
+        # 20 km on all days of the month = 250 points
+        if total_twenties == 31:
+            total_points += 250
+        # 20 km for 20 days in a month = 150 points
+        elif total_twenties >= 20:
+            total_points += 150
+
+        # 20 km for 5 successive days = 75 points
+        # 50 km for 5 successive days = 100 points*
+        # 100 km for 3 successive days = 100 points
+        hundreds_streak = 0
+        fifties_streak = 0
+        twenties_streak = 0
+        for day in ride_calendar:
+            distance = ride_calendar[day]["bonus_distance_sot"]
+            if distance == 100:
+                hundreds_streak += 1
+                fifties_streak += 1
+                twenties_streak += 1
+            else:
+                hundreds_streak = 0
+                if distance == 50:
+                    fifties_streak += 1
+                    twenties_streak += 1
+                else:
+                    fifties_streak = 0
+                    if distance == 20:
+                        twenties_streak += 1
+                    else:
+                        twenties_streak = 0
+            if hundreds_streak == 3:
+                total_points += 100
+                hundreds_streak = 0
+                fifties_streak = 0
+                twenties_streak = 0
+            elif fifties_streak == 5:
+                total_points += 100
+                hundreds_streak = 0
+                fifties_streak = 0
+                twenties_streak = 0
+            elif twenties_streak == 5:
+                total_points += 100
+                hundreds_streak = 0
+                fifties_streak = 0
+                twenties_streak = 0
+
+        logging.info("total_distance: %s | total_elevation: %s, total_activities: %s | total_points: %s | "
+                     "total_hundreds: %s | total_fifties: %s | total_twenties: %s | ride_calendar: %s | "
+                     "hundreds_streak: %s | fifties_streak: %s | twenties_streak: %s",
+                     total_distance, total_elevation, total_activities, total_points, total_hundreds, total_fifties,
+                     total_twenties, ride_calendar, hundreds_streak, fifties_streak, twenties_streak)
+
+        if self.database_resource.write_operation(self.app_constants.QUERY_UPDATE_TOK_ODD_CHALLENGES_DATA.format(
+                challenges_data=ujson.dumps({'athlete_id': athlete_details['athlete_id'], 'points': total_points}),
+                athlete_id=athlete_details['athlete_id'])):
+            self.telegram_resource.send_message(
+                "Updated ToK odd challenges data for {name}.".format(name=athlete_details['name']))
+        else:
+            self.telegram_resource.send_message(
+                "Failed to update ToK odd challenges data for {name}".format(name=athlete_details['name']))
+
     def is_c2w_eligible(self, start_gps, end_gps):
         lat_long = self.app_variables.location_gps
         is_eligible_to = False
@@ -1123,6 +1362,34 @@ class CalculateChallengesStats:
                                            ujson.dumps(odd_challenge_sorted))
         self.telegram_resource.send_message("Updated cache for Cadence90 odd month challenges.")
 
+    def consolidate_tok_odd_challenges_result(self):
+        odd_challenge = list()
+
+        results = self.database_resource.read_all_operation(self.app_constants.QUERY_GET_TOK_ODD_CHALLENGES_DATA)
+        for result in results:
+            name = result[0]
+            challenges = result[1]
+            challenges_data = result[2]
+
+            if challenges:
+                odd_challenge.append({'name': name, 'value': challenges_data['points']})
+
+        odd_challenge_temp = sorted(odd_challenge, key=operator.itemgetter('value'), reverse=True)
+
+        odd_challenge_sorted = list()
+        rank = 1
+        for athlete in odd_challenge_temp:
+            odd_challenge_sorted.append(
+                {'rank': rank, 'name': athlete['name'], 'value': athlete['value']})
+            rank += 1
+
+        if len(odd_challenge_sorted) == 0:
+            odd_challenge_sorted.append({'rank': '', 'name': '', 'value': ''})
+
+        self.iron_cache_resource.put_cache("tok_odd_challenges_result", "leaderboard",
+                                           ujson.dumps(odd_challenge_sorted))
+        self.telegram_resource.send_message("Updated cache for ToK odd month challenge.")
+
     def bosch_odd_challenges(self, athlete_details):
         cycle_to_work_rides_calendar = {
             1: {'to': False, 'from': False}, 2: {'to': False, 'from': False}, 3: {'to': False, 'from': False},
@@ -1438,3 +1705,6 @@ class CalculateChallengesStats:
         if athlete_details['bosch_odd_challenges']:
             self.bosch_odd_challenges(athlete_details)
             self.consolidate_bosch_odd_challenges_result()
+        if athlete_details['tok_odd_challenges']:
+            self.tok_odd_challenges(athlete_details)
+            self.consolidate_tok_odd_challenges_result()

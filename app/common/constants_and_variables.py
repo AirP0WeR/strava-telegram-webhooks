@@ -52,7 +52,7 @@ class AppConstants:
                 updated timestamp default current_timestamp NOT NULL
                 );'''
 
-    QUERY_FETCH_ATHLETE_DETAILS_IN_CHALLENGES = "select name, access_token, refresh_token, expires_at, even_challenges, even_challenges_data, odd_challenges, odd_challenges_data, bosch_even_challenges, bosch_even_challenges_data, bosch_odd_challenges, bosch_odd_challenges_data from strava_challenges where athlete_id={athlete_id}"
+    QUERY_FETCH_ATHLETE_DETAILS_IN_CHALLENGES = "select name, access_token, refresh_token, expires_at, even_challenges, even_challenges_data, odd_challenges, odd_challenges_data, bosch_even_challenges, bosch_even_challenges_data, bosch_odd_challenges, bosch_odd_challenges_data, tok_even_challenges, tok_even_challenges_data, tok_odd_challenges, tok_odd_challenges_data from strava_challenges where athlete_id={athlete_id}"
     QUERY_GET_CHALLENGE_DETAILS_FROM_CHALLENGES = "select {column_name} from strava_challenges where athlete_id={athlete_id}"
     QUERY_APPROVE_PAYMENT_IN_CHALLENGES = "UPDATE strava_challenges SET {column_name}='{challenge_details}', updated=now() where athlete_id={athlete_id}"
     QUERY_UPDATE_TOKEN_IN_CHALLENGES = "UPDATE strava_challenges SET access_token='{access_token}', refresh_token='{refresh_token}', expires_at={expires_at}, updated=now() where athlete_id={athlete_id}"
@@ -70,6 +70,8 @@ class AppConstants:
     QUERY_GET_ATHLETES_EVEN_BOSCH_CHALLENGES = "select athlete_id, name, bosch_even_challenges from strava_challenges where bosch_even_challenges is not null order by created"
     QUERY_GET_ATHLETES_ODD_BOSCH_CHALLENGES = "select athlete_id, name, bosch_odd_challenges from strava_challenges where bosch_odd_challenges is not null order by created"
     QUERY_GET_ATHLETES_ODD_CHALLENGES = "select athlete_id, name, odd_challenges from strava_challenges where odd_challenges is not null order by created"
+    QUERY_UPDATE_TOK_ODD_CHALLENGES_DATA = "UPDATE strava_challenges SET tok_odd_challenges_data='{challenges_data}', updated=now() where athlete_id={athlete_id}"
+    QUERY_GET_TOK_ODD_CHALLENGES_DATA = "select name, tok_odd_challenges, tok_odd_challenges_data from strava_challenges where tok_odd_challenges is not null"
 
     API_TOKEN_EXCHANGE = 'https://www.strava.com/oauth/token'
     API_TELEGRAM_SEND_MESSAGE = "https://api.telegram.org/bot{bot_token}/sendMessage"
@@ -116,6 +118,10 @@ class AppVariables:
     odd_challenges_month = int(os.environ.get('ODD_CHALLENGES_MONTH'))
     odd_challenges_from_date = os.environ.get('ODD_CHALLENGES_FROM_DATE')
     odd_challenges_to_date = os.environ.get('ODD_CHALLENGES_TO_DATE')
+    tok_odd_challenges_year = list(map(int, os.environ.get('TOK_ODD_CHALLENGES_YEAR').split(',')))
+    tok_odd_challenges_month = list(map(int, os.environ.get('TOK_ODD_CHALLENGES_MONTH').split(',')))
+    tok_odd_challenges_from_date = os.environ.get('TOK_ODD_CHALLENGES_FROM_DATE')
+    tok_odd_challenges_to_date = os.environ.get('TOK_ODD_CHALLENGES_TO_DATE')
     location_gps = json.loads(os.environ.get('LOCATION_GPS'))
     location_threshold = float(os.environ.get('LOCATION_THRESHOLD'))
     timezone = os.environ.get('TZ')
