@@ -936,8 +936,6 @@ class CalculateChallengesStats:
             20191130: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0,
                     "bonus_elevation_sot": 0},
             20191131: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0,
-                       "bonus_elevation_sot": 0},
-            20190914: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0,
                        "bonus_elevation_sot": 0}
         }
 
