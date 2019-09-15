@@ -941,8 +941,8 @@ class CalculateChallengesStats:
 
         try:
             for activity in self.strava_resource.get_strava_activities_after_date_before_date(
-                    athlete_details['athlete_token'], self.app_variables.odd_challenges_from_date,
-                    self.app_variables.odd_challenges_to_date):
+                    athlete_details['athlete_token'], self.app_variables.tok_odd_challenges_from_date,
+                    self.app_variables.tok_odd_challenges_to_date):
                 activity_month = activity.start_date_local.month
                 activity_year = activity.start_date_local.year
                 activity_day = activity.start_date_local.day
