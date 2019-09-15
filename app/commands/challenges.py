@@ -751,37 +751,142 @@ class CalculateChallengesStats:
     def tok_odd_challenges(self, athlete_details):
         logging.info("Calculating ToK odd challenges..")
         ride_calendar = {
-            1: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
-            2: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
-            3: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
-            4: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
-            5: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
-            6: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
-            7: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
-            8: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
-            9: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
-            10: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
-            11: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
-            12: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
-            13: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
-            14: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
-            15: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
-            16: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
-            17: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
-            18: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
-            19: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
-            20: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
-            21: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
-            22: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
-            23: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
-            24: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
-            25: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
-            26: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
-            27: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
-            28: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
-            29: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
-            30: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
-            31: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0}
+            9_1: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            9_2: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            9_3: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            9_4: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            9_5: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            9_6: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            9_7: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            9_8: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            9_9: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            9_10: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            9_11: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            9_12: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            9_13: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            9_14: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            9_15: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            9_16: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            9_17: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            9_18: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            9_19: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            9_20: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            9_21: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            9_22: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            9_23: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            9_24: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            9_25: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            9_26: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            9_27: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            9_28: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            9_29: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            9_30: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            9_31: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            10_1: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            10_2: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            10_3: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            10_4: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            10_5: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            10_6: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            10_7: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            10_8: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            10_9: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            10_10: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0,
+                    "bonus_elevation_sot": 0},
+            10_11: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0,
+                    "bonus_elevation_sot": 0},
+            10_12: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0,
+                    "bonus_elevation_sot": 0},
+            10_13: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0,
+                    "bonus_elevation_sot": 0},
+            10_14: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0,
+                    "bonus_elevation_sot": 0},
+            10_15: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0,
+                    "bonus_elevation_sot": 0},
+            10_16: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0,
+                    "bonus_elevation_sot": 0},
+            10_17: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0,
+                    "bonus_elevation_sot": 0},
+            10_18: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0,
+                    "bonus_elevation_sot": 0},
+            10_19: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0,
+                    "bonus_elevation_sot": 0},
+            10_20: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0,
+                    "bonus_elevation_sot": 0},
+            10_21: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0,
+                    "bonus_elevation_sot": 0},
+            10_22: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0,
+                    "bonus_elevation_sot": 0},
+            10_23: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0,
+                    "bonus_elevation_sot": 0},
+            10_24: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0,
+                    "bonus_elevation_sot": 0},
+            10_25: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0,
+                    "bonus_elevation_sot": 0},
+            10_26: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0,
+                    "bonus_elevation_sot": 0},
+            10_27: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0,
+                    "bonus_elevation_sot": 0},
+            10_28: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0,
+                    "bonus_elevation_sot": 0},
+            10_29: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0,
+                    "bonus_elevation_sot": 0},
+            10_30: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0,
+                    "bonus_elevation_sot": 0},
+            10_31: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0,
+                    "bonus_elevation_sot": 0},
+            11_1: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            11_2: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            11_3: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            11_4: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            11_5: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            11_6: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            11_7: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            11_8: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            11_9: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0},
+            11_10: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0,
+                    "bonus_elevation_sot": 0},
+            11_11: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0,
+                    "bonus_elevation_sot": 0},
+            11_12: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0,
+                    "bonus_elevation_sot": 0},
+            11_13: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0,
+                    "bonus_elevation_sot": 0},
+            11_14: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0,
+                    "bonus_elevation_sot": 0},
+            11_15: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0,
+                    "bonus_elevation_sot": 0},
+            11_16: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0,
+                    "bonus_elevation_sot": 0},
+            11_17: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0,
+                    "bonus_elevation_sot": 0},
+            11_18: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0,
+                    "bonus_elevation_sot": 0},
+            11_19: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0,
+                    "bonus_elevation_sot": 0},
+            11_20: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0,
+                    "bonus_elevation_sot": 0},
+            11_21: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0,
+                    "bonus_elevation_sot": 0},
+            11_22: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0,
+                    "bonus_elevation_sot": 0},
+            11_23: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0,
+                    "bonus_elevation_sot": 0},
+            11_24: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0,
+                    "bonus_elevation_sot": 0},
+            11_25: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0,
+                    "bonus_elevation_sot": 0},
+            11_26: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0,
+                    "bonus_elevation_sot": 0},
+            11_27: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0,
+                    "bonus_elevation_sot": 0},
+            11_28: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0,
+                    "bonus_elevation_sot": 0},
+            11_29: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0,
+                    "bonus_elevation_sot": 0},
+            11_30: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0,
+                    "bonus_elevation_sot": 0},
+            11_31: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0, "bonus_elevation_sot": 0}
         }
 
         try:
@@ -794,6 +899,8 @@ class CalculateChallengesStats:
                 activity_distance = self.operations.meters_to_kilometers(float(activity.distance))
                 activity_elevation = self.operations.remove_decimal_point(float(activity.total_elevation_gain))
                 activity_time = unithelper.timedelta_to_seconds(activity.moving_time)
+                calendar_day = int(
+                    "{activity_month}_{activity_day}".format(activity_month=activity_month, activity_day=activity_day))
                 logging.info(
                     "Type: %s | Month: %s | Year: %s | Day: %s | Distance: %s | Time: %s | Elevation: %s",
                     activity.type, activity_month, activity_year, activity_day, activity_distance, activity_time,
@@ -801,29 +908,37 @@ class CalculateChallengesStats:
                 if self.operations.supported_activities_for_challenges(
                         activity) and activity_month in self.app_variables.tok_odd_challenges_month and activity_year in self.app_variables.tok_odd_challenges_year:
 
-                    ride_calendar[activity_day]["distance"] += activity_distance
-                    ride_calendar[activity_day]["elevation"] += activity_elevation
+                    ride_calendar[calendar_day]["distance"] += activity_distance
+                    ride_calendar[calendar_day]["elevation"] += activity_elevation
                     # Minimum 30 mins or 10 kms for 1 activity
                     if activity_time >= 1800 or activity_distance >= 10.0:
-                        ride_calendar[activity_day]["activities"] += 1
+                        ride_calendar[calendar_day]["activities"] += 1
 
                     if activity_distance >= 100.0:
-                        ride_calendar[activity_day]["bonus_distance_sot"] = 100
+                        ride_calendar[calendar_day]["bonus_distance_sot"] = 100
                     elif activity_distance >= 50.0:
-                        ride_calendar[activity_day]["bonus_distance_sot"] = 50 if ride_calendar[activity_day][
+                        ride_calendar[calendar_day]["bonus_distance_sot"] = 50 if ride_calendar[calendar_day][
                                                                                       "bonus_distance_sot"] < 50 else \
-                            ride_calendar[activity_day]["bonus_distance_sot"]
-                    elif activity_distance >= 20.0:
-                        ride_calendar[activity_day]["bonus_distance_sot"] = 20 if ride_calendar[activity_day][
-                                                                                      "bonus_distance_sot"] < 20 else \
-                            ride_calendar[activity_day]["bonus_distance_sot"]
+                            ride_calendar[calendar_day]["bonus_distance_sot"]
+                    elif activity_distance >= 25.0:
+                        ride_calendar[calendar_day]["bonus_distance_sot"] = 25 if ride_calendar[calendar_day][
+                                                                                      "bonus_distance_sot"] < 25 else \
+                            ride_calendar[calendar_day]["bonus_distance_sot"]
 
-                    if activity_elevation >= 1000:
-                        ride_calendar[activity_day]["bonus_elevation_sot"] = 1000
+                    if activity_elevation >= 2000:
+                        ride_calendar[calendar_day]["bonus_elevation_sot"] = 2000
+                    elif activity_elevation >= 1500:
+                        ride_calendar[calendar_day]["bonus_elevation_sot"] = 1500 if ride_calendar[calendar_day][
+                                                                                         "bonus_elevation_sot"] < 1500 else \
+                        ride_calendar[calendar_day]["bonus_elevation_sot"]
+                    elif activity_elevation >= 1000:
+                        ride_calendar[calendar_day]["bonus_elevation_sot"] = 1000 if ride_calendar[calendar_day][
+                                                                                         "bonus_elevation_sot"] < 1000 else \
+                        ride_calendar[calendar_day]["bonus_elevation_sot"]
                     elif activity_elevation >= 500:
-                        ride_calendar[activity_day]["bonus_elevation_sot"] = 500 if ride_calendar[activity_day][
+                        ride_calendar[calendar_day]["bonus_elevation_sot"] = 500 if ride_calendar[calendar_day][
                                                                                         "bonus_elevation_sot"] < 500 else \
-                            ride_calendar[activity_day]["bonus_elevation_sot"]
+                        ride_calendar[calendar_day]["bonus_elevation_sot"]
 
         except ValueError as exception_message:
             if str(exception_message) == "day is out of range for month":
@@ -838,10 +953,10 @@ class CalculateChallengesStats:
         for day in ride_calendar:
             # A cap of 100 kms(single ride) is set for base points.
             ride_calendar[day]["distance"] = ride_calendar[day]["distance"] if ride_calendar[day][
-                                                                                   "distance"] <= 100.0 else 100.0
+                                                                                   "distance"] <= 150.0 else 150.0
             # A cap of 1500 meters(single ride) of elevation gain is set for base points.
             ride_calendar[day]["elevation"] = ride_calendar[day]["elevation"] if ride_calendar[day][
-                                                                                     "elevation"] <= 1500 else 1500
+                                                                                     "elevation"] <= 2000 else 2000
 
         logging.info("Ride Calendar: %s", ride_calendar)
 
@@ -850,7 +965,7 @@ class CalculateChallengesStats:
         total_activities = 0
         total_hundreds = 0
         total_fifties = 0
-        total_twenties = 0
+        total_twenty_fives = 0
 
         for day in ride_calendar:
             total_distance += ride_calendar[day]["distance"]
@@ -860,46 +975,27 @@ class CalculateChallengesStats:
                 total_hundreds += 1
             elif ride_calendar[day]["bonus_distance_sot"] == 50:
                 total_fifties += 1
-            elif ride_calendar[day]["bonus_distance_sot"] == 20:
-                total_twenties += 1
-
-            if day in [1, 31]:
-                total_distance += ride_calendar[day]["distance"]
-                total_elevation += ride_calendar[day]["elevation"]
-                total_activities += ride_calendar[day]["activities"]
+            elif ride_calendar[day]["bonus_distance_sot"] == 25:
+                total_twenty_fives += 1
 
         total_points = 0
-        weekend = [6, 7, 13, 14, 20, 21, 27, 28]
 
         for day in ride_calendar:
-            # 100 km in a single ride on a weekend = 20 points and on a weekday = 30 points
             if ride_calendar[day]["bonus_distance_sot"] >= 100.0:
-                total_points += 20 if day in weekend else 30
-            # 50 km in a single ride on a weekend = 10 points and on a weekday = 15 points
+                total_points += 35
             elif ride_calendar[day]["bonus_distance_sot"] >= 50.0:
-                total_points += 10 if day in weekend else 15
-            # 20 km in a single ride = 5 points
-            elif ride_calendar[day]["bonus_distance_sot"] >= 20.0:
+                total_points += 15
+            elif ride_calendar[day]["bonus_distance_sot"] >= 25.0:
                 total_points += 5
 
-            # 1000 meters of elevation gain in a single ride = 25 points
-            if ride_calendar[day]["bonus_elevation_sot"] >= 1000:
+            elif ride_calendar[day]["bonus_elevation_sot"] >= 2000:
+                total_points += 60
+            elif ride_calendar[day]["bonus_elevation_sot"] >= 1500:
+                total_points += 40
+            elif ride_calendar[day]["bonus_elevation_sot"] >= 1000:
                 total_points += 25
-            # 500 meters of elevation gain in a single ride = 10 points
             elif ride_calendar[day]["bonus_elevation_sot"] >= 500:
                 total_points += 10
-
-            if day in [1, 31]:
-                if ride_calendar[day]["bonus_distance_sot"] >= 100.0:
-                    total_points += 20 if day in weekend else 30
-                elif ride_calendar[day]["bonus_distance_sot"] >= 50.0:
-                    total_points += 10 if day in weekend else 15
-                elif ride_calendar[day]["bonus_distance_sot"] >= 20.0:
-                    total_points += 5
-                if ride_calendar[day]["bonus_elevation_sot"] >= 1000:
-                    total_points += 25
-                elif ride_calendar[day]["bonus_elevation_sot"] >= 500:
-                    total_points += 10
 
         # 10 km = 1 point
         total_points += int(total_distance / 10)
@@ -908,69 +1004,49 @@ class CalculateChallengesStats:
         # 1 activity = 1 point
         total_points += total_activities
         # 1000 kms in a month = 150 points
-        if total_distance >= 1000.0:
-            total_points += 150
+        if total_distance >= 3000.0:
+            total_points += 500
         # 10000 meters of elevation gain in a month = 150 points
-        if total_elevation >= 10000:
-            total_points += 150
+        if total_elevation >= 35000:
+            total_points += 500
 
-        # 100 km rides for 10 days in a month = 200
-        if total_hundreds >= 10:
-            total_points += 200
-        # 50 km rides for 10 days in a month = 100 points**
-        if total_fifties >= 10:
-            total_points += 100
-        # 20 km on all days of the month = 250 points
-        if total_twenties == 31:
-            total_points += 250
-        # 20 km for 20 days in a month = 150 points
-        elif total_twenties >= 20:
-            total_points += 150
-
-        # 20 km for 5 successive days = 75 points
         # 50 km for 5 successive days = 100 points*
         # 100 km for 3 successive days = 100 points
         hundreds_streak = 0
         fifties_streak = 0
-        twenties_streak = 0
         for day in ride_calendar:
             distance = ride_calendar[day]["bonus_distance_sot"]
             if distance == 100:
                 hundreds_streak += 1
                 fifties_streak += 1
-                twenties_streak += 1
             else:
                 hundreds_streak = 0
                 if distance == 50:
                     fifties_streak += 1
-                    twenties_streak += 1
                 else:
                     fifties_streak = 0
-                    if distance == 20:
-                        twenties_streak += 1
-                    else:
-                        twenties_streak = 0
             if hundreds_streak == 3:
                 total_points += 100
                 hundreds_streak = 0
                 fifties_streak = 0
-                twenties_streak = 0
+            elif hundreds_streak == 2:
+                total_points += 50
+                hundreds_streak = 0
+                fifties_streak = 0
             elif fifties_streak == 5:
-                total_points += 100
+                total_points += 50
                 hundreds_streak = 0
                 fifties_streak = 0
-                twenties_streak = 0
-            elif twenties_streak == 5:
-                total_points += 100
+            elif fifties_streak == 3:
+                total_points += 25
                 hundreds_streak = 0
                 fifties_streak = 0
-                twenties_streak = 0
 
         logging.info("total_distance: %s | total_elevation: %s, total_activities: %s | total_points: %s | "
-                     "total_hundreds: %s | total_fifties: %s | total_twenties: %s | ride_calendar: %s | "
-                     "hundreds_streak: %s | fifties_streak: %s | twenties_streak: %s",
+                     "total_hundreds: %s | total_fifties: %s | ride_calendar: %s | "
+                     "hundreds_streak: %s | fifties_streak: %s",
                      total_distance, total_elevation, total_activities, total_points, total_hundreds, total_fifties,
-                     total_twenties, ride_calendar, hundreds_streak, fifties_streak, twenties_streak)
+                     ride_calendar, hundreds_streak, fifties_streak)
 
         if self.database_resource.write_operation(self.app_constants.QUERY_UPDATE_TOK_ODD_CHALLENGES_DATA.format(
                 challenges_data=ujson.dumps({'athlete_id': athlete_details['athlete_id'], 'points': total_points}),
