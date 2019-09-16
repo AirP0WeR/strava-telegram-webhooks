@@ -96,12 +96,12 @@ class Challenges:
                     if athlete_details['bosch_odd_challenges']:
                         self.calculate_challenges_stats.bosch_odd_challenges(athlete_details)
                     if athlete_details['tok_odd_challenges']:
-                        self.calculate_challenges_stats.tok_odd_challenges(athlete_details)
+                        self.tok_odd_challenges.tok_odd_challenges(athlete_details)
             self.calculate_challenges_stats.consolidate_even_challenges_result()
             self.calculate_challenges_stats.consolidate_odd_challenges_result()
             self.calculate_challenges_stats.consolidate_bosch_even_challenges_result()
             self.calculate_challenges_stats.consolidate_bosch_odd_challenges_result()
-            self.calculate_challenges_stats.consolidate_tok_odd_challenges_result()
+            self.tok_odd_challenges.consolidate_tok_odd_challenges_result()
 
     def api_hits(self):
         hits = self.iron_cache_resource.get_int_cache(cache="challenges_hits", key="hits")
@@ -239,7 +239,7 @@ class Challenges:
             consolidate_results_options = defaultdict(lambda: self.dummy_function, {
                 'bosch_even': self.calculate_challenges_stats.consolidate_bosch_even_challenges_result,
                 'cadence90_odd': self.calculate_challenges_stats.consolidate_odd_challenges_result,
-                'tok_odd': self.calculate_challenges_stats.consolidate_tok_odd_challenges_result,
+                'tok_odd': self.tok_odd_challenges.consolidate_tok_odd_challenges_result,
                 '': self.dummy_function
             })
 
