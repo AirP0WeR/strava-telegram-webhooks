@@ -10,8 +10,8 @@ from app.common.constants_and_variables import AppConstants, AppVariables
 from app.common.operations import Operations
 from app.resources.database import DatabaseResource
 from app.resources.iron_cache import IronCacheResource
-from app.resources.telegram import TelegramResource
 from app.resources.strava import StravaResource
+from app.resources.telegram import TelegramResource
 
 
 class ToKOddMonth:
@@ -24,8 +24,7 @@ class ToKOddMonth:
         self.telegram_resource = TelegramResource()
         self.iron_cache_resource = IronCacheResource()
 
-    def tok_odd_challenges(self, athlete_details):
-        logging.info("Calculating ToK odd challenges..")
+    def prepare_ride_calendar(self, athlete_details):
         ride_calendar = {
             201991: {"distance": 0.0, "elevation": 0, "activities": 0, "bonus_distance_sot": 0,
                      "bonus_elevation_sot": 0},
@@ -275,7 +274,12 @@ class ToKOddMonth:
                 logging.info(exception_message)
         except Exception:
             logging.info(traceback.format_exc())
+        finally:
+            return ride_calendar
 
+    def tok_odd_challenges(self, athlete_details):
+        logging.info("Calculating ToK odd challenges..")
+        ride_calendar = self.prepare_ride_calendar(athlete_details)
         logging.info("Ride Calendar: %s", ride_calendar)
 
         for day in ride_calendar:
