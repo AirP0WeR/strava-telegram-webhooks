@@ -11,7 +11,7 @@ from app.common.operations import Operations
 from app.resources.database import DatabaseResource
 from app.resources.iron_cache import IronCacheResource
 from app.resources.telegram import TelegramResource
-from resources.strava import StravaResource
+from app.resources.strava import StravaResource
 
 
 class ToKOddMonth:
