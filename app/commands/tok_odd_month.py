@@ -142,10 +142,11 @@ class ToKOddMonth:
         except Exception:
             logging.info(traceback.format_exc())
         finally:
-            return activities_calendar
+            return ujson.dumps(activities_calendar)
 
     @staticmethod
     def calculate_activity_points(activities_calendar):
+        activities_calendar = ujson.loads(activities_calendar)
         for activity_day in activities_calendar:
             if activity_day["result"]:
                 for activity in activities_calendar[activity_day]["data"]["activities"]:
