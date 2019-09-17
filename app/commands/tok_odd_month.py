@@ -157,7 +157,8 @@ class ToKOddMonth:
                         activity["activity_points"] = 2 if activity["distance"] >= 500.0 else 0
         return activities_calendar
 
-    def calculate_distance_bonus(self, activities_calendar):
+    @staticmethod
+    def calculate_distance_bonus(activities_calendar):
         for activity_day in activities_calendar:
             if activities_calendar[activity_day]["result"]:
                 for activity in activities_calendar[activity_day]["data"]["activities"]:
@@ -226,6 +227,8 @@ class ToKOddMonth:
         activities_calendar = ujson.loads(self.get_activities_calendar(athlete_details))
         logging.info("Activities Calendar: %s", activities_calendar)
         activities_calendar = self.calculate_activity_points(activities_calendar)
+        logging.info("Activities Calendar: %s", activities_calendar)
+        activities_calendar = self.calculate_distance_bonus(activities_calendar)
         logging.info("Activities Calendar: %s", activities_calendar)
         # points = 0
         # points = self.calculate_base_points(points, activities_calendar)
