@@ -254,6 +254,26 @@ class ToKOddMonth:
         return activities_calendar
 
     @staticmethod
+    def calculate_max_distance_and_elevation_for_the_day(activities_calendar):
+        for activity_day in activities_calendar["calendar"]:
+            if activities_calendar["calendar"][activity_day]["result"]:
+                activities_calendar["calendar"][activity_day]["data"].update(
+                    {"max_distance_slot": {"Ride": 0, "Run": 0, "Swim": 0}})
+                activities_calendar["calendar"][activity_day]["data"].update(
+                    {"max_elevation_slot": {"Ride": 0, "Run": 0, "Swim": 0}})
+                for activity in activities_calendar["calendar"][activity_day]["data"]["activities"]:
+                    if activity["type"] == "Ride":
+                        if activity["distance"] >= 100000.0:
+                            activities_calendar["calendar"][activity_day]["data"]["max_distance_slot"]["Ride"] = 100
+                        elif activity["distance"] >= 50000.0:
+                            activities_calendar["calendar"][activity_day]["data"]["max_distance_slot"]["Ride"] = 50 if \
+                            activities_calendar["calendar"][activity_day]["data"]["max_distance_slot"]["Ride"] == 0 else \
+                            activities_calendar["calendar"][activity_day]["data"]["max_distance_slot"]["Ride"]
+                        else:
+                            activities_calendar["calendar"][activity_day]["data"]["max_distance_slot"]["Ride"] = 0
+        return activities_calendar
+
+    @staticmethod
     def calculate_total_distance_and_elevation(activities_calendar):
         activities_calendar.update({"total_distance": {"Ride": 0.0, "Run": 0.0, "Swim": 0.0}})
         activities_calendar.update({"total_elevation": {"Ride": 0.0, "Run": 0.0, "Swim": 0.0}})
@@ -315,6 +335,8 @@ class ToKOddMonth:
         logging.info("Activities Calendar with elevation bonus: %s", activities_calendar)
         activities_calendar = self.calculate_total_distance_and_elevation_for_the_day(activities_calendar)
         logging.info("Activities Calendar with total distance and elevation for the day: %s", activities_calendar)
+        activities_calendar = self.calculate_max_distance_and_elevation_for_the_day(activities_calendar)
+        logging.info("Activities Calendar with max distance slot for the day: %s", activities_calendar)
         activities_calendar = self.calculate_total_distance_and_elevation(activities_calendar)
         logging.info("Activities Calendar total distance and elevation: %s", activities_calendar)
         # points = 0
