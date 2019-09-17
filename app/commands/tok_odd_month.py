@@ -145,6 +145,16 @@ class ToKOddMonth:
             return ujson.dumps(activities_calendar)
 
     @staticmethod
+    def cap_ride_distance_and_elevation(activities_calendar):
+        for activity_day in activities_calendar:
+            if activities_calendar[activity_day]["result"]:
+                for activity in activities_calendar[activity_day]["data"]["activities"]:
+                    if activity["type"] == "Ride":
+                        activity["distance"] = activity["distance"] if activity["distance"] < 150000.0 else 150000.0
+                        activity["elevation"] = activity["elevation"] if activity["elevation"] < 2000.0 else 2000.0
+        return activities_calendar
+
+    @staticmethod
     def calculate_activity_points(activities_calendar):
         for activity_day in activities_calendar:
             if activities_calendar[activity_day]["result"]:
@@ -248,6 +258,8 @@ class ToKOddMonth:
         logging.info("Calculating ToK odd challenges..")
         activities_calendar = ujson.loads(self.get_activities_calendar(athlete_details))
         logging.info("Activities Calendar: %s", activities_calendar)
+        activities_calendar = self.cap_ride_distance_and_elevation(activities_calendar)
+        logging.info("Activities Calendar with capped distance and elevation for Rides: %s", activities_calendar)
         activities_calendar = self.calculate_activity_points(activities_calendar)
         logging.info("Activities Calendar with activity points: %s", activities_calendar)
         activities_calendar = self.calculate_distance_bonus(activities_calendar)
