@@ -314,6 +314,56 @@ class ToKOddMonth:
 
         return activities_calendar
 
+    @staticmethod
+    def calculate_consecutive_fifties_and_hundreds(activities_calendar):
+        activities_calendar.update({"consecutives": {
+            "hundreds": {
+                "three": 0,
+                "two": 0
+            },
+            "fifties": {
+                "five": 0,
+                "three": 0
+            }
+        }})
+
+        hundreds_streak = 0
+        fifties_streak = 0
+        for activity_day in activities_calendar["calendar"]:
+            if activities_calendar["calendar"][activity_day]["result"]:
+                max_distance = activities_calendar["calendar"][activity_day]["data"]["max_distance"]["Ride"]
+                if max_distance >= 100000.0:
+                    hundreds_streak += 1
+                    fifties_streak += 1
+                else:
+                    hundreds_streak = 0
+                    if max_distance >= 50000.0:
+                        fifties_streak += 1
+                    else:
+                        fifties_streak = 0
+
+                if hundreds_streak == 3:
+                    activities_calendar["consecutives"]["hundreds"]["three"] += 1
+                    hundreds_streak = 0
+                    fifties_streak = 0
+                elif hundreds_streak == 2:
+                    activities_calendar["consecutives"]["hundreds"]["two"] += 1
+                    hundreds_streak = 0
+                    fifties_streak = 0
+                elif fifties_streak == 5:
+                    activities_calendar["consecutives"]["fifties"]["five"] += 1
+                    hundreds_streak = 0
+                    fifties_streak = 0
+                elif fifties_streak == 3:
+                    activities_calendar["consecutives"]["fifties"]["three"] += 1
+                    hundreds_streak = 0
+                    fifties_streak = 0
+            else:
+                hundreds_streak = 0
+                fifties_streak = 0
+
+        return activities_calendar
+
     def calculate_base_points(self, points, activities_calendar):
         points["base"]["Ride"]["distance"] += int(
             self.operations.meters_to_kilometers(activities_calendar["total_distance"]["Ride"] / 10))
@@ -344,7 +394,9 @@ class ToKOddMonth:
         activities_calendar = self.calculate_max_distance_and_elevation_for_the_day(activities_calendar)
         logging.info("Activities Calendar with max distance slot for the day: %s", activities_calendar)
         activities_calendar = self.calculate_total_distance_and_elevation(activities_calendar)
-        logging.info("Activities Calendar total distance and elevation: %s", activities_calendar)
+        logging.info("Activities Calendar with total distance and elevation: %s", activities_calendar)
+        activities_calendar = self.calculate_consecutive_fifties_and_hundreds(activities_calendar)
+        logging.info("Activities Calendar with consecutive fifties and hundreds: %s", activities_calendar)
 
         points = {
             "base": {
@@ -359,61 +411,29 @@ class ToKOddMonth:
                 "Swim": {
                     "distance": 0
                 }
+            },
+            "bonus": {
+                "Ride": {
+                    "distance": 0,
+                    "elevation": 0,
+                    "total_distance": 0,
+                    "total_elevation": 0,
+                    "three_consecutive_hundreds": 0,
+                    "two_consecutive_hundreds": 0,
+                    "five_consecutive_fifties": 0,
+                    "three_consecutive_fifties": 0
+                },
+                "Run": {
+                    "distance": 0
+                },
+                "Swim": {
+                    "distance": 0
+                }
             }
         }
         points = self.calculate_base_points(points, activities_calendar)
         logging.info("Points base: %s", points)
 
-        # total_distance = 0.0
-        # total_elevation = 0
-        # total_activities = 0
-        # total_hundreds = 0
-        # total_fifties = 0
-        # total_twenty_fives = 0
-        #
-        # for day in activities_calendar:
-        #     total_distance += activities_calendar[day]["distance"]
-        #     total_elevation += activities_calendar[day]["elevation"]
-        #     total_activities += activities_calendar[day]["activities"]
-        #     if activities_calendar[day]["bonus_distance_sot"] == 100:
-        #         total_hundreds += 1
-        #     elif activities_calendar[day]["bonus_distance_sot"] == 50:
-        #         total_fifties += 1
-        #     elif activities_calendar[day]["bonus_distance_sot"] == 25:
-        #         total_twenty_fives += 1
-        #
-        # total_points = 0
-        #
-        # for day in activities_calendar:
-        #     if activities_calendar[day]["bonus_distance_sot"] >= 100.0:
-        #         total_points += 35
-        #     elif activities_calendar[day]["bonus_distance_sot"] >= 50.0:
-        #         total_points += 15
-        #     elif activities_calendar[day]["bonus_distance_sot"] >= 25.0:
-        #         total_points += 5
-        #
-        #     elif activities_calendar[day]["bonus_elevation_sot"] >= 2000:
-        #         total_points += 60
-        #     elif activities_calendar[day]["bonus_elevation_sot"] >= 1500:
-        #         total_points += 40
-        #     elif activities_calendar[day]["bonus_elevation_sot"] >= 1000:
-        #         total_points += 25
-        #     elif activities_calendar[day]["bonus_elevation_sot"] >= 500:
-        #         total_points += 10
-        #
-        # # 10 km = 1 point
-        # total_points += int(total_distance / 10)
-        # # 100 meters = 1 point (Elevation gain)
-        # total_points += int(total_elevation / 100)
-        # # 1 activity = 1 point
-        # total_points += total_activities
-        # # 1000 kms in a month = 150 points
-        # if total_distance >= 3000.0:
-        #     total_points += 500
-        # # 10000 meters of elevation gain in a month = 150 points
-        # if total_elevation >= 35000:
-        #     total_points += 500
-        #
         # # 50 km for 5 successive days = 100 points*
         # # 100 km for 3 successive days = 100 points
         # hundreds_streak = 0
