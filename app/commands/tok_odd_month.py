@@ -163,9 +163,9 @@ class ToKOddMonth:
                     if activity["type"] == "Ride":
                         activity["activity_points"] = 2 if activity["distance"] >= 10000.0 else 0
                     elif activity["type"] == "Run":
-                        activity["activity_points"] = 2 if activity["distance"] >= 1000.0 else 0
+                        activity["activity_points"] = 0
                     elif activity["type"] == "Swim":
-                        activity["activity_points"] = 2 if activity["distance"] >= 500.0 else 0
+                        activity["activity_points"] = 0
         return activities_calendar
 
     @staticmethod
