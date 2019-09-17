@@ -258,19 +258,39 @@ class ToKOddMonth:
         for activity_day in activities_calendar["calendar"]:
             if activities_calendar["calendar"][activity_day]["result"]:
                 activities_calendar["calendar"][activity_day]["data"].update(
-                    {"max_distance_slot": {"Ride": 0, "Run": 0, "Swim": 0}})
+                    {"max_distance": {"Ride": 0.0, "Run": 0.0, "Swim": 0.0}})
                 activities_calendar["calendar"][activity_day]["data"].update(
-                    {"max_elevation_slot": {"Ride": 0, "Run": 0, "Swim": 0}})
+                    {"max_elevation": {"Ride": 0.0, "Run": 0.0, "Swim": 0.0}})
+                list_max_distance_ride = list()
+                list_max_distance_run = list()
+                list_max_distance_swim = list()
+                list_max_elevation_ride = list()
+                list_max_elevation_run = list()
+                list_max_elevation_swim = list()
                 for activity in activities_calendar["calendar"][activity_day]["data"]["activities"]:
                     if activity["type"] == "Ride":
-                        if activity["distance"] >= 100000.0:
-                            activities_calendar["calendar"][activity_day]["data"]["max_distance_slot"]["Ride"] = 100
-                        elif activity["distance"] >= 50000.0:
-                            activities_calendar["calendar"][activity_day]["data"]["max_distance_slot"]["Ride"] = 50 if \
-                            activities_calendar["calendar"][activity_day]["data"]["max_distance_slot"]["Ride"] == 0 else \
-                            activities_calendar["calendar"][activity_day]["data"]["max_distance_slot"]["Ride"]
-                        else:
-                            activities_calendar["calendar"][activity_day]["data"]["max_distance_slot"]["Ride"] = 0
+                        list_max_distance_ride.append(activity["distance"])
+                        list_max_elevation_ride.append(activity["elevation"])
+                    elif activity["type"] == "Run":
+                        list_max_distance_run.append(activity["distance"])
+                        list_max_elevation_run.append(activity["elevation"])
+                    elif activity["type"] == "Swim":
+                        list_max_distance_swim.append(activity["distance"])
+                        list_max_elevation_swim.append(activity["elevation"])
+
+                activities_calendar["calendar"][activity_day]["data"]["max_distance"]["Ride"] = max(
+                    list_max_distance_ride)
+                activities_calendar["calendar"][activity_day]["data"]["max_distance"]["Run"] = max(
+                    list_max_distance_run)
+                activities_calendar["calendar"][activity_day]["data"]["max_distance"]["Swim"] = max(
+                    list_max_distance_swim)
+                activities_calendar["calendar"][activity_day]["data"]["max_elevation"]["Ride"] = max(
+                    list_max_elevation_ride)
+                activities_calendar["calendar"][activity_day]["data"]["max_elevation"]["Run"] = max(
+                    list_max_elevation_run)
+                activities_calendar["calendar"][activity_day]["data"]["max_elevation"]["Swim"] = max(
+                    list_max_elevation_swim)
+
         return activities_calendar
 
     @staticmethod
