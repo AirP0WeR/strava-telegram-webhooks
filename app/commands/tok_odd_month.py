@@ -478,14 +478,14 @@ class ToKOddMonth:
         total_points = self.calculate_total_points(points)
         logging.info("Total points: %s", total_points)
 
-        # if self.database_resource.write_operation(self.app_constants.QUERY_UPDATE_TOK_ODD_CHALLENGES_DATA.format(
-        #         challenges_data=ujson.dumps({'athlete_id': athlete_details['athlete_id'], 'points': total_points}),
-        #         athlete_id=athlete_details['athlete_id'])):
-        #     self.telegram_resource.send_message(
-        #         "Updated ToK odd challenges data for {name}.".format(name=athlete_details['name']))
-        # else:
-        #     self.telegram_resource.send_message(
-        #         "Failed to update ToK odd challenges data for {name}".format(name=athlete_details['name']))
+        if self.database_resource.write_operation(self.app_constants.QUERY_UPDATE_TOK_ODD_CHALLENGES_DATA.format(
+                challenges_data=ujson.dumps({'athlete_id': athlete_details['athlete_id'], 'points': total_points}),
+                athlete_id=athlete_details['athlete_id'])):
+            self.telegram_resource.send_message(
+                "Updated ToK odd challenges data for {name}.".format(name=athlete_details['name']))
+        else:
+            self.telegram_resource.send_message(
+                "Failed to update ToK odd challenges data for {name}".format(name=athlete_details['name']))
 
     def consolidate_tok_odd_challenges_result(self):
         odd_challenge = list()
