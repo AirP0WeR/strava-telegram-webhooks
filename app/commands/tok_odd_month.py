@@ -146,7 +146,6 @@ class ToKOddMonth:
 
     @staticmethod
     def calculate_activity_points(activities_calendar):
-        activities_calendar = ujson.loads(activities_calendar)
         for activity_day in activities_calendar:
             if activities_calendar[activity_day]["result"]:
                 for activity in activities_calendar[activity_day]["data"]["activities"]:
@@ -198,7 +197,7 @@ class ToKOddMonth:
 
     def tok_odd_challenges(self, athlete_details):
         logging.info("Calculating ToK odd challenges..")
-        activities_calendar = self.get_activities_calendar(athlete_details)
+        activities_calendar = ujson.loads(self.get_activities_calendar(athlete_details))
         logging.info("Activities Calendar: %s", activities_calendar)
         activities_calendar = self.calculate_activity_points(activities_calendar)
         logging.info("Activities Calendar: %s", activities_calendar)
