@@ -24,7 +24,8 @@ class ToKOddMonth:
         self.telegram_resource = TelegramResource()
         self.iron_cache_resource = IronCacheResource()
 
-    def get_activity_type(self, activity):
+    @staticmethod
+    def get_activity_type(activity):
         activity_type = None
         if activity.type == 'VirtualRide' or activity.type == 'Ride':
             activity_type = "Ride"
@@ -418,23 +419,23 @@ class ToKOddMonth:
     def tok_odd_challenges(self, athlete_details):
         logging.info("Calculating ToK odd challenges..")
         activities_calendar = ujson.loads(self.get_activities_calendar(athlete_details))
-        logging.info("Activities Calendar: %s", activities_calendar)
+        # logging.info("Activities Calendar: %s", activities_calendar)
         activities_calendar = self.cap_ride_distance_and_elevation(activities_calendar)
-        logging.info("Activities Calendar with capped distance and elevation for Rides: %s", activities_calendar)
+        # logging.info("Activities Calendar with capped distance and elevation for Rides: %s", activities_calendar)
         activities_calendar = self.calculate_activity_points(activities_calendar)
-        logging.info("Activities Calendar with activity points: %s", activities_calendar)
+        # logging.info("Activities Calendar with activity points: %s", activities_calendar)
         activities_calendar = self.calculate_distance_bonus(activities_calendar)
-        logging.info("Activities Calendar with distance bonus: %s", activities_calendar)
+        # logging.info("Activities Calendar with distance bonus: %s", activities_calendar)
         activities_calendar = self.calculate_elevation_bonus(activities_calendar)
-        logging.info("Activities Calendar with elevation bonus: %s", activities_calendar)
+        # logging.info("Activities Calendar with elevation bonus: %s", activities_calendar)
         activities_calendar = self.calculate_total_distance_and_elevation_for_the_day(activities_calendar)
-        logging.info("Activities Calendar with total distance and elevation for the day: %s", activities_calendar)
+        # logging.info("Activities Calendar with total distance and elevation for the day: %s", activities_calendar)
         activities_calendar = self.calculate_max_distance_and_elevation_for_the_day(activities_calendar)
-        logging.info("Activities Calendar with max distance slot for the day: %s", activities_calendar)
+        # logging.info("Activities Calendar with max distance slot for the day: %s", activities_calendar)
         activities_calendar = self.calculate_total_distance_and_elevation(activities_calendar)
-        logging.info("Activities Calendar with total distance and elevation: %s", activities_calendar)
+        # logging.info("Activities Calendar with total distance and elevation: %s", activities_calendar)
         activities_calendar = self.calculate_consecutive_fifties_and_hundreds(activities_calendar)
-        logging.info("Activities Calendar with consecutive fifties and hundreds: %s", activities_calendar)
+        logging.info("Activities Calendar: %s", activities_calendar)
 
         points = {
             "base": {
