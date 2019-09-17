@@ -198,6 +198,8 @@ class ToKOddMonth:
         logging.info("Calculating ToK odd challenges..")
         activities_calendar = self.get_activities_calendar(athlete_details)
         logging.info("Activities Calendar: %s", activities_calendar)
+        activities_calendar = self.calculate_activity_points(activities_calendar)
+        logging.info("Activities Calendar: %s", activities_calendar)
         # points = 0
         # points = self.calculate_base_points(points, activities_calendar)
         # for day in activities_calendar:
