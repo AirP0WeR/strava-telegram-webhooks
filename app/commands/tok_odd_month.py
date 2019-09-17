@@ -127,7 +127,7 @@ class ToKOddMonth:
                 if self.operations.supported_activities_for_tok_challenges(
                         activity) and activity_month in self.app_variables.tok_odd_challenges_month and activity_year in self.app_variables.tok_odd_challenges_year:
                     logging.info("Activity considered.")
-                    activities_calendar[calendar_key]["found"] = True
+                    activities_calendar[calendar_key]["result"] = True
                     activities_calendar[calendar_key]["data"]["activities"].append({
                         "type": self.get_activity_type(activity),
                         "distance": activity_distance,
