@@ -147,13 +147,14 @@ class ToKOddMonth:
     @staticmethod
     def calculate_activity_points(activities_calendar):
         for activity_day in activities_calendar:
-            for activity in activities_calendar[activity_day]["activities"]:
-                if activity["type"] == "Ride":
-                    activity["activity_points"] = 2 if activity["distance"] >= 10000.0 else 0
-                elif activity["type"] == "Run":
-                    activity["activity_points"] = 2 if activity["distance"] >= 1000.0 else 0
-                elif activity["type"] == "Swim":
-                    activity["activity_points"] = 2 if activity["distance"] >= 500.0 else 0
+            if activity_day["result"]:
+                for activity in activities_calendar[activity_day]["data"]["activities"]:
+                    if activity["type"] == "Ride":
+                        activity["activity_points"] = 2 if activity["distance"] >= 10000.0 else 0
+                    elif activity["type"] == "Run":
+                        activity["activity_points"] = 2 if activity["distance"] >= 1000.0 else 0
+                    elif activity["type"] == "Swim":
+                        activity["activity_points"] = 2 if activity["distance"] >= 500.0 else 0
         return activities_calendar
 
     def calculate_distance_bonus(self, activities_calendar):
