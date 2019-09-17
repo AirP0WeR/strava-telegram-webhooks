@@ -159,13 +159,39 @@ class ToKOddMonth:
 
     def calculate_distance_bonus(self, activities_calendar):
         for activity_day in activities_calendar:
-            for activity in activities_calendar[activity_day]["activities"]:
-                if activity["type"] == "Ride":
-                    activity["distance_bonus"] = 2 if activity["distance"] >= 10000.0 else 0
-                elif activity["type"] == "Run":
-                    activity["distance_bonus"] = 2 if activity["distance"] >= 1000.0 else 0
-                elif activity["type"] == "Swim":
-                    activity["distance_bonus"] = 2 if activity["distance"] >= 500.0 else 0
+            if activities_calendar[activity_day]["result"]:
+                for activity in activities_calendar[activity_day]["data"]["activities"]:
+                    if activity["type"] == "Ride":
+                        if activity["distance"] >= 100000.0:
+                            activity["distance_bonus_points"] = 35
+                        elif activity["distance"] >= 50000.0:
+                            activity["distance_bonus_points"] = 15
+                        elif activity["distance"] >= 25000.0:
+                            activity["distance_bonus_points"] = 5
+                        else:
+                            activity["distance_bonus_points"] = 0
+                    elif activity["type"] == "Run":
+                        if activity["distance"] >= 40000.0:
+                            activity["distance_bonus_points"] = 35
+                        elif activity["distance"] >= 20000.0:
+                            activity["distance_bonus_points"] = 16
+                        elif activity["distance"] >= 15000.0:
+                            activity["distance_bonus_points"] = 12
+                        elif activity["distance"] >= 10000.0:
+                            activity["distance_bonus_points"] = 7
+                        elif activity["distance"] >= 5000.0:
+                            activity["distance_bonus_points"] = 3
+                        else:
+                            activity["distance_bonus_points"] = 0
+                    elif activity["type"] == "Swim":
+                        if activity["distance"] >= 2000.0:
+                            activity["distance_bonus_points"] = 10
+                        elif activity["distance"] >= 1500.0:
+                            activity["distance_bonus_points"] = 5
+                        elif activity["distance"] >= 1000.0:
+                            activity["distance_bonus_points"] = 3
+                        else:
+                            activity["distance_bonus_points"] = 0
         return activities_calendar
 
     def temp(self):
