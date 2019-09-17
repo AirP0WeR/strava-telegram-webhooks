@@ -314,32 +314,14 @@ class ToKOddMonth:
 
         return activities_calendar
 
-    def temp(self):
-        if activity_distance >= 100.0:
-            ride_calendar[calendar_key]["bonus_distance_sot"] = 100
-        elif activity_distance >= 50.0:
-            ride_calendar[calendar_key]["bonus_distance_sot"] = 50 if ride_calendar[calendar_key][
-                                                                          "bonus_distance_sot"] < 50 else \
-                ride_calendar[calendar_key]["bonus_distance_sot"]
-        elif activity_distance >= 25.0:
-            ride_calendar[calendar_key]["bonus_distance_sot"] = 25 if ride_calendar[calendar_key][
-                                                                          "bonus_distance_sot"] < 25 else \
-                ride_calendar[calendar_key]["bonus_distance_sot"]
-
-        if activity_elevation >= 2000:
-            ride_calendar[calendar_key]["bonus_elevation_sot"] = 2000
-        elif activity_elevation >= 1500:
-            ride_calendar[calendar_key]["bonus_elevation_sot"] = 1500 if ride_calendar[calendar_key][
-                                                                             "bonus_elevation_sot"] < 1500 else \
-                ride_calendar[calendar_key]["bonus_elevation_sot"]
-        elif activity_elevation >= 1000:
-            ride_calendar[calendar_key]["bonus_elevation_sot"] = 1000 if ride_calendar[calendar_key][
-                                                                             "bonus_elevation_sot"] < 1000 else \
-                ride_calendar[calendar_key]["bonus_elevation_sot"]
-        elif activity_elevation >= 500:
-            ride_calendar[calendar_key]["bonus_elevation_sot"] = 500 if ride_calendar[calendar_key][
-                                                                            "bonus_elevation_sot"] < 500 else \
-                ride_calendar[calendar_key]["bonus_elevation_sot"]
+    def calculate_base_points(self, points, activities_calendar):
+        points += int(self.operations.meters_to_kilometers(activities_calendar["total_distance"] / 10))
+        points += int(activities_calendar["total_elevation"] / 100)
+        for activity_day in activities_calendar["calendar"]:
+            if activities_calendar["calendar"][activity_day]["result"]:
+                for activity in activities_calendar["calendar"][activity_day]["data"]["activities"]:
+                    points += activity["activity_points"]
+        return points
 
     def tok_odd_challenges(self, athlete_details):
         logging.info("Calculating ToK odd challenges..")
@@ -359,18 +341,11 @@ class ToKOddMonth:
         logging.info("Activities Calendar with max distance slot for the day: %s", activities_calendar)
         activities_calendar = self.calculate_total_distance_and_elevation(activities_calendar)
         logging.info("Activities Calendar total distance and elevation: %s", activities_calendar)
-        # points = 0
-        # points = self.calculate_base_points(points, activities_calendar)
-        # for day in activities_calendar:
-        #     # A cap of 100 kms(single ride) is set for base points.
-        #     activities_calendar[day]["distance"] = activities_calendar[day]["distance"] if activities_calendar[day][
-        #                                                                            "distance"] <= 150.0 else 150.0
-        #     # A cap of 1500 meters(single ride) of elevation gain is set for base points.
-        #     activities_calendar[day]["elevation"] = activities_calendar[day]["elevation"] if activities_calendar[day][
-        #                                                                              "elevation"] <= 2000 else 2000
-        #
-        # logging.info("Ride Calendar: %s", activities_calendar)
-        #
+
+        points = 0
+        points = self.calculate_base_points(points, activities_calendar)
+        logging.info("Points base: %s", points)
+
         # total_distance = 0.0
         # total_elevation = 0
         # total_activities = 0
