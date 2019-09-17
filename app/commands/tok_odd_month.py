@@ -247,12 +247,12 @@ class ToKOddMonth:
                         list_swims_distance.append(activity["distance"])
                         list_swims_elevation.append(activity["elevation"])
 
-                activities_calendar[activity_day]["data"]["rides_total_distance"] = sum(list_rides_distance)
-                activities_calendar[activity_day]["data"]["runs_total_distance"] = sum(list_runs_distance)
-                activities_calendar[activity_day]["data"]["swims_total_distance"] = sum(list_swims_distance)
-                activities_calendar[activity_day]["data"]["rides_total_elevation"] = sum(list_rides_elevation)
-                activities_calendar[activity_day]["data"]["runs_total_elevation"] = sum(list_runs_elevation)
-                activities_calendar[activity_day]["data"]["swims_total_elevation"] = sum(list_swims_elevation)
+                activities_calendar[activity_day]["data"]["total_distance"]["Ride"] = sum(list_rides_distance)
+                activities_calendar[activity_day]["data"]["total_distance"]["Run"] = sum(list_runs_distance)
+                activities_calendar[activity_day]["data"]["total_distance"]["Swim"] = sum(list_swims_distance)
+                activities_calendar[activity_day]["data"]["total_elevation"]["Ride"] = sum(list_rides_elevation)
+                activities_calendar[activity_day]["data"]["total_elevation"]["Run"] = sum(list_runs_elevation)
+                activities_calendar[activity_day]["data"]["total_elevation"]["Swim"] = sum(list_swims_elevation)
 
         return activities_calendar
 
