@@ -195,6 +195,28 @@ class ToKOddMonth:
                             activity["distance_bonus_points"] = 0
         return activities_calendar
 
+    @staticmethod
+    def calculate_elevation_bonus(activities_calendar):
+        for activity_day in activities_calendar:
+            if activities_calendar[activity_day]["result"]:
+                for activity in activities_calendar[activity_day]["data"]["activities"]:
+                    if activity["type"] == "Ride":
+                        if activity["elevation"] >= 2000.0:
+                            activity["elevation_bonus_points"] = 60
+                        elif activity["elevation"] >= 1500.0:
+                            activity["elevation_bonus_points"] = 40
+                        elif activity["elevation"] >= 1000.0:
+                            activity["elevation_bonus_points"] = 25
+                        elif activity["elevation"] >= 500.0:
+                            activity["elevation_bonus_points"] = 10
+                        else:
+                            activity["elevation_bonus_points"] = 0
+                    elif activity["type"] == "Run":
+                        activity["elevation_bonus_points"] = 0
+                    elif activity["type"] == "Swim":
+                        activity["elevation_bonus_points"] = 0
+        return activities_calendar
+
     def temp(self):
         if activity_distance >= 100.0:
             ride_calendar[calendar_key]["bonus_distance_sot"] = 100
@@ -227,9 +249,11 @@ class ToKOddMonth:
         activities_calendar = ujson.loads(self.get_activities_calendar(athlete_details))
         logging.info("Activities Calendar: %s", activities_calendar)
         activities_calendar = self.calculate_activity_points(activities_calendar)
-        logging.info("Activities Calendar: %s", activities_calendar)
+        logging.info("Activities Calendar with activity points: %s", activities_calendar)
         activities_calendar = self.calculate_distance_bonus(activities_calendar)
-        logging.info("Activities Calendar: %s", activities_calendar)
+        logging.info("Activities Calendar with distance bonus: %s", activities_calendar)
+        activities_calendar = self.calculate_elevation_bonus(activities_calendar)
+        logging.info("Activities Calendar elevation bonus: %s", activities_calendar)
         # points = 0
         # points = self.calculate_base_points(points, activities_calendar)
         # for day in activities_calendar:
