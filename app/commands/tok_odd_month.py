@@ -249,8 +249,7 @@ class ToKOddMonth:
 
                 activities_calendar[activity_day]["data"].update({"total_distance": ""})
                 activities_calendar[activity_day]["data"].update({"total_elevation": ""})
-                activities_calendar[activity_day]["data"]["totaltotal_elevation_distance"].update(
-                    {"Ride": sum(list_rides_distance)})
+                activities_calendar[activity_day]["data"]["total_distance"].update({"Ride": sum(list_rides_distance)})
                 activities_calendar[activity_day]["data"]["total_distance"].update({"Run": sum(list_runs_distance)})
                 activities_calendar[activity_day]["data"]["total_distance"].update({"Swim": sum(list_swims_distance)})
                 activities_calendar[activity_day]["data"]["total_elevation"].update({"Ride": sum(list_rides_elevation)})
