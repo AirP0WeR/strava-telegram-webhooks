@@ -147,7 +147,9 @@ class ToKOddMonth:
     @staticmethod
     def calculate_activity_points(activities_calendar):
         activities_calendar = ujson.loads(activities_calendar)
+        logging.info(type(activities_calendar))  # remove
         for activity_day in activities_calendar:
+            logging.info(activity_day)  #remove
             if activity_day["result"]:
                 for activity in activities_calendar[activity_day]["data"]["activities"]:
                     if activity["type"] == "Ride":
