@@ -471,8 +471,6 @@ class ToKOddMonth:
             }
         }
         points = self.calculate_base_points(points, activities_calendar)
-        logging.info("Points with base: %s", points)
-
         points = self.calculate_bonus_points(points, activities_calendar)
         logging.info("Points with bonus: %s", points)
 
