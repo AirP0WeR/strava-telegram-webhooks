@@ -279,17 +279,17 @@ class ToKOddMonth:
                         list_max_elevation_swim.append(activity["elevation"])
 
                 activities_calendar["calendar"][activity_day]["data"]["max_distance"]["Ride"] = max(
-                    list_max_distance_ride)
+                    list_max_distance_ride) if len(list_max_distance_ride) > 0 else 0
                 activities_calendar["calendar"][activity_day]["data"]["max_distance"]["Run"] = max(
-                    list_max_distance_run)
+                    list_max_distance_run) if len(list_max_distance_run) > 0 else 0
                 activities_calendar["calendar"][activity_day]["data"]["max_distance"]["Swim"] = max(
-                    list_max_distance_swim)
+                    list_max_distance_swim) if len(list_max_distance_swim) > 0 else 0
                 activities_calendar["calendar"][activity_day]["data"]["max_elevation"]["Ride"] = max(
-                    list_max_elevation_ride)
+                    list_max_elevation_ride) if len(list_max_elevation_ride) > 0 else 0
                 activities_calendar["calendar"][activity_day]["data"]["max_elevation"]["Run"] = max(
-                    list_max_elevation_run)
+                    list_max_elevation_run) if len(list_max_elevation_run) > 0 else 0
                 activities_calendar["calendar"][activity_day]["data"]["max_elevation"]["Swim"] = max(
-                    list_max_elevation_swim)
+                    list_max_elevation_swim) if len(list_max_elevation_swim) > 0 else 0
 
         return activities_calendar
 
