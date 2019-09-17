@@ -413,7 +413,7 @@ class ToKOddMonth:
         total_points.append(sum(list(points["bonus"]["Ride"].values())))
         total_points.append(sum(list(points["bonus"]["Run"].values())))
         total_points.append(sum(list(points["bonus"]["Swim"].values())))
-        return total_points
+        return sum(total_points)
 
     def tok_odd_challenges(self, athlete_details):
         logging.info("Calculating ToK odd challenges..")
