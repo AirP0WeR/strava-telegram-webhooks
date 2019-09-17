@@ -250,6 +250,7 @@ class ToKOddMonth:
     def calculate_total_distance_and_elevation(activities_calendar):
         activities_calendar.update({"total_distance": {"Ride": 0.0, "Run": 0.0, "Swim": 0.0}})
         activities_calendar.update({"total_elevation": {"Ride": 0.0, "Run": 0.0, "Swim": 0.0}})
+        logging.info("Calendar: %s", activities_calendar)
         for activity_day in activities_calendar:
             if activities_calendar[activity_day]["result"]:
                 activities_calendar["total_distance"]["Ride"] += activities_calendar[activity_day]["data"]["distance"][
