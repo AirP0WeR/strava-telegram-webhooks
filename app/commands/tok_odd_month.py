@@ -404,6 +404,17 @@ class ToKOddMonth:
 
         return points
 
+    @staticmethod
+    def calculate_total_points(points):
+        total_points = list()
+        total_points.append(sum(list(points["base"]["Ride"].values())))
+        total_points.append(sum(list(points["base"]["Run"].values())))
+        total_points.append(sum(list(points["base"]["Swim"].values())))
+        total_points.append(sum(list(points["bonus"]["Ride"].values())))
+        total_points.append(sum(list(points["bonus"]["Run"].values())))
+        total_points.append(sum(list(points["bonus"]["Swim"].values())))
+        return total_points
+
     def tok_odd_challenges(self, athlete_details):
         logging.info("Calculating ToK odd challenges..")
         activities_calendar = ujson.loads(self.get_activities_calendar(athlete_details))
@@ -461,15 +472,12 @@ class ToKOddMonth:
         points = self.calculate_base_points(points, activities_calendar)
         logging.info("Points with base: %s", points)
 
-        points = self.calculate_bonus_points(points, activities_calendar)
+        points = ujson.loads(self.calculate_bonus_points(points, activities_calendar))
         logging.info("Points with bonus: %s", points)
 
-        # logging.info("total_distance: %s | total_elevation: %s, total_activities: %s | total_points: %s | "
-        #              "total_hundreds: %s | total_fifties: %s | ride_calendar: %s | "
-        #              "hundreds_streak: %s | fifties_streak: %s",
-        #              total_distance, total_elevation, total_activities, total_points, total_hundreds, total_fifties,
-        #              activities_calendar, hundreds_streak, fifties_streak)
-        #
+        total_points = self.calculate_total_points(points)
+        logging.info("Total points: %s", total_points)
+
         # if self.database_resource.write_operation(self.app_constants.QUERY_UPDATE_TOK_ODD_CHALLENGES_DATA.format(
         #         challenges_data=ujson.dumps({'athlete_id': athlete_details['athlete_id'], 'points': total_points}),
         #         athlete_id=athlete_details['athlete_id'])):
