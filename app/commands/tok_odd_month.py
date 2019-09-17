@@ -369,8 +369,8 @@ class ToKOddMonth:
         points["base"]["Ride"]["distance"] = int(
             self.operations.meters_to_kilometers(activities_calendar["total_distance"]["Ride"] / 10))
         points["base"]["Run"]["distance"] = int(
-            self.operations.meters_to_kilometers(activities_calendar["total_distance"]["Run"]))
-        points["base"]["Swim"]["distance"] = int(activities_calendar["total_distance"]["Swim"] / 500)
+            self.operations.meters_to_kilometers(activities_calendar["total_distance"]["Run"])) * 2
+        points["base"]["Swim"]["distance"] = int(activities_calendar["total_distance"]["Swim"] / 500) * 2
         points["base"]["Ride"]["elevation"] = int(activities_calendar["total_elevation"]["Ride"] / 100)
         for activity_day in activities_calendar["calendar"]:
             if activities_calendar["calendar"][activity_day]["result"]:
