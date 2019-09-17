@@ -227,7 +227,8 @@ class ToKOddMonth:
                         activity["elevation_bonus_points"] = 0
         return activities_calendar
 
-    def total_distance_and_elevation_for_the_day(self, activities_calendar):
+    @staticmethod
+    def total_distance_and_elevation_for_the_day(activities_calendar):
         for activity_day in activities_calendar:
             if activities_calendar[activity_day]["result"]:
                 list_rides_distance = list()
