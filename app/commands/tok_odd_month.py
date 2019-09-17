@@ -337,7 +337,8 @@ class ToKOddMonth:
                     fifties_streak += 1
                 else:
                     hundreds_streak = 0
-                    if max_distance >= 50000.0:
+                    # if max_distance >= 50000.0:
+                    if max_distance >= 10.0:
                         fifties_streak += 1
                     else:
                         fifties_streak = 0
