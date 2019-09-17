@@ -315,8 +315,10 @@ class ToKOddMonth:
         return activities_calendar
 
     def calculate_base_points(self, points, activities_calendar):
-        points += int(self.operations.meters_to_kilometers(activities_calendar["total_distance"] / 10))
-        points += int(activities_calendar["total_elevation"] / 100)
+        points += int(self.operations.meters_to_kilometers(activities_calendar["total_distance"]["Ride"] / 10))
+        points += int(self.operations.meters_to_kilometers(activities_calendar["total_distance"]["Run"]))
+        points += int(activities_calendar["total_distance"]["Swim"] / 500)
+        points += int(activities_calendar["total_elevation"]["Ride"] / 100)
         for activity_day in activities_calendar["calendar"]:
             if activities_calendar["calendar"][activity_day]["result"]:
                 for activity in activities_calendar["calendar"][activity_day]["data"]["activities"]:
