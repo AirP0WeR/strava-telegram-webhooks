@@ -365,12 +365,12 @@ class ToKOddMonth:
         return activities_calendar
 
     def calculate_base_points(self, points, activities_calendar):
-        points["base"]["Ride"]["distance"] += int(
+        points["base"]["Ride"]["distance"] = int(
             self.operations.meters_to_kilometers(activities_calendar["total_distance"]["Ride"] / 10))
-        points["base"]["Run"]["distance"] += int(
+        points["base"]["Run"]["distance"] = int(
             self.operations.meters_to_kilometers(activities_calendar["total_distance"]["Run"]))
-        points["base"]["Swim"]["distance"] += int(activities_calendar["total_distance"]["Swim"] / 500)
-        points["base"]["Ride"]["elevation"] += int(activities_calendar["total_elevation"]["Ride"] / 100)
+        points["base"]["Swim"]["distance"] = int(activities_calendar["total_distance"]["Swim"] / 500)
+        points["base"]["Ride"]["elevation"] = int(activities_calendar["total_elevation"]["Ride"] / 100)
         for activity_day in activities_calendar["calendar"]:
             if activities_calendar["calendar"][activity_day]["result"]:
                 for activity in activities_calendar["calendar"][activity_day]["data"]["activities"]:
@@ -402,7 +402,7 @@ class ToKOddMonth:
         points["bonus"]["Ride"]["three_consecutive_fifties"] = 25 * activities_calendar["consecutives"]["fifties"][
             "three"]
 
-        return activities_calendar
+        return points
 
     def tok_odd_challenges(self, athlete_details):
         logging.info("Calculating ToK odd challenges..")
