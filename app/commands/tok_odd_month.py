@@ -472,7 +472,7 @@ class ToKOddMonth:
         points = self.calculate_base_points(points, activities_calendar)
         logging.info("Points with base: %s", points)
 
-        points = ujson.loads(self.calculate_bonus_points(points, activities_calendar))
+        points = self.calculate_bonus_points(points, activities_calendar)
         logging.info("Points with bonus: %s", points)
 
         total_points = self.calculate_total_points(points)
