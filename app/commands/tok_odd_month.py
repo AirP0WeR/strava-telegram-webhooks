@@ -305,9 +305,11 @@ class ToKOddMonth:
         activities_calendar = self.calculate_distance_bonus(activities_calendar)
         logging.info("Activities Calendar with distance bonus: %s", activities_calendar)
         activities_calendar = self.calculate_elevation_bonus(activities_calendar)
-        logging.info("Activities Calendar elevation bonus: %s", activities_calendar)
+        logging.info("Activities Calendar with elevation bonus: %s", activities_calendar)
         activities_calendar = self.calculate_total_distance_and_elevation_for_the_day(activities_calendar)
-        logging.info("Activities Calendar total distance and elevation for the day: %s", activities_calendar)
+        logging.info("Activities Calendar with total distance and elevation for the day: %s", activities_calendar)
+        activities_calendar = self.calculate_total_distance_and_elevation(activities_calendar)
+        logging.info("Activities Calendar total distance and elevation: %s", activities_calendar)
         # points = 0
         # points = self.calculate_base_points(points, activities_calendar)
         # for day in activities_calendar:
