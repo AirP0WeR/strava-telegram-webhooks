@@ -246,21 +246,26 @@ class ToKOddMonth:
 
         return activities_calendar
 
-    def calculate_total_distance_and_elevation(self, activities_calendar):
-        list_rides_total_distance = list()
-        list_runs_total_distance = list()
-        list_swims_total_distance = list()
-        list_rides_total_elevation = list()
-        list_runs_total_elevation = list()
-        list_swims_total_elevation = list()
+    @staticmethod
+    def calculate_total_distance_and_elevation(activities_calendar):
+        activities_calendar.update({"total_distance": {"Ride": 0.0, "Run": 0.0, "Swim": 0.0}})
+        activities_calendar.update({"total_elevation": {"Ride": 0.0, "Run": 0.0, "Swim": 0.0}})
         for activity_day in activities_calendar:
             if activities_calendar[activity_day]["result"]:
-                list_rides_total_distance.append(activities_calendar[activity_day]["data"]["distance"]["Ride"])
-                list_runs_total_distance.append(activities_calendar[activity_day]["data"]["distance"]["Run"])
-                list_swims_total_distance.append(activities_calendar[activity_day]["data"]["distance"]["Swim"])
-                list_rides_total_elevation.append(activities_calendar[activity_day]["data"]["elevation"]["Ride"])
-                list_runs_total_elevation.append(activities_calendar[activity_day]["data"]["elevation"]["Run"])
-                list_swims_total_elevation.append(activities_calendar[activity_day]["data"]["elevation"]["Swim"])
+                activities_calendar["total_distance"]["Ride"] += activities_calendar[activity_day]["data"]["distance"][
+                    "Ride"]
+                activities_calendar["total_distance"]["Run"] += activities_calendar[activity_day]["data"]["distance"][
+                    "Run"]
+                activities_calendar["total_distance"]["Swim"] += activities_calendar[activity_day]["data"]["distance"][
+                    "Swim"]
+                activities_calendar["total_elevation"]["Ride"] += \
+                activities_calendar[activity_day]["data"]["elevation"]["Ride"]
+                activities_calendar["total_elevation"]["Run"] += activities_calendar[activity_day]["data"]["elevation"][
+                    "Run"]
+                activities_calendar["total_elevation"]["Swim"] += \
+                activities_calendar[activity_day]["data"]["elevation"]["Swim"]
+
+        return activities_calendar
 
     def temp(self):
         if activity_distance >= 100.0:
