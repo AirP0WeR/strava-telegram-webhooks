@@ -315,14 +315,16 @@ class ToKOddMonth:
         return activities_calendar
 
     def calculate_base_points(self, points, activities_calendar):
-        points += int(self.operations.meters_to_kilometers(activities_calendar["total_distance"]["Ride"] / 10))
-        points += int(self.operations.meters_to_kilometers(activities_calendar["total_distance"]["Run"]))
-        points += int(activities_calendar["total_distance"]["Swim"] / 500)
-        points += int(activities_calendar["total_elevation"]["Ride"] / 100)
+        points["base"]["Ride"]["distance"] += int(
+            self.operations.meters_to_kilometers(activities_calendar["total_distance"]["Ride"] / 10))
+        points["base"]["Run"]["distance"] += int(
+            self.operations.meters_to_kilometers(activities_calendar["total_distance"]["Run"]))
+        points["base"]["Swim"]["distance"] += int(activities_calendar["total_distance"]["Swim"] / 500)
+        points["base"]["Ride"]["elevation"] += int(activities_calendar["total_elevation"]["Ride"] / 100)
         for activity_day in activities_calendar["calendar"]:
             if activities_calendar["calendar"][activity_day]["result"]:
                 for activity in activities_calendar["calendar"][activity_day]["data"]["activities"]:
-                    points += activity["activity_points"]
+                    points["base"]["Ride"]["activities"] += activity["activity_points"]
         return points
 
     def tok_odd_challenges(self, athlete_details):
@@ -344,7 +346,21 @@ class ToKOddMonth:
         activities_calendar = self.calculate_total_distance_and_elevation(activities_calendar)
         logging.info("Activities Calendar total distance and elevation: %s", activities_calendar)
 
-        points = 0
+        points = {
+            "base": {
+                "Ride": {
+                    "distance": 0,
+                    "elevation": 0,
+                    "activities": 0
+                },
+                "Run": {
+                    "distance": 0
+                },
+                "Swim": {
+                    "distance": 0
+                }
+            }
+        }
         points = self.calculate_base_points(points, activities_calendar)
         logging.info("Points base: %s", points)
 
