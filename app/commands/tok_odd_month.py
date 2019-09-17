@@ -377,6 +377,33 @@ class ToKOddMonth:
                     points["base"]["Ride"]["activities"] += activity["activity_points"]
         return points
 
+    @staticmethod
+    def calculate_bonus_points(points, activities_calendar):
+        if activities_calendar["total_distance"]["Ride"] >= 3000000.0:
+            points["bonus"]["Ride"]["total_distance"] = 500
+        if activities_calendar["total_elevation"]["Ride"] >= 35000.0:
+            points["bonus"]["Ride"]["total_elevation"] = 500
+        for activity_day in activities_calendar["calendar"]:
+            if activities_calendar["calendar"][activity_day]["result"]:
+                for activity in activities_calendar["calendar"][activity_day]["data"]["activities"]:
+                    if activity["type"] == "Ride":
+                        points["bonus"]["Ride"]["distance"] += activity["distance_bonus_points"]
+                        points["bonus"]["Ride"]["elevation"] += activity["elevation_bonus_points"]
+                    elif activity["type"] == "Run":
+                        points["bonus"]["Run"]["distance"] += activity["distance_bonus_points"]
+                    elif activity["type"] == "Swim":
+                        points["bonus"]["Swim"]["distance"] += activity["distance_bonus_points"]
+        points["bonus"]["Ride"]["three_consecutive_hundreds"] = 100 * activities_calendar["consecutives"]["hundreds"][
+            "three"]
+        points["bonus"]["Ride"]["two_consecutive_hundreds"] = 50 * activities_calendar["consecutives"]["hundreds"][
+            "two"]
+        points["bonus"]["Ride"]["five_consecutive_fifties"] = 50 * activities_calendar["consecutives"]["fifties"][
+            "five"]
+        points["bonus"]["Ride"]["three_consecutive_fifties"] = 25 * activities_calendar["consecutives"]["fifties"][
+            "three"]
+
+        return activities_calendar
+
     def tok_odd_challenges(self, athlete_details):
         logging.info("Calculating ToK odd challenges..")
         activities_calendar = ujson.loads(self.get_activities_calendar(athlete_details))
@@ -432,40 +459,11 @@ class ToKOddMonth:
             }
         }
         points = self.calculate_base_points(points, activities_calendar)
-        logging.info("Points base: %s", points)
+        logging.info("Points with base: %s", points)
 
-        # # 50 km for 5 successive days = 100 points*
-        # # 100 km for 3 successive days = 100 points
-        # hundreds_streak = 0
-        # fifties_streak = 0
-        # for day in activities_calendar:
-        #     distance = activities_calendar[day]["bonus_distance_sot"]
-        #     if distance == 100:
-        #         hundreds_streak += 1
-        #         fifties_streak += 1
-        #     else:
-        #         hundreds_streak = 0
-        #         if distance == 50:
-        #             fifties_streak += 1
-        #         else:
-        #             fifties_streak = 0
-        #     if hundreds_streak == 3:
-        #         total_points += 100
-        #         hundreds_streak = 0
-        #         fifties_streak = 0
-        #     elif hundreds_streak == 2:
-        #         total_points += 50
-        #         hundreds_streak = 0
-        #         fifties_streak = 0
-        #     elif fifties_streak == 5:
-        #         total_points += 50
-        #         hundreds_streak = 0
-        #         fifties_streak = 0
-        #     elif fifties_streak == 3:
-        #         total_points += 25
-        #         hundreds_streak = 0
-        #         fifties_streak = 0
-        #
+        points = self.calculate_bonus_points(points, activities_calendar)
+        logging.info("Points with bonus: %s", points)
+
         # logging.info("total_distance: %s | total_elevation: %s, total_activities: %s | total_points: %s | "
         #              "total_hundreds: %s | total_fifties: %s | ride_calendar: %s | "
         #              "hundreds_streak: %s | fifties_streak: %s",
