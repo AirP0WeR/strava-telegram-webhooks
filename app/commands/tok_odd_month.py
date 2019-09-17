@@ -332,8 +332,7 @@ class ToKOddMonth:
         for activity_day in activities_calendar["calendar"]:
             if activities_calendar["calendar"][activity_day]["result"]:
                 max_distance = activities_calendar["calendar"][activity_day]["data"]["max_distance"]["Ride"]
-                # if max_distance >= 100000.0:
-                if max_distance >= 1000.0:
+                if max_distance >= 100000.0:
                     hundreds_streak += 1
                     fifties_streak += 1
                 else:
