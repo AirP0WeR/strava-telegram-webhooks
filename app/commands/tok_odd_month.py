@@ -430,8 +430,8 @@ class ToKOddMonth:
             challenge_summary += "Elevation: {}\n".format(points["base"]["Ride"]["elevation"])
             challenge_summary += "Activities: {}\n\n".format(points["base"]["Ride"]["activities"])
             challenge_summary += "_Bonus Points_:\n\n"
-            challenge_summary += "Distance: {}\n".format(points["bonus"]["Ride"]["distance"])
-            challenge_summary += "Elevation: {}\n".format(points["bonus"]["Ride"]["elevation"])
+            challenge_summary += "Distance slots: {}\n".format(points["bonus"]["Ride"]["distance"])
+            challenge_summary += "Elevation slots: {}\n".format(points["bonus"]["Ride"]["elevation"])
             challenge_summary += "3 consecutive 50s: {}\n".format(points["bonus"]["Ride"]["three_consecutive_fifties"])
             challenge_summary += "5 consecutive 50s: {}\n".format(points["bonus"]["Ride"]["five_consecutive_fifties"])
             challenge_summary += "2 consecutive 100s: {}\n".format(points["bonus"]["Ride"]["two_consecutive_hundreds"])
