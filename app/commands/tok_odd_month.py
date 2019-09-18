@@ -441,16 +441,12 @@ class ToKOddMonth:
             challenge_summary += "35000 meters total: {}\n\n".format(points["bonus"]["Ride"]["total_elevation"])
             # if points["base"]["Run"]["distance"] > 0:
             challenge_summary += "*Run*:\n\n"
-            challenge_summary += "_Base Points_:\n\n"
-            challenge_summary += "Distance: {}\n\n".format(points["base"]["Run"]["distance"])
-            challenge_summary += "_Bonus Points_:\n\n"
-            challenge_summary += "Distance: {}\n\n".format(points["bonus"]["Run"]["distance"])
+            challenge_summary += "Base Points: {}\n".format(points["base"]["Run"]["distance"])
+            challenge_summary += "Bonus Points: {}\n\n".format(points["bonus"]["Run"]["distance"])
             # if points["base"]["Swim"]["distance"] > 0:
             challenge_summary += "*Swim*:\n\n"
-            challenge_summary += "_Base Points_:\n\n"
-            challenge_summary += "Distance: {}\n\n".format(points["base"]["Swim"]["distance"])
-            challenge_summary += "_Bonus Points_:\n"
-            challenge_summary += "Distance: {}".format(points["bonus"]["Swim"]["distance"])
+            challenge_summary += "Base Points: {}\n\n".format(points["base"]["Swim"]["distance"])
+            challenge_summary += "Base Points: {}".format(points["bonus"]["Swim"]["distance"])
 
         return challenge_summary
 
