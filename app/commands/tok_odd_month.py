@@ -8,6 +8,7 @@ from stravalib import unithelper
 
 from app.common.constants_and_variables import AppConstants, AppVariables
 from app.common.operations import Operations
+from app.resources.athlete import AthleteResource
 from app.resources.database import DatabaseResource
 from app.resources.iron_cache import IronCacheResource
 from app.resources.strava import StravaResource
@@ -23,6 +24,7 @@ class ToKOddMonth:
         self.database_resource = DatabaseResource()
         self.telegram_resource = TelegramResource()
         self.iron_cache_resource = IronCacheResource()
+        self.athlete_resource = AthleteResource()
 
     @staticmethod
     def get_activity_type(activity):
@@ -416,6 +418,47 @@ class ToKOddMonth:
         total_points.append(sum(list(points["bonus"]["Swim"].values())))
         return sum(total_points)
 
+    @staticmethod
+    def prepare_challenge_summary(points, total_points, athlete_details):
+        challenge_summary = "*ToK Challenge Summary*:\n\n"
+        challenge_summary += "Athlete Name: {}\n".format(athlete_details["name"])
+        challenge_summary += "Total Points: {}\n\n".format(total_points)
+        if points["base"]["Ride"]["distance"] > 0:
+            challenge_summary += "*Ride*:\n\n"
+            challenge_summary += "_Base Points_:\n"
+            challenge_summary += "10 km = 1 Point: {}".format(points["base"]["Ride"]["distance"])
+            challenge_summary += "100 meters = 1 Point: {}".format(points["base"]["Ride"]["elevation"])
+            challenge_summary += "1 activity = 1 Point: {}\n\n".format(points["base"]["Ride"]["activities"])
+            challenge_summary += "_Bonus Points_:\n"
+            challenge_summary += "Distance: {}\n".format(points["bonus"]["Ride"]["distance"])
+            challenge_summary += "Elevation: {}\n".format(points["bonus"]["Ride"]["elevation"])
+            challenge_summary += "3 consecutive 50s: {}\n".format(points["bonus"]["Ride"]["three_consecutive_fifties"])
+            challenge_summary += "5 consecutive 50s: {}\n".format(points["bonus"]["Ride"]["five_consecutive_fifties"])
+            challenge_summary += "2 consecutive 100s: {}\n".format(points["bonus"]["Ride"]["two_consecutive_hundreds"])
+            challenge_summary += "3 consecutive 100s: {}\n".format(
+                points["bonus"]["Ride"]["three_consecutive_hundreds"])
+            challenge_summary += "3000 km total: {}\n".format(points["bonus"]["Ride"]["total_distance"])
+            challenge_summary += "35000 meters total: {}\n\n".format(points["bonus"]["Ride"]["total_elevation"])
+        if points["base"]["Run"]["distance"] > 0:
+            challenge_summary += "*Run*:\n\n"
+            challenge_summary += "_Base Points_:\n"
+            challenge_summary += "1 km = 2 Points: {}".format(points["base"]["Run"]["distance"])
+            challenge_summary += "_Bonus Points_:\n"
+            challenge_summary += "Distance: {}\n\n".format(points["bonus"]["Run"]["distance"])
+        if points["base"]["Swim"]["distance"] > 0:
+            challenge_summary += "*Swim*:\n\n"
+            challenge_summary += "_Base Points_:\n"
+            challenge_summary += "500 meters = 2 Points: {}".format(points["base"]["Swim"]["distance"])
+            challenge_summary += "_Bonus Points_:\n"
+            challenge_summary += "Distance: {}".format(points["bonus"]["Swim"]["distance"])
+
+        return challenge_summary
+
+    def send_challenges_summary(self, athlete_details, challenges_summary, notify=False):
+        if notify and athlete_details['enable_activity_summary']:
+            self.telegram_resource.send_message(chat_id=athlete_details['chat_id'], message=challenges_summary)
+            logging.info("Sent challenge summary.")
+
     def tok_odd_challenges(self, athlete_details):
         logging.info("Calculating ToK odd challenges..")
         activities_calendar = ujson.loads(self.get_activities_calendar(athlete_details))
@@ -485,6 +528,11 @@ class ToKOddMonth:
         else:
             self.telegram_resource.send_message(
                 "Failed to update ToK odd challenges data for {name}".format(name=athlete_details['name']))
+
+        athlete_details_from_bot = self.athlete_resource.get_athlete_details(athlete_details['athlete_id'])
+        if athlete_details_from_bot:
+            challenge_summary = self.prepare_challenge_summary(points, total_points, athlete_details_from_bot)
+            self.send_challenges_summary(athlete_details_from_bot, challenge_summary, True)
 
     def consolidate_tok_odd_challenges_result(self):
         odd_challenge = list()
