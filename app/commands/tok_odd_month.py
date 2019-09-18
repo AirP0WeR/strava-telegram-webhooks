@@ -423,30 +423,29 @@ class ToKOddMonth:
         challenge_summary = "*ToK Challenge Summary*:\n\n"
         challenge_summary += "Athlete Name: {}\n".format(athlete_details["name"])
         challenge_summary += "Total Points: {}\n\n".format(total_points)
-        if points["base"]["Ride"]["distance"] > 0:
-            challenge_summary += "*Ride*:\n\n"
-            challenge_summary += "_Base Points_:\n\n"
-            challenge_summary += "Distance: {}\n".format(points["base"]["Ride"]["distance"])
-            challenge_summary += "Elevation: {}\n".format(points["base"]["Ride"]["elevation"])
-            challenge_summary += "Activities: {}\n\n".format(points["base"]["Ride"]["activities"])
-            challenge_summary += "_Bonus Points_:\n\n"
-            challenge_summary += "Distance slots: {}\n".format(points["bonus"]["Ride"]["distance"])
-            challenge_summary += "Elevation slots: {}\n".format(points["bonus"]["Ride"]["elevation"])
-            challenge_summary += "3 consecutive 50s: {}\n".format(points["bonus"]["Ride"]["three_consecutive_fifties"])
-            challenge_summary += "5 consecutive 50s: {}\n".format(points["bonus"]["Ride"]["five_consecutive_fifties"])
-            challenge_summary += "2 consecutive 100s: {}\n".format(points["bonus"]["Ride"]["two_consecutive_hundreds"])
-            challenge_summary += "3 consecutive 100s: {}\n".format(
-                points["bonus"]["Ride"]["three_consecutive_hundreds"])
-            challenge_summary += "3000 km total: {}\n".format(points["bonus"]["Ride"]["total_distance"])
-            challenge_summary += "35000 meters total: {}\n\n".format(points["bonus"]["Ride"]["total_elevation"])
-            # if points["base"]["Run"]["distance"] > 0:
-            challenge_summary += "*Run*:\n\n"
-            challenge_summary += "Base Points: {}\n".format(points["base"]["Run"]["distance"])
-            challenge_summary += "Bonus Points: {}\n\n".format(points["bonus"]["Run"]["distance"])
-            # if points["base"]["Swim"]["distance"] > 0:
-            challenge_summary += "*Swim*:\n\n"
-            challenge_summary += "Base Points: {}\n".format(points["base"]["Swim"]["distance"])
-            challenge_summary += "Base Points: {}".format(points["bonus"]["Swim"]["distance"])
+        # if points["base"]["Ride"]["distance"] > 0:
+        challenge_summary += "*Ride*:\n\n"
+        challenge_summary += "_Base Points_:\n\n"
+        challenge_summary += "Distance: {}\n".format(points["base"]["Ride"]["distance"])
+        challenge_summary += "Elevation: {}\n".format(points["base"]["Ride"]["elevation"])
+        challenge_summary += "Activities: {}\n\n".format(points["base"]["Ride"]["activities"])
+        challenge_summary += "_Bonus Points_:\n\n"
+        challenge_summary += "Distance slots: {}\n".format(points["bonus"]["Ride"]["distance"])
+        challenge_summary += "Elevation slots: {}\n".format(points["bonus"]["Ride"]["elevation"])
+        challenge_summary += "3 consecutive 50s: {}\n".format(points["bonus"]["Ride"]["three_consecutive_fifties"])
+        challenge_summary += "5 consecutive 50s: {}\n".format(points["bonus"]["Ride"]["five_consecutive_fifties"])
+        challenge_summary += "2 consecutive 100s: {}\n".format(points["bonus"]["Ride"]["two_consecutive_hundreds"])
+        challenge_summary += "3 consecutive 100s: {}\n".format(points["bonus"]["Ride"]["three_consecutive_hundreds"])
+        challenge_summary += "3000 km total: {}\n".format(points["bonus"]["Ride"]["total_distance"])
+        challenge_summary += "35000 meters total: {}\n\n".format(points["bonus"]["Ride"]["total_elevation"])
+        # if points["base"]["Run"]["distance"] > 0:
+        challenge_summary += "*Run*:\n\n"
+        challenge_summary += "Base Points: {}\n".format(points["base"]["Run"]["distance"])
+        challenge_summary += "Bonus Points: {}\n\n".format(points["bonus"]["Run"]["distance"])
+        # if points["base"]["Swim"]["distance"] > 0:
+        challenge_summary += "*Swim*:\n\n"
+        challenge_summary += "Base Points: {}\n".format(points["base"]["Swim"]["distance"])
+        challenge_summary += "Base Points: {}".format(points["bonus"]["Swim"]["distance"])
 
         return challenge_summary
 
