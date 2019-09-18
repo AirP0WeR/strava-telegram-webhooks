@@ -445,7 +445,7 @@ class ToKOddMonth:
         # if points["base"]["Swim"]["distance"] > 0:
         challenge_summary += "*Swim*:\n\n"
         challenge_summary += "Base Points: {}\n".format(points["base"]["Swim"]["distance"])
-        challenge_summary += "Base Points: {}".format(points["bonus"]["Swim"]["distance"])
+        challenge_summary += "Bonus Points: {}".format(points["bonus"]["Swim"]["distance"])
 
         return challenge_summary
 
