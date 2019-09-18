@@ -63,7 +63,7 @@ class Challenges:
         activity_id = event['object_id']
         activity = self.strava_resource.get_strava_activity(athlete_details['athlete_token'], activity_id)
         if activity:
-            if self.operations.supported_activities_for_challenges(activity):
+            if self.operations.supported_activities_for_tok_challenges(activity):
                 self.calculate_challenges_stats.main(athlete_details)
             else:
                 message = self.app_constants.MESSAGE_CHALLENGES_UNSUPPORTED_ACTIVITY.format(activity_type=activity.type)
