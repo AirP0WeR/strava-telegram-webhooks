@@ -439,16 +439,16 @@ class ToKOddMonth:
                 points["bonus"]["Ride"]["three_consecutive_hundreds"])
             challenge_summary += "3000 km total: {}\n".format(points["bonus"]["Ride"]["total_distance"])
             challenge_summary += "35000 meters total: {}\n\n".format(points["bonus"]["Ride"]["total_elevation"])
-        if points["base"]["Run"]["distance"] > 0:
+            # if points["base"]["Run"]["distance"] > 0:
             challenge_summary += "*Run*:\n\n"
-            challenge_summary += "_Base Points_:\n"
-            challenge_summary += "1 km = 2 Points: {}".format(points["base"]["Run"]["distance"])
-            challenge_summary += "_Bonus Points_:\n"
+            challenge_summary += "_Base Points_:\n\n"
+            challenge_summary += "Distance: {}\n".format(points["base"]["Run"]["distance"])
+            challenge_summary += "_Bonus Points_:\n\n"
             challenge_summary += "Distance: {}\n\n".format(points["bonus"]["Run"]["distance"])
-        if points["base"]["Swim"]["distance"] > 0:
+            # if points["base"]["Swim"]["distance"] > 0:
             challenge_summary += "*Swim*:\n\n"
-            challenge_summary += "_Base Points_:\n"
-            challenge_summary += "500 meters = 2 Points: {}".format(points["base"]["Swim"]["distance"])
+            challenge_summary += "_Base Points_:\n\n"
+            challenge_summary += "Distance: {}\n".format(points["base"]["Swim"]["distance"])
             challenge_summary += "_Bonus Points_:\n"
             challenge_summary += "Distance: {}".format(points["bonus"]["Swim"]["distance"])
 
