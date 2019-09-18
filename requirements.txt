@@ -6,8 +6,8 @@ gunicorn==19.9.0
 stravalib==0.10.2
 redis==3.3.8
 iron-cache==0.3.2
-scout-apm==2.4.0
+scout-apm==2.5.0
 pycryptodome==3.8.2
 ujson==1.35
 telegram==0.0.1
-python_telegram_bot==11.1.0
+python_telegram_bot==12.1.1
