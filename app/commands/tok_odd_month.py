@@ -163,7 +163,7 @@ class ToKOddMonth:
             if activities_calendar["calendar"][activity_day]["result"]:
                 for activity in activities_calendar["calendar"][activity_day]["data"]["activities"]:
                     if activity["type"] == "Ride":
-                        activity["activity_points"] = 2 if activity["distance"] >= 10000.0 else 0
+                        activity["activity_points"] = 1 if activity["distance"] >= 10000.0 else 0
                     elif activity["type"] == "Run":
                         activity["activity_points"] = 0
                     elif activity["type"] == "Swim":
@@ -369,7 +369,7 @@ class ToKOddMonth:
 
     def calculate_base_points(self, points, activities_calendar):
         points["base"]["Ride"]["distance"] = int(
-            self.operations.meters_to_kilometers(activities_calendar["total_distance"]["Ride"] / 10))
+            self.operations.meters_to_kilometers(activities_calendar["total_distance"]["Ride"] / 10)) * 2
         points["base"]["Run"]["distance"] = int(
             self.operations.meters_to_kilometers(activities_calendar["total_distance"]["Run"])) * 2
         points["base"]["Swim"]["distance"] = int(activities_calendar["total_distance"]["Swim"] / 500) * 2
