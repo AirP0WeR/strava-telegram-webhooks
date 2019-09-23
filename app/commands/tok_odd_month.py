@@ -350,11 +350,13 @@ class ToKOddMonth:
                 elif hundreds_streak == 3:
                     activities_calendar["consecutives"]["hundreds"]["three"] += 1
                     activities_calendar["consecutives"]["hundreds"]["two"] -= 1
+                    hundreds_streak = 0
                 elif fifties_streak == 3:
                     activities_calendar["consecutives"]["fifties"]["three"] += 1
                 elif fifties_streak == 5:
                     activities_calendar["consecutives"]["fifties"]["five"] += 1
                     activities_calendar["consecutives"]["fifties"]["three"] -= 1
+                    fifties_streak = 0
             else:
                 hundreds_streak = 0
                 fifties_streak = 0
