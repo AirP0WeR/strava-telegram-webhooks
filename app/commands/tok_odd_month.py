@@ -118,7 +118,8 @@ class ToKOddMonth:
                 activity_month = activity.start_date_local.month
                 activity_day = activity.start_date_local.day
                 activity_distance = float(activity.distance)
-                activity_elevation = float(activity.total_elevation_gain)
+                activity_elevation = float(activity.total_elevation_gain) if not self.operations.is_indoor(
+                    activity) else 0.0
                 activity_time = unithelper.timedelta_to_seconds(activity.moving_time)
                 calendar_key = "{activity_year}{activity_month}{activity_day}".format(activity_year=activity_year,
                                                                                       activity_month=activity_month,
