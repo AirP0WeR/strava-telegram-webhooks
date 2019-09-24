@@ -368,8 +368,8 @@ class ToKOddMonth:
         points["base"]["Ride"]["distance"] = int(
             self.operations.meters_to_kilometers(activities_calendar["total_distance"]["Ride"] / 10)) * 2
         points["base"]["Run"]["distance"] = int(
-            self.operations.meters_to_kilometers(activities_calendar["total_distance"]["Run"])) * 2
-        points["base"]["Swim"]["distance"] = int(activities_calendar["total_distance"]["Swim"] / 500) * 2
+            self.operations.meters_to_kilometers(activities_calendar["total_distance"]["Run"]))
+        points["base"]["Swim"]["distance"] = int(activities_calendar["total_distance"]["Swim"] / 500)
         points["base"]["Ride"]["elevation"] = int(activities_calendar["total_elevation"]["Ride"] / 100)
         for activity_day in activities_calendar["calendar"]:
             if activities_calendar["calendar"][activity_day]["result"]:
@@ -389,10 +389,10 @@ class ToKOddMonth:
                     if activity["type"] == "Ride":
                         points["bonus"]["Ride"]["distance"] += activity["distance_bonus_points"]
                         points["bonus"]["Ride"]["elevation"] += activity["elevation_bonus_points"]
-                    elif activity["type"] == "Run":
-                        points["bonus"]["Run"]["distance"] += activity["distance_bonus_points"]
-                    elif activity["type"] == "Swim":
-                        points["bonus"]["Swim"]["distance"] += activity["distance_bonus_points"]
+                    # elif activity["type"] == "Run":
+                    #     points["bonus"]["Run"]["distance"] += activity["distance_bonus_points"]
+                    # elif activity["type"] == "Swim":
+                    #     points["bonus"]["Swim"]["distance"] += activity["distance_bonus_points"]
         points["bonus"]["Ride"]["three_consecutive_hundreds"] = 100 * activities_calendar["consecutives"]["hundreds"][
             "three"]
         points["bonus"]["Ride"]["two_consecutive_hundreds"] = 50 * activities_calendar["consecutives"]["hundreds"][
@@ -438,11 +438,11 @@ class ToKOddMonth:
         # if points["base"]["Run"]["distance"] > 0:
         challenge_summary += "*Run*:\n\n"
         challenge_summary += "Base Points: {}\n".format(points["base"]["Run"]["distance"])
-        challenge_summary += "Bonus Points: {}\n\n".format(points["bonus"]["Run"]["distance"])
+        # challenge_summary += "Bonus Points: {}\n\n".format(points["bonus"]["Run"]["distance"])
         # if points["base"]["Swim"]["distance"] > 0:
         challenge_summary += "*Swim*:\n\n"
         challenge_summary += "Base Points: {}\n".format(points["base"]["Swim"]["distance"])
-        challenge_summary += "Bonus Points: {}".format(points["bonus"]["Swim"]["distance"])
+        # challenge_summary += "Bonus Points: {}".format(points["bonus"]["Swim"]["distance"])
 
         return challenge_summary
 
