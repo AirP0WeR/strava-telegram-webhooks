@@ -858,12 +858,13 @@ class CalculateChallengesStats:
                     total_distance += activity_distance
                     if activity_distance >= 150000.0:
                         is_eligible_for_distance_bonus = True
+        except ValueError as exception_message:
+            if str(exception_message) == "day is out of range for month":
+                logging.info("Future date")
+            else:
+                logging.info(exception_message)
         except Exception:
-            logging.error(traceback.format_exc())
-            self.telegram_resource.send_message(
-                "Could not get stats for {}.\nException: {}".format(athlete_details["athlete_id"],
-                                                                    traceback.format_exc()))
-            pass
+            logging.info(traceback.format_exc())
 
         logging.info(
             "Total distance: %s | 2 km rides : %s | 40 min rides: %s | Cycle to Work Calendar: %s Cycle to Work Distance Calendar: %s",
