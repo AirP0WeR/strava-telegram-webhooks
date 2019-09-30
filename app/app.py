@@ -281,7 +281,7 @@ def get_challenges_result(company, month, challenge):
     logging.info(
         "Received request to get challenges result. Company: %s | Month: %s | Challenge: %s", company, month,
         challenge)
-    challenges_api_hits.delay()
+    # challenges_api_hits.delay()
     result = challenges.get_challenges_result(company, month, challenge)
     if result:
         return jsonify(result), 200
